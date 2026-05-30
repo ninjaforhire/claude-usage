@@ -298,7 +298,7 @@ class TestDashboardHTTP(unittest.TestCase):
         for qs in ("?range=all", "?range=30d&models=claude-opus-4-7"):
             with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/{qs}") as resp:
                 self.assertEqual(resp.status, 200)
-                self.assertIn(b"Claude Code Usage Dashboard", resp.read())
+                self.assertIn(b"Claude Code Usage", resp.read())
 
     def test_api_data_with_query_string(self):
         # /api/data is fetched without query parameters today, but the route

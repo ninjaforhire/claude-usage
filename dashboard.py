@@ -133,7 +133,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0f1117;
+    --bg: #191A1B;
     --card: #1a1d27;
     --border: #2a2d3a;
     --text: #e2e8f0;
@@ -145,8 +145,30 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
 
+  /* VS Code-style scrollbars. The dashboard renders inside a webview iframe,
+     which doesn't inherit VS Code's --vscode-* theme variables, so we set the
+     scrollbar here: no arrows, grey thumb (#28292B, #8B8B8D on hover) over a
+     #121314 track, in a 21px gutter. Also fits the dark UI standalone. */
+  * { scrollbar-width: auto; scrollbar-color: #28292B #121314; }
+  ::-webkit-scrollbar { width: 21px; height: 21px; }
+  ::-webkit-scrollbar-track { background: #121314; }
+  ::-webkit-scrollbar-thumb { background-color: #28292B; border: 3px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: #8B8B8D; }
+  ::-webkit-scrollbar-thumb:active { background-color: #8B8B8D; }
+  ::-webkit-scrollbar-corner { background: #121314; }
+
   header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
   header h1 { font-size: 18px; font-weight: 600; color: var(--accent); }
+  header .header-title { display: flex; align-items: center; gap: 10px; }
+  /* The icon is a monochrome silhouette (white shape on transparent). We paint
+     it with the title color via a CSS mask + background-color, so it tracks
+     --accent dynamically — same value as `header h1`. */
+  header .header-icon {
+    width: 26px; height: 26px; flex-shrink: 0; display: block;
+    background-color: var(--accent);
+    -webkit-mask: url("icon.svg") no-repeat center / contain;
+    mask: url("icon.svg") no-repeat center / contain;
+  }
   header .meta { color: var(--muted); font-size: 12px; }
   #rescan-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 4px; }
   #rescan-btn:hover { color: var(--text); border-color: var(--accent); }
@@ -176,7 +198,11 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .stat-card .sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
 
   .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
-  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+  /* min-width:0 lets the grid column shrink below the canvas's intrinsic
+     pixel width; without it, narrowing the window can't narrow the container,
+     so Chart.js's ResizeObserver never fires until a data refresh rebuilds the
+     canvas. (Expanding already works — 1fr columns grow freely.) */
+  .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; min-width: 0; }
   .chart-card.wide { grid-column: 1 / -1; }
   .chart-card h2 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
   .chart-wrap { position: relative; height: 240px; }
@@ -212,6 +238,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .export-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
   .export-btn:hover { color: var(--text); border-color: var(--accent); }
   .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 24px; overflow-x: auto; }
+  .table-foot { display: flex; justify-content: flex-end; align-items: center; gap: 12px; margin-top: 12px; }
+  .table-foot:empty { margin-top: 0; }
+  .show-more-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+  .show-more-btn:hover { color: var(--text); border-color: var(--accent); }
+  .show-more-link { color: var(--blue); text-decoration: none; font-size: 12px; cursor: pointer; }
+  .show-more-link:hover { text-decoration: underline; }
 
   footer { border-top: 1px solid var(--border); padding: 20px 24px; margin-top: 8px; }
   .footer-content { max-width: 1400px; margin: 0 auto; }
@@ -225,7 +257,10 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 </head>
 <body>
 <header>
-  <h1>Claude Code Usage Dashboard</h1>
+  <div class="header-title">
+    <span class="header-icon" role="img" aria-label="Claude Usage"></span>
+    <h1>Claude Code Usage</h1>
+  </div>
   <div class="meta" id="meta">Loading...</div>
   <button id="rescan-btn" onclick="triggerRescan()" title="Rebuild the database from scratch by re-scanning all JSONL files. Use if data looks stale or costs seem wrong.">&#x21bb; Rescan</button>
 </header>
@@ -293,6 +328,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       </tr></thead>
       <tbody id="model-cost-body"></tbody>
     </table>
+    <div class="table-foot" id="model-cost-foot"></div>
   </div>
   <div class="table-card">
     <div class="section-header"><div class="section-title">Recent Sessions</div><button class="export-btn" onclick="exportSessionsCSV()" title="Export all filtered sessions to CSV">&#x2913; CSV</button></div>
@@ -310,6 +346,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       </tr></thead>
       <tbody id="sessions-body"></tbody>
     </table>
+    <div class="table-foot" id="sessions-foot"></div>
   </div>
   <div class="table-card">
     <div class="section-header"><div class="section-title">Cost by Project</div><button class="export-btn" onclick="exportProjectsCSV()" title="Export all projects to CSV">&#x2913; CSV</button></div>
@@ -324,6 +361,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       </tr></thead>
       <tbody id="project-cost-body"></tbody>
     </table>
+    <div class="table-foot" id="project-cost-foot"></div>
   </div>
   <div class="table-card">
     <div class="section-header"><div class="section-title">Cost by Project &amp; Branch</div><button class="export-btn" onclick="exportProjectBranchCSV()" title="Export project+branch breakdown to CSV">&#x2913; CSV</button></div>
@@ -339,12 +377,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       </tr></thead>
       <tbody id="project-branch-cost-body"></tbody>
     </table>
+    <div class="table-foot" id="project-branch-cost-foot"></div>
   </div>
 </div>
 
 <footer>
   <div class="footer-content">
-    <p>Cost estimates based on Anthropic API pricing (<a href="https://claude.com/pricing#api" target="_blank">claude.com/pricing#api</a>) as of April 2026. Only models containing <em>opus</em>, <em>sonnet</em>, or <em>haiku</em> in the name are included in cost calculations. Actual costs for Max/Pro subscribers differ from API pricing.</p>
+    <p>Cost estimates based on Anthropic API pricing (<a href="https://claude.com/pricing#api" target="_blank">claude.com/pricing#api</a>) as of May 2026. Only models containing <em>opus</em>, <em>sonnet</em>, or <em>haiku</em> in the name are included in cost calculations. Actual costs for Max/Pro subscribers differ from API pricing.</p>
     <p>
       GitHub: <a href="https://github.com/phuryn/claude-usage" target="_blank">https://github.com/phuryn/claude-usage</a>
       &nbsp;&middot;&nbsp;
@@ -376,9 +415,29 @@ let projectSortDir = 'desc';
 let branchSortCol = 'cost';
 let branchSortDir = 'desc';
 let lastFilteredSessions = [];
+let lastByModel = [];
 let lastByProject = [];
 let lastByProjectBranch = [];
 let sessionSortDir = 'desc';
+
+// Tables reveal rows in steps: 10 -> 25 -> 50, capped at 50 because rendering
+// more than that visibly hurts performance. Past 50 the footer offers a
+// "Download CSV to see more" link instead of another in-table step, plus a
+// Show less button that resets straight back to 10. Limits persist across
+// re-renders so sorting/filtering keeps the user's chosen depth (visible rows
+// always reflect the active sort).
+const TABLE_STEPS = [10, 25, 50];
+const TABLE_MAX = TABLE_STEPS[TABLE_STEPS.length - 1];  // hard cap on in-table rows
+function nextTableLimit(current, total) {
+  for (const s of TABLE_STEPS) {
+    if (s > current && s < total) return s;
+  }
+  return Math.min(total, TABLE_MAX);  // reveal everything, but never past the cap
+}
+let modelLimit = TABLE_STEPS[0];
+let sessionsLimit = TABLE_STEPS[0];
+let projectLimit = TABLE_STEPS[0];
+let branchLimit = TABLE_STEPS[0];
 let hourlyTZ = 'local';  // 'local' or 'utc'
 
 // ── Peak-hour config ───────────────────────────────────────────────────────
@@ -770,12 +829,13 @@ function applyFilter() {
   renderModelChart(byModel);
   renderProjectChart(byProject);
   lastFilteredSessions = sortSessions(filteredSessions);
+  lastByModel = byModel;
   lastByProject = sortProjects(byProject);
   lastByProjectBranch = sortProjectBranch(byProjectBranch);
-  renderSessionsTable(lastFilteredSessions.slice(0, 20));
-  renderModelCostTable(byModel);
-  renderProjectCostTable(lastByProject.slice(0, 20));
-  renderProjectBranchCostTable(lastByProjectBranch.slice(0, 20));
+  renderSessionsTable(lastFilteredSessions);
+  renderModelCostTable(lastByModel);
+  renderProjectCostTable(lastByProject);
+  renderProjectBranchCostTable(lastByProjectBranch);
 }
 
 // ── Renderers ──────────────────────────────────────────────────────────────
@@ -866,7 +926,7 @@ function renderHourlyChart(agg) {
       ]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false, resizeDelay: 150,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { labels: { color: '#8892a4', boxWidth: 12 } },
@@ -912,7 +972,7 @@ function renderDailyChart(daily) {
       ]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false, resizeDelay: 150,
       plugins: { legend: { labels: { color: '#8892a4', boxWidth: 12 } } },
       scales: {
         x: { ticks: { color: '#8892a4', maxTicksLimit: RANGE_TICKS[selectedRange] }, grid: { color: '#2a2d3a' } },
@@ -934,7 +994,7 @@ function renderModelChart(byModel) {
       datasets: [{ data: byModel.map(m => m.input + m.output), backgroundColor: MODEL_COLORS, borderWidth: 2, borderColor: '#1a1d27' }]
     },
     options: {
-      responsive: true, maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false, resizeDelay: 150,
       plugins: {
         legend: { position: 'bottom', labels: { color: '#8892a4', boxWidth: 12, font: { size: 11 } } },
         tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} tokens` } }
@@ -958,7 +1018,7 @@ function renderProjectChart(byProject) {
       ]
     },
     options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false, resizeDelay: 150,
       plugins: { legend: { labels: { color: '#8892a4', boxWidth: 12 } } },
       scales: {
         x: { ticks: { color: '#8892a4', callback: v => fmt(v) }, grid: { color: '#2a2d3a' } },
@@ -968,8 +1028,52 @@ function renderProjectChart(byProject) {
   });
 }
 
+// Fills a table card's footer with the row-reveal control. Three states:
+//   - more rows fit under the cap        -> "Show more" (plus "Show less" once expanded)
+//   - cap reached but more records exist -> "Download CSV to see all (N)" + "Show less"
+//   - every row is already visible       -> "Show less"
+// "Show less" is hidden at the initial step (nothing to collapse yet). Renders
+// nothing when the whole table fits in the first step. Carets: more = down (▾),
+// less = up (▴).
+function renderTableToggle(footId, total, limit, lessName, moreName, csvName) {
+  const foot = document.getElementById(footId);
+  if (!foot) return;
+  if (total <= TABLE_STEPS[0]) { foot.innerHTML = ''; return; }
+  const less = '<button class="show-more-btn" onclick="' + lessName + '()">Show less ▴</button>';
+  const more = '<button class="show-more-btn" onclick="' + moreName + '()">Show more ▾</button>';
+  let html;
+  if (limit < total && limit < TABLE_MAX) {
+    // more rows fit under the cap; Show less only once we're past the first step
+    html = (limit > TABLE_STEPS[0] ? less : '') + more;
+  } else if (limit < total) {           // cap reached, remaining rows only via CSV
+    html = '<a class="show-more-link" href="#" onclick="' + csvName + '(); return false;">Download CSV to see all (' + total + ')</a>' + less;
+  } else {                              // everything already visible
+    html = less;
+  }
+  foot.innerHTML = html;
+}
+
+// After collapsing a table, bring its top back into view — the user may have
+// scrolled down through the expanded rows.
+function scrollTableToTop(bodyId) {
+  const card = document.getElementById(bodyId)?.closest('.table-card');
+  if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// "Show more" advances one step (capped at TABLE_MAX); "Show less" resets to 10
+// and scrolls back to the top of that table.
+function moreModelRows()   { modelLimit    = nextTableLimit(modelLimit,    lastByModel.length);        renderModelCostTable(lastByModel); }
+function lessModelRows()   { modelLimit    = TABLE_STEPS[0]; renderModelCostTable(lastByModel);            scrollTableToTop('model-cost-body'); }
+function moreSessionRows() { sessionsLimit = nextTableLimit(sessionsLimit, lastFilteredSessions.length); renderSessionsTable(lastFilteredSessions); }
+function lessSessionRows() { sessionsLimit = TABLE_STEPS[0]; renderSessionsTable(lastFilteredSessions);    scrollTableToTop('sessions-body'); }
+function moreProjectRows() { projectLimit  = nextTableLimit(projectLimit,  lastByProject.length);       renderProjectCostTable(lastByProject); }
+function lessProjectRows() { projectLimit  = TABLE_STEPS[0]; renderProjectCostTable(lastByProject);        scrollTableToTop('project-cost-body'); }
+function moreBranchRows()  { branchLimit   = nextTableLimit(branchLimit,   lastByProjectBranch.length); renderProjectBranchCostTable(lastByProjectBranch); }
+function lessBranchRows()  { branchLimit   = TABLE_STEPS[0]; renderProjectBranchCostTable(lastByProjectBranch); scrollTableToTop('project-branch-cost-body'); }
+
 function renderSessionsTable(sessions) {
-  document.getElementById('sessions-body').innerHTML = sessions.map(s => {
+  const shown = sessions.slice(0, sessionsLimit);
+  document.getElementById('sessions-body').innerHTML = shown.map(s => {
     const cost = calcCost(s.model, s.input, s.output, s.cache_read, s.cache_creation);
     const costCell = isBillable(s.model)
       ? `<td class="cost">${fmtCost(cost)}</td>`
@@ -986,6 +1090,7 @@ function renderSessionsTable(sessions) {
       ${costCell}
     </tr>`;
   }).join('');
+  renderTableToggle('sessions-foot', sessions.length, sessionsLimit, 'lessSessionRows', 'moreSessionRows', 'exportSessionsCSV');
 }
 
 function setModelSort(col) {
@@ -1022,7 +1127,9 @@ function sortModels(byModel) {
 }
 
 function renderModelCostTable(byModel) {
-  document.getElementById('model-cost-body').innerHTML = sortModels(byModel).map(m => {
+  const sorted = sortModels(byModel);
+  const shown = sorted.slice(0, modelLimit);
+  document.getElementById('model-cost-body').innerHTML = shown.map(m => {
     const cost = calcCost(m.model, m.input, m.output, m.cache_read, m.cache_creation);
     const costCell = isBillable(m.model)
       ? `<td class="cost">${fmtCost(cost)}</td>`
@@ -1037,6 +1144,7 @@ function renderModelCostTable(byModel) {
       ${costCell}
     </tr>`;
   }).join('');
+  renderTableToggle('model-cost-foot', sorted.length, modelLimit, 'lessModelRows', 'moreModelRows', 'exportModelCSV');
 }
 
 // ── Project cost table sorting ────────────────────────────────────────────
@@ -1068,7 +1176,9 @@ function sortProjects(byProject) {
 }
 
 function renderProjectCostTable(byProject) {
-  document.getElementById('project-cost-body').innerHTML = sortProjects(byProject).map(p => {
+  const sorted = sortProjects(byProject);
+  const shown = sorted.slice(0, projectLimit);
+  document.getElementById('project-cost-body').innerHTML = shown.map(p => {
     return `<tr>
       <td>${esc(p.project)}</td>
       <td class="num">${p.sessions}</td>
@@ -1078,6 +1188,7 @@ function renderProjectCostTable(byProject) {
       <td class="cost">${fmtCost(p.cost)}</td>
     </tr>`;
   }).join('');
+  renderTableToggle('project-cost-foot', sorted.length, projectLimit, 'lessProjectRows', 'moreProjectRows', 'exportProjectsCSV');
 }
 
 // ── Project+Branch cost table sorting ────────────────────────────────────
@@ -1113,7 +1224,9 @@ function sortProjectBranch(rows) {
 }
 
 function renderProjectBranchCostTable(rows) {
-  document.getElementById('project-branch-cost-body').innerHTML = sortProjectBranch(rows).map(pb => {
+  const sorted = sortProjectBranch(rows);
+  const shown = sorted.slice(0, branchLimit);
+  document.getElementById('project-branch-cost-body').innerHTML = shown.map(pb => {
     return `<tr>
       <td>${esc(pb.project)}</td>
       <td class="muted" style="font-family:monospace">${esc(pb.branch || '\u2014')}</td>
@@ -1124,6 +1237,7 @@ function renderProjectBranchCostTable(rows) {
       <td class="cost">${fmtCost(pb.cost)}</td>
     </tr>`;
   }).join('');
+  renderTableToggle('project-branch-cost-foot', sorted.length, branchLimit, 'lessBranchRows', 'moreBranchRows', 'exportProjectBranchCSV');
 }
 
 // ── CSV Export ────────────────────────────────────────────────────────────
@@ -1152,6 +1266,15 @@ function downloadCSV(reportType, header, rows) {
   a.download = reportType + '_' + csvTimestamp() + '.csv';
   a.click();
   URL.revokeObjectURL(a.href);
+}
+
+function exportModelCSV() {
+  const header = ['Model', 'Turns', 'Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
+  const rows = sortModels(lastByModel).map(m => {
+    const cost = calcCost(m.model, m.input, m.output, m.cache_read, m.cache_creation);
+    return [m.model, m.turns, m.input, m.output, m.cache_read, m.cache_creation, cost.toFixed(4)];
+  });
+  downloadCSV('cost_by_model', header, rows);
 }
 
 function exportSessionsCSV() {
@@ -1251,6 +1374,27 @@ scheduleAutoRefresh();
 """
 
 
+def find_icon_file():
+    """Locate the extension's icon.svg across both run contexts.
+
+    - Bundled in the .vsix: this file lives at ``python/dashboard.py`` and the
+      icon is a sibling-of-parent at ``../resources/icon.svg``.
+    - Standalone repo (``python cli.py dashboard``): this file is the repo-root
+      ``dashboard.py`` and the icon is at ``vscode-extension/resources/icon.svg``.
+
+    Returns the first existing path, or ``None`` so the /icon.svg route can 404
+    gracefully (the header ``<img>`` then just renders empty alt text).
+    """
+    here = Path(__file__).resolve().parent
+    for candidate in (
+        here.parent / "resources" / "icon.svg",
+        here / "vscode-extension" / "resources" / "icon.svg",
+    ):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
 class DashboardHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
@@ -1272,6 +1416,20 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        elif path == "/icon.svg":
+            icon = find_icon_file()
+            if icon is None:
+                self.send_response(404)
+                self.end_headers()
+                return
+            body = icon.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "image/svg+xml")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "max-age=86400")
             self.end_headers()
             self.wfile.write(body)
 

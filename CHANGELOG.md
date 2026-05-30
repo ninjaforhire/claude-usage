@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.2.2 — 2026-05-30
+
+### Dashboard
+
+- Show the gauge icon to the left of the header title, tinted to match the title color (`var(--accent)`) via a CSS `mask` so it tracks the accent dynamically. Served from a new `GET /icon.svg` route that locates `resources/icon.svg` in both run contexts (bundled `.vsix` — `python/dashboard.py` → `../resources/icon.svg`; and standalone repo — `vscode-extension/resources/icon.svg`).
+- Renamed the header from "Claude Code Usage Dashboard" to "Claude Code Usage".
+- Fixed charts not resizing when the window is narrowed (they only adjusted on the next data refresh). Grid cards now set `min-width: 0` so the container can shrink below the canvas's intrinsic width, letting Chart.js's `ResizeObserver` fire live. Widening already worked.
+- Debounced chart resizing with Chart.js `resizeDelay` (150 ms) so dragging the window narrower no longer re-renders the canvases on every tick.
+- Cost by Model, Recent Sessions, Cost by Project, and Cost by Project & Branch tables now reveal rows in steps — 10 → 25 → 50 — with `Show more ▾` / `Show less ▴` controls at the bottom right (`Show less` appears only once a table is expanded past the first step). Rendering is capped at 50 rows for performance; past that the footer shows a "Download CSV to see all (N)" link (N = total rows) that triggers the same export as the table's CSV button, alongside Show less (which resets to 10). Sorting re-applies to the full data set, so the visible rows always reflect the active sort; the control is hidden when a table has 10 or fewer rows. Clicking Show less also scrolls back to the top of that table.
+- Styled scrollbars to match the VS Code dark UI (no arrows) via `::-webkit-scrollbar`: a 21px-wide gutter with a `#28292B` thumb (`#8B8B8D` on hover) over a `#121314` track. The dashboard's webview iframe doesn't inherit VS Code's `--vscode-*` theme variables, so the colors are set directly.
+- Added a CSV export for the Cost by Model table (`exportModelCSV`), used by its "Download CSV to see more" link.
+- Adjusted the page background to `#191A1B`.
+- Updated the pricing footnote date to "as of May 2026".
+
 ## v1.2.1 — 2026-05-29
 
 ### Extension
