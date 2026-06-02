@@ -56,9 +56,16 @@ def classify_daemon(d):
         reasons.append(f"last exit code {le}")
 
     # Cost-tier daemon with no measured activity in 30 days.
+    # Only a real, non-mixed cwd_prefix yields an attributable measurement. A
+    # null/mixed prefix means the daemon's claude -p cost lands in the shared
+    # Desktop/_Code bucket (e.g. code-council, audit-templates) and is not
+    # attributable, so zero measured turns is NOT evidence of death. Liveness
+    # for those is a separate signal (last_run), not cost attribution.
+    prefix = d.get("cwd_prefix")
+    attributable = prefix not in (None, "", registry_mod.TODO) and not d.get("cost_mixed")
     if (
         d.get("cost_tier") not in (None, "none", registry_mod.TODO)
-        and not d.get("cost_mixed")
+        and attributable
         and (d.get("turns_30d") or 0) == 0
         and expected != "disabled"
     ):
