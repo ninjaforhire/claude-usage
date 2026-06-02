@@ -357,6 +357,57 @@ def cmd_stats():
     conn.close()
 
 
+def cmd_daemons(prompt=False, labels=None, out=None):
+    import classify
+    report = classify.build_report()
+    c = report["counts"]
+
+    if prompt:
+        import promptgen
+        report_daemons = report["daemons"]
+        if labels:
+            wanted = set(labels)
+            selected = [d for d in report_daemons if d["label"] in wanted]
+        else:
+            selected = [d for d in report_daemons if d["bucket"] in ("WASTE", "UNKNOWN")]
+            selected += report["rogues"]
+        text = promptgen.build_prompt(selected)
+        if out:
+            Path(out).write_text(text)
+            print(f"Wrote repair prompt ({len(selected)} items) to {out}")
+        else:
+            print(text)
+        return
+
+    print()
+    hr("=")
+    print("  Daemon Health + Waste")
+    hr("=")
+    print(f"  HEALTHY={c['HEALTHY']}  WASTE={c['WASTE']}  "
+          f"UNKNOWN={c['UNKNOWN']}  ROGUE={c['ROGUE']}")
+    print(f"  Registry: {report['registry_path']}")
+    hr()
+
+    flagged = [d for d in report["daemons"] if d["bucket"] in ("WASTE",)]
+    if flagged:
+        print("  WASTE:")
+        for d in flagged:
+            print(f"    {d['label']}")
+            print(f"      why: {'; '.join(d['reasons'])}")
+            print(f"      fix: {d['remediation']}")
+    if report["rogues"]:
+        print("  ROGUE processes:")
+        for r in report["rogues"]:
+            print(f"    pid {r['pid']}: {'; '.join(r['reasons'])}")
+            print(f"      fix: {r['remediation']}")
+    unknown = sum(1 for d in report["daemons"] if d["bucket"] == "UNKNOWN")
+    if unknown:
+        print(f"  {unknown} UNKNOWN daemons need annotation in the registry "
+              f"(run seed_manifest.py, then edit daemons.json).")
+    hr("=")
+    print()
+
+
 def cmd_dashboard(projects_dir=None, host=None, port=None):
     import webbrowser
     import threading
@@ -392,6 +443,9 @@ Usage:
   python cli.py stats                        Show all-time statistics
   python cli.py dashboard [--projects-dir PATH] [--host HOST] [--port PORT]
                                                  Scan + start dashboard
+  python cli.py daemons [--prompt] [--out FILE] [LABEL ...]
+                                                 Daemon health/waste snapshot;
+                                                 --prompt emits a repair prompt
 """
 
 COMMANDS = {
@@ -400,6 +454,7 @@ COMMANDS = {
     "week": cmd_week,
     "stats": cmd_stats,
     "dashboard": cmd_dashboard,
+    "daemons": cmd_daemons,
 }
 
 def parse_named_arg(args, flag):
@@ -426,5 +481,18 @@ if __name__ == "__main__":
         )
     elif command == "scan" and projects_dir:
         cmd_scan(projects_dir=projects_dir)
+    elif command == "daemons":
+        out = parse_named_arg(rest, "--out")
+        labels = []
+        skip_next = False
+        for i, a in enumerate(rest):
+            if skip_next:
+                skip_next = False
+                continue
+            if a == "--out":
+                skip_next = True
+            elif not a.startswith("--"):
+                labels.append(a)
+        cmd_daemons(prompt="--prompt" in rest, labels=labels or None, out=out)
     else:
         COMMANDS[command]()

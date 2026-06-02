@@ -223,6 +223,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <body>
 <header>
   <h1>Claude Code Usage Dashboard</h1>
+  <a href="/daemons" style="color:#5b9bd5;text-decoration:none;font-size:13px;margin-left:8px">Daemons &amp; Waste &rarr;</a>
   <div class="meta" id="meta">Loading...</div>
   <button id="rescan-btn" onclick="triggerRescan()" title="Rebuild the database from scratch by re-scanning all JSONL files. Use if data looks stale or costs seem wrong.">&#x21bb; Rescan</button>
 </header>
@@ -742,7 +743,7 @@ function applyFilter() {
 
   // Hourly aggregation (filtered by model + range, then bucketed by UTC hour)
   const hourlySrc = (rawData.hourly_by_model || []).filter(r =>
-    selectedModels.has(r.model) && (!cutoff || r.day >= cutoff)
+    selectedModels.has(r.model) && (!start || r.day >= start)
   );
   const hourlyAgg = aggregateHourly(hourlySrc, hourlyTZ);
 
@@ -1241,6 +1242,14 @@ class DashboardHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
+    def _send_json(self, data):
+        body = json.dumps(data).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         if self.path in ("/", "/index.html"):
             self.send_response(200)
@@ -1249,13 +1258,18 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.wfile.write(HTML_TEMPLATE.encode("utf-8"))
 
         elif self.path == "/api/data":
-            data = get_dashboard_data()
-            body = json.dumps(data).encode("utf-8")
+            self._send_json(get_dashboard_data())
+
+        elif self.path == "/daemons":
+            from daemon_page import PAGE
             self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
-            self.wfile.write(body)
+            self.wfile.write(PAGE.encode("utf-8"))
+
+        elif self.path == "/api/daemons":
+            import classify
+            self._send_json(classify.build_report())
 
         else:
             self.send_response(404)
@@ -1282,6 +1296,21 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+
+        elif self.path == "/api/prompt":
+            import classify
+            import promptgen
+
+            length = int(self.headers.get("Content-Length", 0))
+            payload = json.loads(self.rfile.read(length) or "{}")
+            want_labels = set(payload.get("labels", []))
+            want_pids = set(payload.get("pids", []))
+
+            report = classify.build_report()
+            selected = [d for d in report["daemons"] if d["label"] in want_labels]
+            selected += [r for r in report["rogues"] if r["pid"] in want_pids]
+            self._send_json({"prompt": promptgen.build_prompt(selected)})
+
         else:
             self.send_response(404)
             self.end_headers()
