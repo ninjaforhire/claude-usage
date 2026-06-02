@@ -33,7 +33,7 @@ MIRROR_REGISTRY = Path.home() / ".claude" / "daemon-registry" / "daemons.json"
 # Marker left by seed_manifest for fields the user still needs to fill in.
 TODO = "TODO"
 
-ANNOTATION_FIELDS = ("purpose", "owner", "expected_state", "cost_tier", "cwd_prefix", "eol_date")
+ANNOTATION_FIELDS = ("purpose", "owner", "expected_state", "cost_tier", "cwd_prefix", "eol_date", "ok_exit_codes")
 
 
 def registry_path():

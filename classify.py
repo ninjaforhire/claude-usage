@@ -48,8 +48,11 @@ def classify_daemon(d):
         reasons.append("declared disabled but currently loaded")
 
     # Repeated failures (nonzero last exit on a loaded job).
+    # ok_exit_codes lets a daemon declare nonzero exits that are healthy
+    # signals (e.g. mission-watchdog exits 2 when it fires alerts).
     le = d.get("last_exit")
-    if le not in (None, 0):
+    ok_exits = d.get("ok_exit_codes") or []
+    if le not in (None, 0) and le not in ok_exits:
         reasons.append(f"last exit code {le}")
 
     # Cost-tier daemon with no measured activity in 30 days.
