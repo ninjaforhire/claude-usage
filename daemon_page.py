@@ -51,6 +51,8 @@ PAGE = r"""<!DOCTYPE html>
   .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
   .reasons { color:var(--muted); font-size:12px; }
   .cmd { color:var(--waste); }
+  .fixbtn { margin-top:6px; padding:3px 9px; font-size:12px; }
+  .fixbtn:hover { border-color:var(--healthy); color:var(--healthy); }
   .cart { position:fixed; bottom:0; left:0; right:0; background:#10141c;
           border-top:1px solid var(--border); padding:12px 24px; display:flex;
           align-items:center; gap:14px; }
@@ -171,6 +173,8 @@ function render(){
     const cost = x.cost_30d!=null ? ('$'+x.cost_30d.toFixed(2)+(x.cost_mixed?'*':'')) : '';
     const why = (x.reasons||[]).join('; ');
     const cmd = x.remediation ? `<div class="cmd mono">${esc(x.remediation)}</div>` : '';
+    const fix = (x.label!=null && x.bucket!=='HEALTHY')
+      ? `<button class="btn fixbtn" data-label="${esc(x.label)}" onclick="copyFix(this)">Fix &rarr;</button>` : '';
     return `<tr>
       <td><input type="checkbox" ${checked} onchange="toggle('${k}',this.checked)"></td>
       <td>${label}</td>
@@ -179,7 +183,7 @@ function render(){
       <td>${esc(x.schedule||'')}</td>
       <td>${x.last_exit==null?'':esc(x.last_exit)}</td>
       <td>${esc(cost)}</td>
-      <td><div class="reasons">${esc(why)}</div>${cmd}</td>
+      <td><div class="reasons">${esc(why)}</div>${cmd}${fix}</td>
     </tr>`;
   }).join('');
   document.getElementById('row-hint').textContent =
@@ -187,6 +191,14 @@ function render(){
   updateCart();
 }
 
+function copyFix(btn){
+  const label = btn.getAttribute('data-label');
+  const cmd = '/fix-daemon ' + label;
+  const done = ()=>{ const o=btn.innerHTML; btn.innerHTML='Copied &check;'; setTimeout(()=>btn.innerHTML=o,1300); };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(cmd).then(done).catch(()=>prompt('Copy this command into Claude:', cmd));
+  } else { prompt('Copy this command into Claude:', cmd); }
+}
 function toggle(k,on){ on?selected.add(k):selected.delete(k); updateCart(); }
 function selectAll(){ items().forEach(x=>selected.add(x._key)); render(); }
 function deselectAll(){ selected.clear(); render(); }
