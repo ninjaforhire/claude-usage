@@ -38,6 +38,21 @@ Captures usage from:
 
 No `pip install`, no virtual environment, no build step.
 
+### macOS / Linux (Homebrew)
+```
+brew install --formula https://raw.githubusercontent.com/phuryn/claude-usage/main/Formula/claude-usage.rb
+claude-usage dashboard
+```
+
+After install, the `claude-usage` command is on your `PATH` and accepts the same subcommands as `python cli.py` (`scan`, `today`, `stats`, `dashboard`).
+
+### macOS / Linux (clone)
+```
+git clone https://github.com/phuryn/claude-usage
+cd claude-usage
+python3 cli.py dashboard
+```
+
 ### Windows
 ```
 git clone https://github.com/phuryn/claude-usage
@@ -45,18 +60,12 @@ cd claude-usage
 python cli.py dashboard
 ```
 
-### macOS / Linux
-```
-git clone https://github.com/phuryn/claude-usage
-cd claude-usage
-python3 cli.py dashboard
-```
 
 ---
 
 ## Usage
 
-> On macOS/Linux, use `python3` instead of `python` in all commands below.
+> On macOS/Linux, use `python3` instead of `python` in all commands below. If you installed via Homebrew, replace `python cli.py` with `claude-usage`.
 
 ```
 # Scan JSONL files and populate the database (~/.claude/usage.db)
@@ -119,6 +128,21 @@ Costs are calculated using **Anthropic API pricing as of April 2026** ([claude.c
 
 ---
 
+## VS Code extension
+
+If you'd rather see the dashboard inside your editor, the same UI is available as a VS Code extension. Same data, same charts, embedded as an activity-bar sidebar.
+
+[**Install from the VS Code Marketplace →**](https://marketplace.visualstudio.com/items?itemName=PawelHuryn.claude-usage-phuryn)
+
+![VS Code extension — daily usage](docs/usage1.png)
+![VS Code extension — hourly + projects](docs/usage2.png)
+
+The Python sources are bundled inside the `.vsix`, so the only end-user requirement is **Python 3.8+ on your `PATH`**. After install, click the gauge icon in the activity bar — the server spawns automatically and the dashboard renders in the sidebar.
+
+See [vscode-extension/README.md](vscode-extension/README.md) for settings, commands, discovery order, and local-install instructions.
+
+---
+
 ## Files
 
 | File | Purpose |
@@ -126,3 +150,5 @@ Costs are calculated using **Anthropic API pricing as of April 2026** ([claude.c
 | `scanner.py` | Parses JSONL transcripts, writes to `~/.claude/usage.db` |
 | `dashboard.py` | HTTP server + single-page HTML/JS dashboard |
 | `cli.py` | `scan`, `today`, `stats`, `dashboard` commands |
+| `Formula/claude-usage.rb` | Homebrew formula — install with `brew install --formula <raw-url>` |
+| `vscode-extension/` | VS Code extension — embeds the dashboard inside VS Code |
