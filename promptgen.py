@@ -15,7 +15,7 @@ OPUS_LABEL_HINTS = ("watchdog", "self-repair", "pipeline", "council", "jimbo", "
 
 
 def _is_rogue(f):
-    return "pid" in f and "label" not in f
+    return f.get("pid") is not None and not f.get("label")
 
 
 def recommend_model(finding):
