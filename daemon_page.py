@@ -209,11 +209,18 @@ function setView(v){ view=v; document.querySelectorAll('#view-seg button').forEa
 function sortBy(c){ if(sortCol===c) sortDir=sortDir==='asc'?'desc':'asc'; else {sortCol=c; sortDir='asc';} render(); }
 function updateCart(){ document.getElementById('cart-n').textContent = selected.size; }
 
+function findingByKey(){
+  const m = {};
+  (report.daemons||[]).forEach(d=>{ m['d:'+d.label]=d; });
+  (report.rogues||[]).forEach(r=>{ m['r:'+r.pid]=r; });
+  return m;
+}
 async function genPrompt(){
-  const labels=[], pids=[];
-  selected.forEach(k=>{ if(k.startsWith('d:')) labels.push(k.slice(2)); else pids.push(parseInt(k.slice(2))); });
+  const m = findingByKey();
+  const findings = [];
+  selected.forEach(k=>{ if(m[k]) findings.push(m[k]); });
   const r = await fetch('/api/prompt', {method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({labels, pids})});
+    body: JSON.stringify({findings})});
   const d = await r.json(); return d.prompt||'';
 }
 async function copyPrompt(){
