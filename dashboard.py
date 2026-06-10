@@ -1586,6 +1586,17 @@ def serve(host=None, port=None):
     port = port or int(os.environ.get("PORT", "8080"))
     server = ThreadingHTTPServer((host, port), DashboardHandler)
     print(f"Dashboard running at http://{host}:{port}")
+
+    # Background freshness watcher: the dashboard is request-driven, so without
+    # this a daemon could go stale for hours with nobody looking. Additive and
+    # guarded — a watcher failure must never stop the dashboard from serving.
+    try:
+        import freshness_watch
+        freshness_watch.start_watcher()
+        print("Freshness watcher started (15m interval).")
+    except Exception as exc:  # noqa: BLE001
+        print(f"Freshness watcher not started ({exc}).")
+
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()

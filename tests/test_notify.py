@@ -1,0 +1,42 @@
+"""Behavior tests for notify.alert — fire-and-forget daemon alerting."""
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+import notify
+
+
+def test_alert_hits_both_sinks(monkeypatch):
+    calls = {}
+    monkeypatch.setattr(notify, "_post_jimbo", lambda payload, **k: calls.setdefault("payload", payload) or True)
+    monkeypatch.setattr(notify, "_osascript_notify", lambda title, msg: calls.setdefault("osa", (title, msg)) or True)
+
+    result = notify.alert("com.test.job", ["heartbeat stale (4h old)"], ts="2026-06-10T00:00:00Z")
+
+    assert result == {"jimbo": True, "osascript": True}
+    assert calls["payload"]["label"] == "com.test.job"
+    assert "stale" in calls["payload"]["message"]
+    assert calls["osa"][0].endswith("com.test.job")
+
+
+def test_alert_never_raises_when_both_fail(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("down")
+
+    monkeypatch.setattr(notify, "_post_jimbo", boom)
+    monkeypatch.setattr(notify, "_osascript_notify", boom)
+
+    # alert() must swallow everything — alerting can never crash the watcher.
+    result = notify.alert("com.test.job", ["x"])
+    assert result["jimbo"] is False
+    assert result["osascript"] is False
+
+
+def test_post_jimbo_swallows_network_error(monkeypatch):
+    def boom(*a, **k):
+        raise OSError("connection refused")
+
+    monkeypatch.setattr(notify.urllib.request, "urlopen", boom)
+    assert notify._post_jimbo({"x": 1}) is False
