@@ -11,7 +11,9 @@ Buckets:
 Report-only: every finding carries the exact command, but nothing is executed.
 """
 
+import json
 import os
+import time
 from datetime import date
 
 import daemons as daemons_mod
@@ -70,6 +72,32 @@ def classify_daemon(d):
         and expected != "disabled"
     ):
         reasons.append("no usage.db activity in 30d (possible dead spend)")
+
+    # Heartbeat freshness. A daemon that writes a per-run receipt is stale when
+    # the file is missing, older than its freshness budget, or records a failed
+    # run. This catches the silent-no-op class (exits 0 but did nothing) that
+    # stdout/stderr-mtime liveness misses — the failure mode behind the
+    # 2026-06-09 notion-sync outage. Generic: any daemon that declares a
+    # heartbeat_file gets freshness coverage for free.
+    hb = d.get("heartbeat_file")
+    if hb and expected in ("enabled", "scheduled"):
+        max_h = d.get("freshness_max_hours") or 6
+        try:
+            age_h = (time.time() - os.path.getmtime(hb)) / 3600.0
+        except OSError:
+            reasons.append("heartbeat missing")
+        else:
+            if age_h > max_h:
+                reasons.append("heartbeat stale (%dh old)" % round(age_h))
+            else:
+                try:
+                    with open(hb) as fh:
+                        rec = json.load(fh)
+                except (OSError, ValueError):
+                    reasons.append("heartbeat unreadable")
+                else:
+                    if rec.get("ok") is False:
+                        reasons.append("last run failed: %s" % rec.get("error"))
 
     if reasons:
         return ("WASTE", reasons, _bootout_cmd(d["label"]))

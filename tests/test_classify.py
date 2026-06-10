@@ -95,3 +95,52 @@ def test_future_eol_is_healthy():
 def test_bad_eol_date_ignored():
     bucket, reasons, cmd = classify_daemon(_daemon(eol_date="not-a-date"))
     assert bucket == "HEALTHY"
+
+
+# ── Heartbeat freshness (generic per-run receipt check) ──────────────────────
+import json as _json
+import os as _os
+import time as _time
+
+
+def _heartbeat(tmp_path, ok=True, error=None, age_hours=0.0):
+    p = tmp_path / "hb.json"
+    p.write_text(_json.dumps({"ts": "2026-06-09T00:00:00+00:00", "ok": ok, "error": error}))
+    if age_hours:
+        old = _time.time() - age_hours * 3600
+        _os.utime(p, (old, old))
+    return str(p)
+
+
+def test_fresh_ok_heartbeat_is_healthy(tmp_path):
+    hb = _heartbeat(tmp_path, ok=True)
+    bucket, reasons, cmd = classify_daemon(_daemon(heartbeat_file=hb, freshness_max_hours=3))
+    assert bucket == "HEALTHY"
+    assert reasons == []
+
+
+def test_missing_heartbeat_is_waste(tmp_path):
+    bucket, reasons, cmd = classify_daemon(
+        _daemon(heartbeat_file=str(tmp_path / "nope.json"), freshness_max_hours=3)
+    )
+    assert bucket == "WASTE"
+    assert any("heartbeat missing" in r for r in reasons)
+
+
+def test_stale_heartbeat_is_waste(tmp_path):
+    hb = _heartbeat(tmp_path, ok=True, age_hours=5)
+    bucket, reasons, cmd = classify_daemon(_daemon(heartbeat_file=hb, freshness_max_hours=3))
+    assert bucket == "WASTE"
+    assert any("stale" in r for r in reasons)
+
+
+def test_failed_run_heartbeat_is_waste(tmp_path):
+    hb = _heartbeat(tmp_path, ok=False, error="notion 500")
+    bucket, reasons, cmd = classify_daemon(_daemon(heartbeat_file=hb, freshness_max_hours=3))
+    assert bucket == "WASTE"
+    assert any("last run failed" in r for r in reasons)
+
+
+def test_no_heartbeat_configured_is_unaffected():
+    bucket, reasons, cmd = classify_daemon(_daemon())
+    assert bucket == "HEALTHY"
