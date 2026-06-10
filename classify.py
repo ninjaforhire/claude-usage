@@ -81,7 +81,12 @@ def classify_daemon(d):
     # heartbeat_file gets freshness coverage for free.
     hb = d.get("heartbeat_file")
     if hb and expected in ("enabled", "scheduled"):
-        max_h = d.get("freshness_max_hours") or 6
+        # Coerce defensively: a string like "6" or "TODO" in the registry must
+        # not crash the whole report with a float-vs-str TypeError.
+        try:
+            max_h = float(d.get("freshness_max_hours") or 6)
+        except (TypeError, ValueError):
+            max_h = 6
         try:
             age_h = (time.time() - os.path.getmtime(hb)) / 3600.0
         except OSError:

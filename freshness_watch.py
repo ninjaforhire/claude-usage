@@ -13,6 +13,7 @@ Stdlib-only / py3.9 — the dashboard runs under system python3.9.
 """
 
 import json
+import sys
 import threading
 import time
 from pathlib import Path
@@ -84,8 +85,10 @@ def start_watcher(interval_s=INTERVAL_S, state_path=DEFAULT_STATE):
         while True:
             try:
                 _tick(state_path)
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001
+                # Never die, but never go silent either — a watcher that stops
+                # working without a trace defeats its own purpose.
+                print("freshness-watch tick failed: %s" % exc, file=sys.stderr)
             time.sleep(interval_s)
 
     t = threading.Thread(target=_loop, name="freshness-watch", daemon=True)

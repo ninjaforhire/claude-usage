@@ -144,3 +144,19 @@ def test_failed_run_heartbeat_is_waste(tmp_path):
 def test_no_heartbeat_configured_is_unaffected():
     bucket, reasons, cmd = classify_daemon(_daemon())
     assert bucket == "HEALTHY"
+
+
+def test_string_freshness_does_not_crash(tmp_path):
+    hb = _heartbeat(tmp_path, ok=True)
+    bucket, reasons, cmd = classify_daemon(
+        _daemon(heartbeat_file=hb, freshness_max_hours="notanumber")
+    )
+    assert bucket == "HEALTHY"  # coerced to default 6, file is fresh
+
+
+def test_numeric_string_freshness_is_coerced(tmp_path):
+    hb = _heartbeat(tmp_path, ok=True, age_hours=4)
+    bucket, reasons, cmd = classify_daemon(
+        _daemon(heartbeat_file=hb, freshness_max_hours="2")
+    )
+    assert bucket == "WASTE"  # "2" -> 2.0, 4h > 2h

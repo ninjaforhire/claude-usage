@@ -40,7 +40,7 @@ def _osascript_notify(title, message):
     try:
         safe_msg = message.replace('"', "'")
         safe_title = title.replace('"', "'")
-        subprocess.run(
+        result = subprocess.run(
             [
                 "osascript",
                 "-e",
@@ -49,7 +49,7 @@ def _osascript_notify(title, message):
             capture_output=True,
             timeout=5,
         )
-        return True
+        return result.returncode == 0
     except Exception:
         return False
 

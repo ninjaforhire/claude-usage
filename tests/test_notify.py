@@ -40,3 +40,11 @@ def test_post_jimbo_swallows_network_error(monkeypatch):
 
     monkeypatch.setattr(notify.urllib.request, "urlopen", boom)
     assert notify._post_jimbo({"x": 1}) is False
+
+
+def test_osascript_returns_false_on_nonzero(monkeypatch):
+    class _R:
+        returncode = 1
+
+    monkeypatch.setattr(notify.subprocess, "run", lambda *a, **k: _R())
+    assert notify._osascript_notify("t", "m") is False
