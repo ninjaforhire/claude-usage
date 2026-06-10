@@ -13,6 +13,7 @@ Stdlib-only / py3.9 — the dashboard runs under system python3.9.
 """
 
 import json
+import os
 import sys
 import threading
 import time
@@ -39,7 +40,7 @@ def _save_alerted(path, data):
     try:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
-        tmp = p.with_name(p.name + ".tmp")
+        tmp = p.with_name("%s.%d.tmp" % (p.name, os.getpid()))
         tmp.write_text(json.dumps(data, indent=2))
         tmp.replace(p)
     except OSError:
