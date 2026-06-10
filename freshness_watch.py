@@ -34,10 +34,14 @@ def _load_alerted(path):
 
 
 def _save_alerted(path, data):
+    # Atomic temp+rename: a crash or a second dashboard instance must never leave
+    # a truncated .alerted.json (which would reset dedupe and spam alerts).
     try:
         p = Path(path)
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(json.dumps(data, indent=2))
+        tmp = p.with_name(p.name + ".tmp")
+        tmp.write_text(json.dumps(data, indent=2))
+        tmp.replace(p)
     except OSError:
         pass
 

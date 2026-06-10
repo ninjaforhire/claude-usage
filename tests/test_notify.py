@@ -48,3 +48,9 @@ def test_osascript_returns_false_on_nonzero(monkeypatch):
 
     monkeypatch.setattr(notify.subprocess, "run", lambda *a, **k: _R())
     assert notify._osascript_notify("t", "m") is False
+
+
+def test_osa_escape_neutralizes_quotes_and_newlines():
+    out = notify._osa_escape('say "hi"\nthen')
+    assert "\n" not in out
+    assert '\\"' in out  # double-quotes are backslash-escaped

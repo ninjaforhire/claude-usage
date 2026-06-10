@@ -29,17 +29,27 @@ def _post_jimbo(payload, timeout=3):
             method="POST",
             headers={"Content-Type": "application/json"},
         )
-        urllib.request.urlopen(req, timeout=timeout)
-        return True
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return 200 <= getattr(resp, "status", 200) < 300
     except Exception:
         return False
+
+
+def _osa_escape(s):
+    """Escape a string for safe embedding in an AppleScript double-quoted literal."""
+    return (
+        s.replace("\\", "\\\\")
+        .replace('"', '\\"')
+        .replace("\n", " ")
+        .replace("\r", " ")
+    )
 
 
 def _osascript_notify(title, message):
     """Fire a local macOS notification. Returns True on success, False otherwise."""
     try:
-        safe_msg = message.replace('"', "'")
-        safe_title = title.replace('"', "'")
+        safe_msg = _osa_escape(message)
+        safe_title = _osa_escape(title)
         result = subprocess.run(
             [
                 "osascript",
