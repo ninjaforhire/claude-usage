@@ -34,6 +34,30 @@ def test_alert_never_raises_when_both_fail(monkeypatch):
     assert result["osascript"] is False
 
 
+def test_digest_posts_to_digest_url(monkeypatch):
+    seen = {}
+
+    def fake_post(payload, timeout=3, url=notify.JIMBO_ALERT_URL):
+        seen["url"] = url
+        seen["payload"] = payload
+        return True
+
+    monkeypatch.setattr(notify, "_post_jimbo", fake_post)
+    result = notify.digest("Daemon digest — 2 unresolved", ["UNRESOLVED com.a", "RECOVERED com.b"])
+    assert result == {"jimbo": True}
+    assert seen["url"] == notify.JIMBO_DIGEST_URL
+    assert seen["payload"]["title"].startswith("Daemon digest")
+    assert len(seen["payload"]["lines"]) == 2
+
+
+def test_digest_never_raises(monkeypatch):
+    def boom(*a, **k):
+        raise RuntimeError("down")
+
+    monkeypatch.setattr(notify, "_post_jimbo", boom)
+    assert notify.digest("t", ["x"]) == {"jimbo": False}
+
+
 def test_post_jimbo_swallows_network_error(monkeypatch):
     def boom(*a, **k):
         raise OSError("connection refused")

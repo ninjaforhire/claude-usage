@@ -43,6 +43,9 @@ ANNOTATION_FIELDS = (
     "ok_exit_codes",
     "heartbeat_file",
     "freshness_max_hours",
+    # "critical" daemons get realtime Telegram pushes on WASTE transitions;
+    # everything else lands in the daily digest only.
+    "severity",
 )
 
 

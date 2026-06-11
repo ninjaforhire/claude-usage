@@ -18,13 +18,14 @@ import subprocess
 import urllib.request
 
 JIMBO_ALERT_URL = "http://127.0.0.1:8324/internal/daemon-alert"
+JIMBO_DIGEST_URL = "http://127.0.0.1:8324/internal/daemon-digest"
 
 
-def _post_jimbo(payload, timeout=3):
-    """POST the alert to Jimbo. Returns True on 2xx, False on any failure."""
+def _post_jimbo(payload, timeout=3, url=JIMBO_ALERT_URL):
+    """POST a payload to Jimbo. Returns True on 2xx, False on any failure."""
     try:
         req = urllib.request.Request(
-            JIMBO_ALERT_URL,
+            url,
             data=json.dumps(payload).encode(),
             method="POST",
             headers={"Content-Type": "application/json"},
@@ -92,3 +93,20 @@ def alert(label, reasons, ts=None):
     except Exception:
         notify_ok = False
     return {"jimbo": jimbo_ok, "osascript": notify_ok}
+
+
+def digest(title, lines):
+    """Send the daily digest (one batched Telegram message via Jimbo).
+
+    Jimbo-only sink — the digest is a summary, not an interrupt, so no
+    osascript popup. Never raises.
+
+    Returns:
+        dict: ``{"jimbo": bool}``.
+    """
+    payload = {"title": str(title), "lines": [str(l) for l in lines]}
+    try:
+        jimbo_ok = bool(_post_jimbo(payload, url=JIMBO_DIGEST_URL))
+    except Exception:
+        jimbo_ok = False
+    return {"jimbo": jimbo_ok}
