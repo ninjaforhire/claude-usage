@@ -8,11 +8,13 @@ Commands:
   dashboard - Scan + open browser + start dashboard server
 """
 
+import json
 import os
+import subprocess
 import sys
 import sqlite3
 from pathlib import Path
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timezone
 
 DB_PATH = Path.home() / ".claude" / "usage.db"
 
@@ -455,6 +457,94 @@ def cmd_dashboard(projects_dir=None, host=None, port=None, no_browser=False):
     serve(host=host, port=port)
 
 
+# ── Account credential helpers ────────────────────────────────────────────────
+
+KEYCHAIN_SERVICE = "Claude Code-credentials"
+_KEYCHAIN_CMD = ["security", "find-generic-password"]  # list-args; safe from shell injection
+
+
+def parse_keychain_credentials(raw: str) -> dict[str, str]:
+    """Parse macOS Keychain JSON into a normalised OAuth dict.
+
+    Args:
+        raw: JSON string from the security CLI.
+
+    Returns:
+        Dict with access_token, refresh_token, expires_at (ISO-8601 UTC).
+    """
+    creds = json.loads(raw)["claudeAiOauth"]
+    exp = datetime.fromtimestamp(creds["expiresAt"] / 1000, tz=timezone.utc)
+    return {
+        "access_token": creds["accessToken"],
+        "refresh_token": creds["refreshToken"],
+        "expires_at": exp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+
+def _read_keychain() -> str:
+    """Read credentials from macOS Keychain; returns raw JSON string."""
+    args = _KEYCHAIN_CMD + ["-s", KEYCHAIN_SERVICE, "-w"]
+    result = subprocess.run(args, capture_output=True, text=True, check=True)
+    return result.stdout.strip()
+
+
+def cmd_accounts(rest: list[str] | None = None) -> None:
+    """Manage tracked Claude accounts for limit orbs."""
+    import accounts as _accts  # local import — only needed for this subcommand
+
+    rest = rest or []
+    sub = rest[0] if rest else "list"
+
+    if sub == "add":
+        raw = _read_keychain()
+        oauth = parse_keychain_credentials(raw)
+        usage = _accts.fetch_usage(oauth)
+        email = input("Account email for these credentials: ").strip()
+        billing = input("Billing renewal day-of-month (e.g. 11): ").strip()
+        try:
+            billing_day = int(billing)
+        except ValueError:
+            print(f"Invalid billing day: {billing!r} (expected a number 1-28)")
+            return
+        if not 1 <= billing_day <= 28:
+            print(f"Billing day must be between 1 and 28, got {billing_day}")
+            return
+        _accts.upsert_account({
+            "email": email,
+            "plan": "max_20x",
+            "billing_day": billing_day,
+            "oauth": oauth,
+            "last_usage": {
+                **usage,
+                "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "error": None,
+            },
+        })
+        print(f"Saved {email}. 5hr utilization: {usage['five_hour']['utilization']}%")
+
+    elif sub == "list":
+        for a in _accts.load_store()["accounts"]:
+            u = a.get("last_usage") or {}
+            err = f"  ERROR: {u['error']}" if u.get("error") else ""
+            print(
+                f"{a['email']:40s} billing day {a.get('billing_day')}  "
+                f"last fetch {u.get('fetched_at', 'never')}{err}"
+            )
+
+    elif sub == "remove":
+        if len(rest) < 2:
+            print("usage: cli.py accounts remove <email>")
+            return
+        email = rest[1]
+        store = _accts.load_store()
+        store["accounts"] = [a for a in store["accounts"] if a["email"] != email]
+        _accts.save_store(store)
+        print(f"Removed {email}")
+
+    else:
+        print("usage: cli.py accounts [add|list|remove <email>]")
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 USAGE = """
@@ -472,6 +562,7 @@ Usage:
                                                  --prompt emits a repair prompt
   python cli.py report [today|week|month|all] [--view table|card|spark]
                                                  Usage report (default: today, card view)
+  python cli.py accounts [add|list|remove]    Manage tracked Claude accounts for limit orbs
 """
 
 COMMANDS = {
@@ -482,6 +573,7 @@ COMMANDS = {
     "dashboard": cmd_dashboard,
     "daemons": cmd_daemons,
     "report": cmd_report,
+    "accounts": cmd_accounts,
 }
 
 def parse_named_arg(args, flag):
@@ -537,5 +629,7 @@ if __name__ == "__main__":
             else:
                 i += 1
         cmd_report(period=period_arg, view=view_arg)
+    elif command == "accounts":
+        cmd_accounts(rest=rest)
     else:
         COMMANDS[command]()
