@@ -273,4 +273,35 @@ def card_report(conn: sqlite3.Connection, period: str) -> None:
         print("│" + "│".join(cells) + "│")
 
     print("└" + "─" * 14 + "┴" + "─" * 14 + "┴" + "─" * (w - 30) + "┘")
+
+
+def spark_report(conn: sqlite3.Connection, period: str) -> None:
+    """Print a sparkline trend report. Falls back to table for today/all."""
+    if period in ("today", "all"):
+        print(f"  (spark view requires week or month period — showing table)")
+        table_report(conn, period)
+        return
+
+    data = fetch_period_data(conn, period)
+    if not data["by_day"]:
+        print("  No data for sparkline.")
+        return
+
+    costs  = [d["cost"]  for d in data["by_day"]]
+    turns  = [d["turns"] for d in data["by_day"]]
+    days   = [d["day"]   for d in data["by_day"]]
+
+    start_label = days[0][5:]   # MM-DD
+    end_label   = days[-1][5:]
+
+    print()
+    print(f"  Daily cost — {data['period_label']}")
+    cost_spark = _spark_line(costs)
+    print(f"  {fmt_cost(min(costs))}  {cost_spark}  {fmt_cost(max(costs))}")
+    print(f"           {start_label} {'─' * max(0, len(cost_spark) - 11)} {end_label}")
+    print()
+    print(f"  Daily turns")
+    turns_spark = _spark_line([float(t) for t in turns])
+    print(f"  {min(turns):<6}  {turns_spark}  {max(turns)}")
+    print()
     print()

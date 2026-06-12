@@ -243,3 +243,40 @@ class TestCardReport(unittest.TestCase):
     def test_output_contains_top_model(self):
         out = self._capture("today")
         self.assertIn("Opus 4.8", out)
+
+
+class TestSparkReport(unittest.TestCase):
+    def setUp(self):
+        self.conn = _make_db()
+
+    def tearDown(self):
+        self.conn.close()
+
+    def _capture(self, period):
+        from views import spark_report
+        buf = io.StringIO()
+        with patch("views.date") as mock_date:
+            from datetime import date as real_date
+            mock_date.today.return_value = real_date(2026, 6, 11)
+            mock_date.fromisoformat = real_date.fromisoformat
+            with patch("sys.stdout", buf):
+                spark_report(self.conn, period)
+        return buf.getvalue()
+
+    def test_today_falls_back_to_table(self):
+        out = self._capture("today")
+        self.assertIn("TOTAL", out)
+
+    def test_all_falls_back_to_table(self):
+        out = self._capture("all")
+        self.assertIn("TOTAL", out)
+
+    def test_week_shows_spark_chars(self):
+        out = self._capture("week")
+        spark_chars = set("▁▂▃▄▅▆▇█")
+        self.assertTrue(any(c in spark_chars for c in out))
+
+    def test_month_shows_spark_chars(self):
+        out = self._capture("month")
+        spark_chars = set("▁▂▃▄▅▆▇█")
+        self.assertTrue(any(c in spark_chars for c in out))
