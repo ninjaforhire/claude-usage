@@ -11,7 +11,7 @@ Public API:
 import sqlite3
 from datetime import date, timedelta
 
-from cli import calc_cost, fmt, fmt_cost
+from cli import calc_cost, fmt, fmt_cost, PRICING
 
 
 def _date_range(period: str) -> tuple[str | None, str | None]:
@@ -145,7 +145,6 @@ def _spark_line(values: list[float]) -> str:
 
 def _cache_savings(data: dict) -> float:
     """Estimate dollars saved by cache reads vs paying full input price."""
-    from cli import PRICING
     total = 0.0
     for r in data["by_model"]:
         p = PRICING.get(r["model"])
