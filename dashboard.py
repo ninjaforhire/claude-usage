@@ -256,6 +256,44 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .footer-content a:hover { text-decoration: underline; }
 
   @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } .chart-card.wide { grid-column: 1; } }
+
+  /* ── Account limit orbs ── */
+  #accounts-row{display:flex;gap:18px;flex-wrap:wrap;padding:18px 24px 6px}
+  .acct-card{flex:1;min-width:280px;background:#0d1118;border:1px solid #1d2530;border-radius:12px;padding:16px 18px}
+  .acct-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .acct-email{font-size:12.5px;font-weight:600}
+  .acct-plan{font-size:10.5px;color:#7a8696;text-transform:uppercase;letter-spacing:.08em}
+  .acct-pair{display:flex;gap:16px;justify-content:center}
+  .acct-gauge{text-align:center}
+  .acct-glabel{font-size:10px;color:#7a8696;text-transform:uppercase;letter-spacing:.1em;margin-top:8px}
+  .acct-timer{font-size:11px;font-variant-numeric:tabular-nums;margin-top:2px}
+  .acct-meta{display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid #1d2530;font-size:10.5px;color:#7a8696}
+  .acct-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#0f2;color:#031;box-shadow:0 0 12px #0f26}
+  .acct-error{filter:grayscale(1) brightness(.6)}
+  .acct-error-msg{font-size:10.5px;color:#ff6b6b;margin-top:8px;text-align:center}
+  #accounts-bar{display:flex;align-items:center;gap:10px;padding:0 24px;font-size:11px;color:#7a8696}
+  .orbC{position:relative;width:104px;height:104px;border-radius:50%;margin:0 auto;overflow:hidden;
+    background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), rgba(255,255,255,0) 45%),
+               radial-gradient(circle at 70% 80%, rgba(120,160,255,.06), transparent 60%),
+               radial-gradient(circle at 50% 50%, #0c1119, #04060a 80%);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:inset 0 0 30px rgba(0,0,0,.9), inset 0 2px 6px rgba(255,255,255,.18),
+               0 10px 24px rgba(0,0,0,.7), 0 0 28px var(--c-glow);}
+  .orbC .fill{position:absolute;left:-12%;right:-12%;bottom:-4px;transition:height .8s;border-radius:42% 46% 0 0/14px 18px 0 0;
+    background:linear-gradient(180deg, var(--c-hi), var(--c-lo) 85%);
+    box-shadow:0 -2px 18px var(--c-hi), inset 0 10px 20px rgba(255,255,255,.28);
+    animation:tilt 5s ease-in-out infinite}
+  @keyframes tilt{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
+  .orbC .glints{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 40% 18% at 30% 14%, rgba(255,255,255,.6), transparent 70%),
+               radial-gradient(ellipse 16% 8% at 68% 22%, rgba(255,255,255,.35), transparent 70%)}
+  .orbC .rim{position:absolute;inset:-1px;border-radius:50%;pointer-events:none;
+    border:2px solid transparent;
+    background:linear-gradient(160deg, rgba(255,255,255,.35), transparent 30%, transparent 70%, rgba(255,255,255,.12)) border-box;
+    -webkit-mask:linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude}
+  .orbC .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:19px;letter-spacing:-.02em;text-shadow:0 2px 6px rgba(0,0,0,.95);z-index:2}
 </style>
 </head>
 <body>
@@ -268,6 +306,13 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <div class="meta" id="meta">Loading...</div>
   <button id="rescan-btn" onclick="triggerRescan()" title="Rebuild the database from scratch by re-scanning all JSONL files. Use if data looks stale or costs seem wrong.">&#x21bb; Rescan</button>
 </header>
+
+<div id="accounts-bar">
+  <strong style="color:#d7dee8">Account Limits</strong>
+  <span id="accounts-fetched">never fetched</span>
+  <button id="accounts-refresh-btn" class="filter-btn" onclick="refreshAccounts()">&#x21bb; Refresh</button>
+</div>
+<div id="accounts-row"></div>
 
 <div id="filter-bar">
   <div class="filter-label">Models</div>
@@ -1451,6 +1496,74 @@ async function loadData() {
   }
 }
 
+// ── Account limit orbs ──────────────────────────────────────────────
+let ACCT_DATA = null;
+
+function fmtCountdown(iso) {
+  const ms = new Date(iso) - Date.now();
+  if (isNaN(ms) || ms <= 0) return 'resetting…';
+  const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000);
+  return h >= 48 ? `${Math.floor(h/24)}d ${h%24}h` : `${h}h ${String(m).padStart(2,'0')}m`;
+}
+
+function fmtAgo(iso) {
+  const s = Math.floor((Date.now() - new Date(iso)) / 1000);
+  if (isNaN(s)) return 'never';
+  if (s < 60) return s + 's ago';
+  if (s < 3600) return Math.floor(s/60) + 'm ago';
+  return Math.floor(s/3600) + 'h ' + Math.floor(s%3600/60) + 'm ago';
+}
+
+function orbHtml(w) {
+  return `<div class="orbC" style="--c-hi:${w.color_hi};--c-lo:${w.color_lo};--c-glow:${w.color_hi}55">
+    <div class="fill" style="height:${w.remaining_pct}%"></div>
+    <div class="glints"></div><div class="rim"></div>
+    <div class="num">${w.remaining_pct}%</div></div>`;
+}
+
+function renderAccounts() {
+  if (!ACCT_DATA) return;
+  const accts = ACCT_DATA.accounts;
+  const bestPct = Math.max(...accts.map(a => a.windows.five_hour ? a.windows.five_hour.remaining_pct : -1));
+  document.getElementById('accounts-row').innerHTML = accts.map(a => {
+    if (a.error) return `<div class="acct-card acct-error">
+      <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
+      <div class="acct-plan">${esc(a.plan)}</div></div></div>
+      <div class="acct-error-msg">re-auth: python3 cli.py accounts add<br>${esc(a.error)}</div></div>`;
+    const badge = (a.windows.five_hour && a.windows.five_hour.remaining_pct === bestPct
+                   && bestPct >= 85) ? '<span class="acct-badge">USE ME</span>' : '';
+    const gauge = (label, w) => w ? `<div class="acct-gauge">${orbHtml(w)}
+      <div class="acct-glabel">${label}</div>
+      <div class="acct-timer">resets ${fmtCountdown(w.resets_at)}</div></div>` : '';
+    return `<div class="acct-card">
+      <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
+      <div class="acct-plan">${esc(a.plan)}</div></div>${badge}</div>
+      <div class="acct-pair">${gauge('5 hr', a.windows.five_hour)}${gauge('Weekly', a.windows.seven_day)}</div>
+      <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span></div>
+    </div>`;
+  }).join('');
+  const newest = accts.map(a => a.fetched_at).filter(Boolean).sort().pop();
+  document.getElementById('accounts-fetched').textContent =
+    newest ? 'last scan ' + fmtAgo(newest) : 'never fetched';
+}
+
+async function loadAccounts() {
+  ACCT_DATA = await (await fetch('/api/accounts')).json();  // instant from cache
+  renderAccounts();
+  refreshAccounts();                                         // then one live fetch
+}
+
+async function refreshAccounts() {
+  const btn = document.getElementById('accounts-refresh-btn');
+  btn.disabled = true;
+  try {
+    ACCT_DATA = await (await fetch('/api/accounts/refresh', {method: 'POST'})).json();
+  } finally { btn.disabled = false; }
+  renderAccounts();
+}
+
+setInterval(renderAccounts, 30000);  // tick countdowns + freshness label
+
 let autoRefreshTimer = null;
 function scheduleAutoRefresh() {
   if (autoRefreshTimer) { clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
@@ -1460,6 +1573,7 @@ function scheduleAutoRefresh() {
 }
 
 loadData();
+loadAccounts();
 scheduleAutoRefresh();
 </script>
 </body>
