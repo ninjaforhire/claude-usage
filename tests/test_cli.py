@@ -78,18 +78,24 @@ class TestGetPricing(unittest.TestCase):
 
     def test_fable_5_exact(self):
         p = get_pricing("claude-fable-5")
-        self.assertEqual(p["input"], 10.00)
-        self.assertEqual(p["output"], 50.00)
+        self.assertEqual(p["input"],       10.00)
+        self.assertEqual(p["output"],      50.00)
+        self.assertEqual(p["cache_read"],   1.00)
+        self.assertEqual(p["cache_write"], 12.50)
 
     def test_mythos_5_exact(self):
         p = get_pricing("claude-mythos-5")
-        self.assertEqual(p["input"], 10.00)
-        self.assertEqual(p["output"], 50.00)
+        self.assertEqual(p["input"],       10.00)
+        self.assertEqual(p["output"],      50.00)
+        self.assertEqual(p["cache_read"],   1.00)
+        self.assertEqual(p["cache_write"], 12.50)
 
     def test_opus_4_8_exact(self):
         p = get_pricing("claude-opus-4-8")
-        self.assertEqual(p["input"], 5.00)
-        self.assertEqual(p["output"], 25.00)
+        self.assertEqual(p["input"],        5.00)
+        self.assertEqual(p["output"],      25.00)
+        self.assertEqual(p["cache_read"],   0.50)
+        self.assertEqual(p["cache_write"],  6.25)
 
     def test_fable_keyword_fallback(self):
         p = get_pricing("some-fable-model-future")

@@ -46,7 +46,7 @@ def get_pricing(model):
     if "mythos" in m:
         return PRICING["claude-mythos-5"]
     if "opus" in m:
-        return PRICING["claude-opus-4-7"]
+        return PRICING["claude-opus-4-8"]
     if "sonnet" in m:
         return PRICING["claude-sonnet-4-6"]
     if "haiku" in m:
