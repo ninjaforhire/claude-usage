@@ -91,6 +91,9 @@ class TestFetchPeriodData(unittest.TestCase):
         models = [r["model"] for r in data["by_model"]]
         self.assertIn("claude-opus-4-8", models)
         self.assertIn("claude-sonnet-4-6", models)
+        # Verify all required keys are present on each row
+        for row in data["by_model"]:
+            self.assertEqual(set(row.keys()), {"model", "inp", "out", "cr", "cc", "turns", "cost"})
 
     def test_cache_totals_summed(self):
         from views import fetch_period_data
@@ -106,6 +109,12 @@ class TestFetchPeriodData(unittest.TestCase):
         from views import fetch_period_data
         data = fetch_period_data(self.conn, "all")
         self.assertEqual(data["total_sessions"], 2)
+        self.assertEqual(data["date_range"], (None, None))
+
+    def test_by_day_empty_for_all(self):
+        from views import fetch_period_data
+        data = fetch_period_data(self.conn, "all")
+        self.assertEqual(data["by_day"], [])
 
     def test_by_day_populated_for_week(self):
         from views import fetch_period_data
