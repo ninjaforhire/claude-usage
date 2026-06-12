@@ -167,3 +167,7 @@ class TestSparkLine(unittest.TestCase):
                 blocks.index(result[i]), blocks.index(result[i + 1]),
                 f"Non-monotone at position {i}: {result}"
             )
+
+    def test_empty_list_returns_empty_string(self):
+        from views import _spark_line
+        self.assertEqual(_spark_line([]), "")
