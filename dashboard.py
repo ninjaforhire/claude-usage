@@ -1467,6 +1467,16 @@ scheduleAutoRefresh();
 """
 
 
+def get_accounts_data(refresh=False):
+    """Account limit data for the orb row; credential-free public view."""
+    import accounts
+
+    accts = (
+        accounts.fetch_all_usage() if refresh else accounts.load_store()["accounts"]
+    )
+    return {"accounts": accounts.public_view(accts)}
+
+
 def find_icon_file():
     """Locate the extension's icon.svg across both run contexts.
 
@@ -1531,6 +1541,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
             import classify
             self._send_json(classify.build_report())
 
+        elif path == "/api/accounts":
+            self._send_json(get_accounts_data(refresh=False))
+
         elif path == "/icon.svg":
             icon = find_icon_file()
             if icon is None:
@@ -1580,6 +1593,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self._send_json(
                 {"prompt": promptgen.build_prompt(payload.get("findings", []))}
             )
+
+        elif path == "/api/accounts/refresh":
+            self._send_json(get_accounts_data(refresh=True))
 
         else:
             self.send_response(404)
