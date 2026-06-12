@@ -199,3 +199,29 @@ def test_public_view_remaining_is_int():
     views = accounts.public_view([acct])
     assert isinstance(views[0]["windows"]["five_hour"]["remaining_pct"], int)
     assert views[0]["windows"]["five_hour"]["remaining_pct"] == 41
+
+
+def test_401_on_fresh_token_forces_refresh_and_retries(tmp_path):
+    """Access token invalidated before expires_at (rotated elsewhere) — one forced refresh."""
+    import urllib.error
+    path = tmp_path / "s.json"
+    accounts.save_store({"accounts": [_acct()]}, path=path)
+    calls = {"n": 0}
+
+    def fake_get(url, headers, timeout=10):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise urllib.error.HTTPError(url, 401, "Unauthorized", None, None)
+        return USAGE_RESPONSE
+
+    with patch.object(accounts, "_get_json", side_effect=fake_get), \
+         patch.object(accounts, "_post_json") as post:
+        post.return_value = {"access_token": "new_at",
+                             "refresh_token": "new_rt", "expires_in": 3600}
+        result = accounts.fetch_all_usage(path=path)
+    assert post.call_count == 1
+    assert calls["n"] == 2
+    assert result[0]["last_usage"]["error"] is None
+    store = accounts.load_store(path=path)
+    assert store["accounts"][0]["oauth"]["access_token"] == "new_at"
+    assert views[0]["windows"]["five_hour"]["remaining_pct"] == 41

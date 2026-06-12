@@ -7,6 +7,7 @@ import datetime as _dt
 import json
 import os
 import threading
+import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -154,7 +155,16 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
             if _is_expired(acct["oauth"]):
                 acct["oauth"] = _refresh(acct["oauth"])
                 save_store(store, path=path)  # persist rotated token even if fetch fails
-            usage = fetch_usage(acct["oauth"])
+            try:
+                usage = fetch_usage(acct["oauth"])
+            except urllib.error.HTTPError as e:
+                if e.code != 401:
+                    raise
+                # Access token can be invalidated before expires_at (e.g. the
+                # logged-in Claude Code session rotated it). Force-refresh once.
+                acct["oauth"] = _refresh(acct["oauth"])
+                save_store(store, path=path)
+                usage = fetch_usage(acct["oauth"])
             acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
         except Exception as e:  # noqa: BLE001 — any failure grays this orb only
             prev = acct.get("last_usage") or {}
