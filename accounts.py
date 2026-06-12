@@ -213,8 +213,13 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                 except Exception:  # noqa: BLE001 — fall back to stored tokens
                     pass
             if _is_expired(acct["oauth"]):
-                acct["oauth"] = _refresh(acct["oauth"])
-                save_store(store, path=path)  # persist rotated token even if fetch fails
+                try:
+                    acct["oauth"] = _refresh(acct["oauth"])
+                    save_store(store, path=path)  # persist rotated token even if fetch fails
+                except Exception:  # noqa: BLE001
+                    # Refresh endpoint may be rate-limited or the refresh token
+                    # dead while the access token still works — try it anyway.
+                    pass
             try:
                 usage = fetch_usage(acct["oauth"])
             except urllib.error.HTTPError as e:
