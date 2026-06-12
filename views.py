@@ -141,3 +141,51 @@ def _spark_line(values: list[float]) -> str:
     if max_val == 0:
         return _BLOCKS[0] * len(values)
     return "".join(_BLOCKS[min(7, int(v / max_val * 8))] for v in values)
+
+
+def _cache_savings(data: dict) -> float:
+    """Estimate dollars saved by cache reads vs paying full input price."""
+    from cli import PRICING
+    total = 0.0
+    for r in data["by_model"]:
+        p = PRICING.get(r["model"])
+        if p and r["cr"]:
+            total += r["cr"] * (p["input"] - p["cache_read"]) / 1_000_000
+    return total
+
+
+def table_report(conn: sqlite3.Connection, period: str) -> None:
+    """Print a tabular usage report to stdout."""
+    data = fetch_period_data(conn, period)
+    w = 60
+    print()
+    print("═" * w)
+    print(f"  Report: {data['period_label']}")
+    print("═" * w)
+    print(f"  {'Model':<30}  {'Turns':<5}  {'Input':<8}  {'Output':<8}  {'Cost'}")
+    print("  " + "─" * (w - 2))
+
+    total_inp = total_out = total_turns = 0
+    total_cost = 0.0
+    for r in data["by_model"]:
+        print(f"  {r['model']:<30}  {r['turns']:<5}  {fmt(r['inp']):<8}  "
+              f"{fmt(r['out']):<8}  {fmt_cost(r['cost'])}")
+        total_inp   += r["inp"]
+        total_out   += r["out"]
+        total_turns += r["turns"]
+        total_cost  += r["cost"]
+
+    print("  " + "─" * (w - 2))
+    print(f"  {'TOTAL':<30}  {total_turns:<5}  {fmt(total_inp):<8}  "
+          f"{fmt(total_out):<8}  {fmt_cost(total_cost)}")
+
+    savings = _cache_savings(data)
+    print()
+    parts = [
+        f"Sessions: {data['total_sessions']}",
+        f"Workflow ⚡{data['workflow_sessions']}",
+        f"Cache saved: ~{fmt_cost(savings)}",
+    ]
+    print("  " + "  │  ".join(parts))
+    print("═" * w)
+    print()
