@@ -76,6 +76,29 @@ class TestGetPricing(unittest.TestCase):
     def test_empty_string_returns_none(self):
         self.assertIsNone(get_pricing(""))
 
+    def test_fable_5_exact(self):
+        p = get_pricing("claude-fable-5")
+        self.assertEqual(p["input"], 10.00)
+        self.assertEqual(p["output"], 50.00)
+
+    def test_mythos_5_exact(self):
+        p = get_pricing("claude-mythos-5")
+        self.assertEqual(p["input"], 10.00)
+        self.assertEqual(p["output"], 50.00)
+
+    def test_opus_4_8_exact(self):
+        p = get_pricing("claude-opus-4-8")
+        self.assertEqual(p["input"], 5.00)
+        self.assertEqual(p["output"], 25.00)
+
+    def test_fable_keyword_fallback(self):
+        p = get_pricing("some-fable-model-future")
+        self.assertEqual(p["input"], 10.00)
+
+    def test_mythos_keyword_fallback(self):
+        p = get_pricing("experimental-mythos-v2")
+        self.assertEqual(p["input"], 10.00)
+
 
 class TestCalcCost(unittest.TestCase):
     def test_basic_cost_calculation(self):
