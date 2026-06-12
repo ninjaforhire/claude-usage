@@ -97,19 +97,41 @@ def test_fetch_skips_refresh_when_token_fresh(tmp_path):
 
 
 def test_refresh_failure_grays_account_not_others(tmp_path):
+    """Refresh AND usage fetch both fail -> that account grays; others fine."""
     path = tmp_path / "s.json"
     bad = _expired_acct()
+    bad["oauth"]["access_token"] = "dead_at"
     good = _acct("good@b.com")
     good["oauth"]["expires_at"] = (
         datetime.now(timezone.utc) + timedelta(hours=1)
     ).strftime("%Y-%m-%dT%H:%M:%SZ")
     accounts.save_store({"accounts": [bad, good]}, path=path)
-    with patch.object(accounts, "_post_json", side_effect=OSError("401")), \
-         patch.object(accounts, "_get_json", return_value=USAGE_RESPONSE):
+
+    def fake_get(url, headers, timeout=10):
+        if "dead_at" in headers.get("Authorization", ""):
+            raise OSError("invalid token")
+        return USAGE_RESPONSE
+
+    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
+         patch.object(accounts, "_post_json", side_effect=OSError("401")), \
+         patch.object(accounts, "_get_json", side_effect=fake_get):
         result = accounts.fetch_all_usage(path=path)
     by_email = {r["email"]: r for r in result}
     assert by_email["a@b.com"]["last_usage"]["error"]
     assert by_email["good@b.com"]["last_usage"]["error"] is None
+
+
+def test_stale_refresh_but_valid_access_token_still_fetches(tmp_path):
+    """Refresh endpoint failing (429/dead) must not gray an account whose
+    access token still works."""
+    path = tmp_path / "s.json"
+    accounts.save_store({"accounts": [_expired_acct()]}, path=path)
+    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
+         patch.object(accounts, "_post_json", side_effect=OSError("429")), \
+         patch.object(accounts, "_get_json", return_value=USAGE_RESPONSE):
+        result = accounts.fetch_all_usage(path=path)
+    assert result[0]["last_usage"]["error"] is None
+    assert result[0]["last_usage"]["five_hour"]["utilization"] == 42.0
 
 
 def test_rotated_tokens_persist_when_usage_fetch_fails(tmp_path):
