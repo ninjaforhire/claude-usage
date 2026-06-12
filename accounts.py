@@ -6,6 +6,7 @@ import calendar
 import datetime as _dt
 import json
 import os
+import threading
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -42,6 +43,7 @@ def save_store(store: dict, path: Path = STORE_PATH) -> None:
     fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w") as f:
         json.dump(store, f, indent=2)
+    os.chmod(tmp, 0o600)  # O_CREAT mode is ignored if a stale tmp file pre-exists
     tmp.replace(path)
 
 
@@ -132,8 +134,19 @@ def fetch_usage(oauth: dict) -> dict:
     return _parse_usage(raw)
 
 
+# Refresh tokens are single-use: concurrent refreshes (multiple dashboard tabs,
+# ThreadingHTTPServer) could rotate the same token twice and persist a stale one,
+# locking the account out. Serialize the whole refresh-fetch-save cycle.
+_FETCH_LOCK = threading.Lock()
+
+
 def fetch_all_usage(path: Path = STORE_PATH) -> list[dict]:
     """Refresh tokens as needed, fetch usage for every account, persist cache."""
+    with _FETCH_LOCK:
+        return _fetch_all_usage_locked(path)
+
+
+def _fetch_all_usage_locked(path: Path) -> list[dict]:
     store = load_store(path=path)
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     for acct in store["accounts"]:
