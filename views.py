@@ -188,3 +188,89 @@ def table_report(conn: sqlite3.Connection, period: str) -> None:
     print("  " + "  │  ".join(parts))
     print("═" * w)
     print()
+
+
+def _model_short(model: str) -> str:
+    """Return a short display label for a model string."""
+    m = model.lower()
+    if "fable" in m:   return "Fable 5"
+    if "mythos" in m:  return "Mythos 5"
+    if "opus" in m:
+        for v in ("4-8", "4-7", "4-6", "4-5"):
+            if v in m:
+                return f"Opus {v.replace('-', '.')}"
+        return "Opus"
+    if "sonnet" in m:
+        for v in ("4-7", "4-6", "4-5"):
+            if v in m:
+                return f"Sonnet {v.replace('-', '.')}"
+        return "Sonnet"
+    if "haiku" in m:
+        for v in ("4-7", "4-6", "4-5"):
+            if v in m:
+                return f"Haiku {v.replace('-', '.')}"
+        return "Haiku"
+    return model[:12]
+
+
+def card_report(conn: sqlite3.Connection, period: str) -> None:
+    """Print a card-style usage report to stdout."""
+    data = fetch_period_data(conn, period)
+    w = 59
+
+    total_cost  = sum(r["cost"] for r in data["by_model"])
+    total_turns = sum(r["turns"] for r in data["by_model"])
+    savings     = _cache_savings(data)
+
+    header = (f"  Cost {fmt_cost(total_cost)}   Turns {total_turns}   "
+              f"Sessions {data['total_sessions']}   Workflow ⚡{data['workflow_sessions']}")
+
+    print()
+    print("┌" + "─" * w + "┐")
+    print(f"│  {data['period_label']:<{w-2}}│")
+    print(f"│  {header:<{w-2}}│")
+    print("├" + "─" * 14 + "┬" + "─" * 14 + "┬" + "─" * (w - 30) + "┐")
+
+    top = data["by_model"][:2]
+    while len(top) < 2:
+        top.append(None)
+
+    other_cost  = sum(r["cost"] for r in data["by_model"][2:])
+    other_turns = sum(r["turns"] for r in data["by_model"][2:])
+
+    def pct(cost):
+        return f"{int(cost / total_cost * 100)}%" if total_cost else "0%"
+
+    def col(row):
+        if row is None:
+            return ["", "", ""]
+        short = _model_short(row["model"])
+        return [
+            f"  {short}",
+            f"  {fmt_cost(row['cost'])} ({pct(row['cost'])})",
+            f"  {row['turns']} turns",
+        ]
+
+    cache_col = [
+        "  Cache",
+        f"  Saved ~{fmt_cost(savings)}",
+        f"  Rd {fmt(data['cache_read'])} / Wr {fmt(data['cache_creation'])}",
+    ]
+
+    if other_cost > 0:
+        other_col = [
+            "  Other",
+            f"  {fmt_cost(other_cost)} ({pct(other_cost)})",
+            f"  {other_turns} turns",
+        ]
+        cols = [col(top[0]), other_col, cache_col]
+    else:
+        cols = [col(top[0]), col(top[1]), cache_col]
+
+    for line_idx in range(3):
+        cells = [f"{c[line_idx]:<14}" if i < 2 else f"{c[line_idx]:<{w-30}}"
+                 for i, c in enumerate(cols)]
+        print("│" + "│".join(cells) + "│")
+
+    print("└" + "─" * 14 + "┴" + "─" * 14 + "┴" + "─" * (w - 30) + "┘")
+    print()

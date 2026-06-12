@@ -208,3 +208,38 @@ class TestTableReport(unittest.TestCase):
     def test_output_contains_period_label(self):
         out = self._capture("today")
         self.assertIn("2026-06-11", out)
+
+
+class TestCardReport(unittest.TestCase):
+    def setUp(self):
+        self.conn = _make_db()
+
+    def tearDown(self):
+        self.conn.close()
+
+    def _capture(self, period):
+        from views import card_report
+        buf = io.StringIO()
+        with patch("views.date") as mock_date:
+            from datetime import date as real_date
+            mock_date.today.return_value = real_date(2026, 6, 11)
+            mock_date.fromisoformat = real_date.fromisoformat
+            with patch("sys.stdout", buf):
+                card_report(self.conn, period)
+        return buf.getvalue()
+
+    def test_output_contains_cost_header(self):
+        out = self._capture("today")
+        self.assertIn("Cost", out)
+
+    def test_output_contains_workflow_marker(self):
+        out = self._capture("today")
+        self.assertIn("Workflow", out)
+
+    def test_output_contains_cache_panel(self):
+        out = self._capture("today")
+        self.assertIn("Cache", out)
+
+    def test_output_contains_top_model(self):
+        out = self._capture("today")
+        self.assertIn("Opus 4.8", out)
