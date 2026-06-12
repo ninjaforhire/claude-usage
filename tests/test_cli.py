@@ -1,6 +1,7 @@
 """Tests for cli.py - pricing, formatting, and cost calculation."""
 
 import io
+import json
 import unittest
 from contextlib import redirect_stdout
 from unittest import mock
@@ -212,3 +213,23 @@ class TestDashboardNoBrowser(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ── Task 4: accounts CLI helpers ──────────────────────────────────────────────
+
+
+def test_parse_keychain_credentials():
+    raw = json.dumps({"claudeAiOauth": {
+        "accessToken": "at", "refreshToken": "rt",
+        "expiresAt": 1781000000000, "subscriptionType": "max",
+    }})
+    oauth = cli.parse_keychain_credentials(raw)
+    assert oauth["access_token"] == "at"
+    assert oauth["refresh_token"] == "rt"
+    assert oauth["expires_at"] == "2026-06-09T10:13:20Z"
+
+
+def test_accounts_remove_without_email_prints_usage(capsys):
+    cli.cmd_accounts(rest=["remove"])
+    out = capsys.readouterr().out
+    assert "usage: cli.py accounts remove <email>" in out

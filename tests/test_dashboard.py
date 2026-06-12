@@ -415,5 +415,30 @@ class TestPricingParity(unittest.TestCase):
             )
 
 
+def test_api_accounts_returns_cached_view_without_network():
+    from unittest.mock import patch
+    import accounts, dashboard
+    fake = [{"email": "a@b.com", "plan": "max_20x", "billing_day": 11,
+             "oauth": {}, "last_usage": {
+                 "five_hour": {"utilization": 30, "resets_at": "2026-06-12T19:00:00Z"},
+                 "seven_day": {"utilization": 10, "resets_at": "2026-06-15T07:00:00Z"},
+                 "fetched_at": "2026-06-12T14:00:00Z", "error": None}}]
+    with patch.object(accounts, "load_store", return_value={"accounts": fake}), \
+         patch.object(accounts, "fetch_all_usage") as live:
+        data = dashboard.get_accounts_data(refresh=False)
+    live.assert_not_called()
+    assert data["accounts"][0]["windows"]["five_hour"]["remaining_pct"] == 70
+    assert "oauth" not in data["accounts"][0]
+
+
+def test_api_accounts_refresh_calls_live_fetch():
+    from unittest.mock import patch
+    import accounts, dashboard
+    with patch.object(accounts, "fetch_all_usage", return_value=[]) as live:
+        data = dashboard.get_accounts_data(refresh=True)
+    live.assert_called_once()
+    assert data == {"accounts": []}
+
+
 if __name__ == "__main__":
     unittest.main()
