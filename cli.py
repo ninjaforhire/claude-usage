@@ -364,6 +364,20 @@ def cmd_stats():
     conn.close()
 
 
+def cmd_report(period: str = "today", view: str = "card") -> None:
+    from views import table_report, card_report, spark_report
+    conn = require_db()
+    conn.row_factory = sqlite3.Row
+    dispatch = {"table": table_report, "card": card_report, "spark": spark_report}
+    fn = dispatch.get(view)
+    if fn is None:
+        print(f"Unknown view '{view}'. Choose: table, card, spark")
+        conn.close()
+        return
+    fn(conn, period)
+    conn.close()
+
+
 def cmd_daemons(prompt=False, labels=None, out=None):
     import classify
     report = classify.build_report()
@@ -456,6 +470,8 @@ Usage:
   python cli.py daemons [--prompt] [--out FILE] [LABEL ...]
                                                  Daemon health/waste snapshot;
                                                  --prompt emits a repair prompt
+  python cli.py report [today|week|month|all] [--view table|card|spark]
+                                                 Usage report (default: today, card view)
 """
 
 COMMANDS = {
@@ -465,6 +481,7 @@ COMMANDS = {
     "stats": cmd_stats,
     "dashboard": cmd_dashboard,
     "daemons": cmd_daemons,
+    "report": cmd_report,
 }
 
 def parse_named_arg(args, flag):
@@ -505,5 +522,14 @@ if __name__ == "__main__":
             elif not a.startswith("--"):
                 labels.append(a)
         cmd_daemons(prompt="--prompt" in rest, labels=labels or None, out=out)
+    elif command == "report":
+        period_arg = "today"
+        view_arg = "card"
+        for i, a in enumerate(rest):
+            if a == "--view" and i + 1 < len(rest):
+                view_arg = rest[i + 1]
+            elif not a.startswith("--"):
+                period_arg = a
+        cmd_report(period=period_arg, view=view_arg)
     else:
         COMMANDS[command]()
