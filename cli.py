@@ -525,11 +525,17 @@ if __name__ == "__main__":
     elif command == "report":
         period_arg = "today"
         view_arg = "card"
-        for i, a in enumerate(rest):
+        i = 0
+        while i < len(rest):
+            a = rest[i]
             if a == "--view" and i + 1 < len(rest):
                 view_arg = rest[i + 1]
+                i += 2
             elif not a.startswith("--"):
                 period_arg = a
+                i += 1
+            else:
+                i += 1
         cmd_report(period=period_arg, view=view_arg)
     else:
         COMMANDS[command]()

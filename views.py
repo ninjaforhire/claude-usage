@@ -140,7 +140,10 @@ def _spark_line(values: list[float]) -> str:
     max_val = max(values)
     if max_val == 0:
         return _BLOCKS[0] * len(values)
-    return "".join(_BLOCKS[min(7, int(v / max_val * 8))] for v in values)
+    return "".join(
+        _BLOCKS[7] if v >= max_val else _BLOCKS[min(6, int(v / max_val * 7))]
+        for v in values
+    )
 
 
 def _cache_savings(data: dict) -> float:
@@ -229,7 +232,7 @@ def card_report(conn: sqlite3.Connection, period: str) -> None:
     print("┌" + "─" * w + "┐")
     print(f"│  {data['period_label']:<{w-2}}│")
     print(f"│  {header:<{w-2}}│")
-    print("├" + "─" * 14 + "┬" + "─" * 14 + "┬" + "─" * (w - 30) + "┐")
+    print("├" + "─" * 14 + "┬" + "─" * 14 + "┬" + "─" * (w - 30) + "┤")
 
     top = data["by_model"][:2]
     while len(top) < 2:
