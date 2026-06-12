@@ -15,7 +15,7 @@ from pathlib import Path
 
 STORE_PATH = Path.home() / ".claude" / "usage_accounts.json"
 
-TOKEN_URL = "https://console.anthropic.com/v1/oauth/token"
+TOKEN_URL = "https://platform.claude.com/v1/oauth/token"
 USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
 CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"  # Claude Code's public OAuth client identifier — not a secret
 SKEW = timedelta(seconds=60)
@@ -85,8 +85,13 @@ def keychain_oauth() -> dict:
 
 # ── HTTP helpers ──────────────────────────────────────────────────────────────
 
+# urllib's default Python-urllib UA gets Cloudflare-blocked (error 1010) on
+# platform.claude.com; present as the Claude Code CLI instead.
+_USER_AGENT = "claude-cli/2.1.0 (external, cli)"
+
+
 def _get_json(url: str, headers: dict, timeout: int = 10) -> dict:
-    req = urllib.request.Request(url, headers=headers)
+    req = urllib.request.Request(url, headers={"User-Agent": _USER_AGENT, **headers})
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         return json.loads(resp.read())
 
@@ -95,7 +100,7 @@ def _post_json(url: str, payload: dict, timeout: int = 10) -> dict:
     req = urllib.request.Request(
         url,
         data=json.dumps(payload).encode(),
-        headers={"Content-Type": "application/json"},
+        headers={"Content-Type": "application/json", "User-Agent": _USER_AGENT},
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
