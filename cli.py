@@ -8,6 +8,8 @@ Commands:
   dashboard - Scan + open browser + start dashboard server
 """
 
+from __future__ import annotations
+
 import json
 import os
 import subprocess

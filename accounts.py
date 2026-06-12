@@ -1,5 +1,7 @@
 """Multi-account OAuth credential store + usage fetch for the dashboard."""
 
+from __future__ import annotations
+
 import calendar
 import datetime as _dt
 import json
