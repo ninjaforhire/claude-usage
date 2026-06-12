@@ -6,6 +6,7 @@ import calendar
 import datetime as _dt
 import json
 import os
+import subprocess
 import threading
 import urllib.error
 import urllib.request
@@ -55,6 +56,31 @@ def upsert_account(acct: dict, path: Path = STORE_PATH) -> None:
         a for a in store["accounts"] if a["email"] != acct["email"]
     ] + [acct]
     save_store(store, path=path)
+
+
+def set_keychain_owner(email: str, path: Path = STORE_PATH) -> None:
+    """Mark which account currently owns the Claude Code keychain credentials."""
+    store = load_store(path=path)
+    store["keychain_owner"] = email
+    save_store(store, path=path)
+
+
+KEYCHAIN_SERVICE = "Claude Code-credentials"
+
+
+def keychain_oauth() -> dict:
+    """Read the live Claude Code keychain credentials as an oauth dict."""
+    raw = subprocess.run(
+        ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-w"],
+        capture_output=True, text=True, check=True,
+    ).stdout.strip()
+    creds = json.loads(raw)["claudeAiOauth"]
+    exp = datetime.fromtimestamp(creds["expiresAt"] / 1000, tz=timezone.utc)
+    return {
+        "access_token": creds["accessToken"],
+        "refresh_token": creds["refreshToken"],
+        "expires_at": exp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
 
 
 # ── HTTP helpers ──────────────────────────────────────────────────────────────
@@ -152,6 +178,18 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     for acct in store["accounts"]:
         try:
+            # The account logged into Claude Code rotates its own tokens,
+            # killing our snapshot (refresh tokens are single-use). For that
+            # account, prefer the live keychain credentials.
+            if store.get("keychain_owner") == acct["email"]:
+                try:
+                    kc = keychain_oauth()
+                    usage = fetch_usage(kc)
+                    acct["oauth"] = kc
+                    acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
+                    continue
+                except Exception:  # noqa: BLE001 — fall back to stored tokens
+                    pass
             if _is_expired(acct["oauth"]):
                 acct["oauth"] = _refresh(acct["oauth"])
                 save_store(store, path=path)  # persist rotated token even if fetch fails

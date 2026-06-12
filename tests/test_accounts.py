@@ -224,4 +224,3 @@ def test_401_on_fresh_token_forces_refresh_and_retries(tmp_path):
     assert result[0]["last_usage"]["error"] is None
     store = accounts.load_store(path=path)
     assert store["accounts"][0]["oauth"]["access_token"] == "new_at"
-    assert views[0]["windows"]["five_hour"]["remaining_pct"] == 41

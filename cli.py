@@ -522,6 +522,7 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
                 "error": None,
             },
         })
+        _accts.set_keychain_owner(email)
         print(f"Saved {email}. 5hr utilization: {usage['five_hour']['utilization']}%")
 
     elif sub == "list":
