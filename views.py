@@ -197,17 +197,17 @@ def _model_short(model: str) -> str:
     if "mythos" in m:  return "Mythos 5"
     if "opus" in m:
         for v in ("4-8", "4-7", "4-6", "4-5"):
-            if v in m:
+            if m.endswith(f"-{v}") or f"-{v}-" in m:
                 return f"Opus {v.replace('-', '.')}"
         return "Opus"
     if "sonnet" in m:
         for v in ("4-7", "4-6", "4-5"):
-            if v in m:
+            if m.endswith(f"-{v}") or f"-{v}-" in m:
                 return f"Sonnet {v.replace('-', '.')}"
         return "Sonnet"
     if "haiku" in m:
         for v in ("4-7", "4-6", "4-5"):
-            if v in m:
+            if m.endswith(f"-{v}") or f"-{v}-" in m:
                 return f"Haiku {v.replace('-', '.')}"
         return "Haiku"
     return model[:12]
@@ -257,7 +257,7 @@ def card_report(conn: sqlite3.Connection, period: str) -> None:
         f"  Rd {fmt(data['cache_read'])} / Wr {fmt(data['cache_creation'])}",
     ]
 
-    if other_cost > 0:
+    if len(data["by_model"]) > 2:
         other_col = [
             "  Other",
             f"  {fmt_cost(other_cost)} ({pct(other_cost)})",
