@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.3.0 — 2026-06-12
+
+### Account limit orbs (multi-account)
+
+- New Crystal Sphere orb row at the top of the dashboard showing 5-hour and weekly rate-limit capacity for every tracked Claude account, fed by each account's OAuth token via the official usage endpoint (same source as `/usage`). Orb fill = capacity remaining; color drains neon green → yellow → orange → red. "USE ME" badge marks the freshest account (≥85% 5hr remaining).
+- Per-account card: reset countdowns (client-side ticking), monthly renewal countdown, plan label. Accounts whose token refresh fails render grayed with a re-auth hint — the row never crashes.
+- Fetch is on-demand only: page load + ⟳ Refresh button, with a visible "last scan" relative timestamp. No background polling.
+- New `accounts.py`: credential store at `~/.claude/usage_accounts.json` (mode 600, atomic writes), OAuth refresh-token rotation (serialized — refresh tokens are single-use), usage fetch, credential-free `public_view()` for the API.
+- New CLI: `python cli.py accounts add` (captures the logged-in account's Claude Code keychain credentials), `accounts list`, `accounts remove <email>`.
+- New routes: `GET /api/accounts` (cached) and `POST /api/accounts/refresh` (live fetch).
+- Python 3.9 compatibility for the launchd daemon (`from __future__ import annotations`).
+- 22 new tests (87 total passing in the touched suites).
+
 ## v1.2.4 — 2026-05-30
 
 ### Dashboard

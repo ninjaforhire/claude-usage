@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Orb Styles — Pick One</title>
+<style>
+  :root{
+    --bg:#0b0e13; --panel:#11161f; --line:#1d2530; --txt:#d7dee8; --dim:#7a8696;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font:14px/1.5 -apple-system,'SF Pro Text',Segoe UI,sans-serif;padding:32px}
+  h1{font-size:20px;font-weight:700;letter-spacing:-.02em;margin-bottom:4px}
+  .sub{color:var(--dim);margin-bottom:28px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px;margin-bottom:28px}
+  section h2{font-size:15px;margin-bottom:2px}
+  section .desc{color:var(--dim);font-size:12.5px;margin-bottom:20px}
+  .row{display:flex;gap:18px;flex-wrap:wrap}
+  .acct{flex:1;min-width:280px;background:#0d1118;border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .acct-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .email{font-size:12.5px;font-weight:600}
+  .plan{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em}
+  .pair{display:flex;gap:16px;justify-content:center}
+  .gauge{text-align:center}
+  .glabel{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-top:8px}
+  .timer{font-size:11px;color:var(--txt);font-variant-numeric:tabular-nums;margin-top:2px}
+  .pct{font-weight:700;font-size:13px}
+  .meta{display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid var(--line);font-size:10.5px;color:var(--dim)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em}
+  .badge.best{background:#0f2;color:#031;box-shadow:0 0 12px #0f26}
+
+  /* ════ STYLE A — Diablo liquid orb ════ */
+  .orbA{position:relative;width:96px;height:96px;border-radius:50%;overflow:hidden;margin:0 auto;
+    background:radial-gradient(circle at 35% 30%, #1a2330, #06080c 70%);
+    border:3px solid #2a3342;
+    box-shadow:inset 0 0 18px #000, 0 4px 14px rgba(0,0,0,.6);}
+  .orbA .fill{position:absolute;left:0;right:0;bottom:0;transition:height .8s;
+    background:linear-gradient(180deg, var(--c-hi) 0%, var(--c-lo) 100%);
+    box-shadow:0 0 24px var(--c-hi), inset 0 6px 12px rgba(255,255,255,.35);}
+  .orbA .fill::before{content:'';position:absolute;top:-7px;left:-10%;width:120%;height:14px;border-radius:50%;
+    background:var(--c-hi);filter:brightness(1.5);opacity:.9;
+    animation:slosh 3.2s ease-in-out infinite;}
+  .orbA .gloss{position:absolute;top:8%;left:16%;width:42%;height:26%;border-radius:50%;
+    background:radial-gradient(ellipse at center, rgba(255,255,255,.55), transparent 70%);pointer-events:none}
+  .orbA .bubble{position:absolute;bottom:6px;border-radius:50%;background:rgba(255,255,255,.35);
+    animation:rise 4s linear infinite;pointer-events:none}
+  .orbA .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:18px;text-shadow:0 1px 4px rgba(0,0,0,.9);z-index:2}
+  @keyframes slosh{0%,100%{transform:translateY(0) scaleX(1)}50%{transform:translateY(2px) scaleX(1.04)}}
+  @keyframes rise{0%{transform:translateY(0);opacity:.7}100%{transform:translateY(-60px);opacity:0}}
+
+  /* ════ STYLE B — Neon ring orb ════ */
+  .orbB{position:relative;width:96px;height:96px;margin:0 auto}
+  .orbB svg{transform:rotate(-90deg)}
+  .orbB .track{stroke:#1c2430;fill:none}
+  .orbB .arc{fill:none;stroke-linecap:round;transition:stroke-dashoffset .8s;
+    filter:drop-shadow(0 0 6px var(--c-hi))}
+  .orbB .core{position:absolute;inset:14px;border-radius:50%;
+    background:radial-gradient(circle at 38% 32%, #141c28, #07090d 75%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    border:1px solid #222c3a}
+  .orbB .core .pctv{font-weight:800;font-size:17px;color:var(--c-hi);text-shadow:0 0 10px var(--c-hi)}
+  .orbB .core .tmr{font-size:9.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+  /* ════ STYLE C — Crystal mana sphere (heavy glass) ════ */
+  .orbC{position:relative;width:104px;height:104px;border-radius:50%;margin:0 auto;overflow:hidden;
+    background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), rgba(255,255,255,0) 45%),
+               radial-gradient(circle at 70% 80%, rgba(120,160,255,.06), transparent 60%),
+               radial-gradient(circle at 50% 50%, #0c1119, #04060a 80%);
+    border:1px solid rgba(255,255,255,.14);
+    box-shadow:inset 0 0 30px rgba(0,0,0,.9), inset 0 2px 6px rgba(255,255,255,.18),
+               0 10px 24px rgba(0,0,0,.7), 0 0 28px var(--c-glow);}
+  .orbC .fill{position:absolute;left:-12%;right:-12%;bottom:-4px;transition:height .8s;border-radius:42% 46% 0 0/14px 18px 0 0;
+    background:linear-gradient(180deg, var(--c-hi), var(--c-lo) 85%);
+    box-shadow:0 -2px 18px var(--c-hi), inset 0 10px 20px rgba(255,255,255,.28);
+    animation:tilt 5s ease-in-out infinite}
+  @keyframes tilt{0%,100%{transform:rotate(-1.6deg)}50%{transform:rotate(1.6deg)}}
+  .orbC .glints{position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 40% 18% at 30% 14%, rgba(255,255,255,.6), transparent 70%),
+               radial-gradient(ellipse 16% 8% at 68% 22%, rgba(255,255,255,.35), transparent 70%)}
+  .orbC .rim{position:absolute;inset:-1px;border-radius:50%;pointer-events:none;
+    border:2px solid transparent;
+    background:linear-gradient(160deg, rgba(255,255,255,.35), transparent 30%, transparent 70%, rgba(255,255,255,.12)) border-box;
+    -webkit-mask:linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude}
+  .orbC .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:19px;letter-spacing:-.02em;text-shadow:0 2px 6px rgba(0,0,0,.95);z-index:2}
+</style>
+</head>
+<body>
+<h1>Account Usage Orbs — 3 Styles</h1>
+<p class="sub">Orb level = capacity REMAINING. Full + neon green = fresh account. Drains green → yellow → orange → red as you burn it. Demo values: hotfixops 92% left · mightyphotobooths 41% left · third 9% left.</p>
+
+<section id="styleA">
+  <h2>Style A — Diablo Liquid Orb</h2>
+  <p class="desc">Sloshing liquid surface, rising bubbles, wet gloss. Closest to the D2 health/mana globes.</p>
+  <div class="row" id="rowA"></div>
+</section>
+
+<section id="styleB">
+  <h2>Style B — Neon Ring Orb</h2>
+  <p class="desc">Glass core + glowing progress ring. Cleanest data-readout; timer lives inside the orb. Cheapest to render.</p>
+  <div class="row" id="rowB"></div>
+</section>
+
+<section id="styleC">
+  <h2>Style C — Crystal Mana Sphere</h2>
+  <p class="desc">Heavy glassmorphism: rim light, double glint, tilting liquid plane, ambient glow that matches fill color. Most premium.</p>
+  <div class="row" id="rowC"></div>
+</section>
+
+<script>
+const ACCOUNTS=[
+  {email:'andrew@hotfixops.com',      five:92, week:88, fiveT:'4h 12m', weekT:'5d 09h', bill:'18d'},
+  {email:'andrew@mightyphotobooths…', five:41, week:55, fiveT:'1h 47m', weekT:'2d 03h', bill:'6d'},
+  {email:'third@account…',            five:9,  week:23, fiveT:'0h 22m', weekT:'0d 14h', bill:'24d'},
+];
+// remaining% -> color. neon green down to red.
+function col(p){
+  if(p>=60) return ['#39ff6e','#0fae3e'];      // neon green
+  if(p>=35) return ['#ffe23d','#c69b08'];      // yellow
+  if(p>=15) return ['#ff9433','#c45b06'];      // orange
+  return ['#ff3b3b','#b30f0f'];                 // red
+}
+function acctShell(a, inner){
+  const best = a.five>=85 ? '<span class="badge best">USE ME</span>' : '';
+  return `<div class="acct">
+    <div class="acct-head"><div><div class="email">${a.email}</div><div class="plan">Max 20x</div></div>${best}</div>
+    ${inner}
+    <div class="meta"><span>renews in ${a.bill}</span><span>last scan 2m ago ⟳</span></div>
+  </div>`;
+}
+function gauge(label, timer, orbHtml){
+  return `<div class="gauge">${orbHtml}<div class="glabel">${label}</div><div class="timer">resets ${timer}</div></div>`;
+}
+// ── A
+document.getElementById('rowA').innerHTML = ACCOUNTS.map(a=>{
+  const orb=(p)=>{const[hi,lo]=col(p);
+    let bub='';for(let i=0;i<4;i++)bub+=`<span class="bubble" style="left:${15+i*20}%;width:${3+i%3*2}px;height:${3+i%3*2}px;animation-delay:${i*0.9}s"></span>`;
+    return `<div class="orbA" style="--c-hi:${hi};--c-lo:${lo}">
+      <div class="fill" style="height:${p}%">${bub}</div><div class="gloss"></div><div class="num">${p}%</div></div>`;};
+  return acctShell(a, `<div class="pair">${gauge('5 hr', a.fiveT, orb(a.five))}${gauge('Weekly', a.weekT, orb(a.week))}</div>`);
+}).join('');
+// ── B
+document.getElementById('rowB').innerHTML = ACCOUNTS.map(a=>{
+  const orb=(p,t)=>{const[hi]=col(p);const R=44,C=2*Math.PI*R;
+    return `<div class="orbB" style="--c-hi:${hi}">
+      <svg width="96" height="96"><circle class="track" cx="48" cy="48" r="${R}" stroke-width="7"/>
+      <circle class="arc" cx="48" cy="48" r="${R}" stroke-width="7" stroke="${hi}"
+        stroke-dasharray="${C}" stroke-dashoffset="${C*(1-p/100)}"/></svg>
+      <div class="core"><div class="pctv">${p}%</div><div class="tmr">${t}</div></div></div>`;};
+  return acctShell(a, `<div class="pair">${gauge('5 hr','&nbsp;',orb(a.five,a.fiveT))}${gauge('Weekly','&nbsp;',orb(a.week,a.weekT))}</div>`);
+}).join('');
+// ── C
+document.getElementById('rowC').innerHTML = ACCOUNTS.map(a=>{
+  const orb=(p)=>{const[hi,lo]=col(p);
+    return `<div class="orbC" style="--c-hi:${hi};--c-lo:${lo};--c-glow:${hi}55">
+      <div class="fill" style="height:${p}%"></div><div class="glints"></div><div class="rim"></div>
+      <div class="num">${p}%</div></div>`;};
+  return acctShell(a, `<div class="pair">${gauge('5 hr', a.fiveT, orb(a.five))}${gauge('Weekly', a.weekT, orb(a.week))}</div>`);
+}).join('');
+</script>
+</body>
+</html>
