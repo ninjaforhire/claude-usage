@@ -128,3 +128,16 @@ def fetch_period_data(conn: sqlite3.Connection, period: str) -> dict:
         "period_label": label,
         "date_range": (start, end),
     }
+
+
+_BLOCKS = "▁▂▃▄▅▆▇█"
+
+
+def _spark_line(values: list[float]) -> str:
+    """Map a list of floats to an 8-level block-character spark string."""
+    if not values:
+        return ""
+    max_val = max(values)
+    if max_val == 0:
+        return _BLOCKS[0] * len(values)
+    return "".join(_BLOCKS[min(7, int(v / max_val * 8))] for v in values)

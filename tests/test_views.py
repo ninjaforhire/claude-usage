@@ -134,3 +134,36 @@ class TestFetchPeriodData(unittest.TestCase):
             mock_date.fromisoformat = real_date.fromisoformat
             data = fetch_period_data(self.conn, "today")
         self.assertEqual(data["by_day"], [])
+
+
+class TestSparkLine(unittest.TestCase):
+    def test_all_zeros_returns_flat(self):
+        from views import _spark_line
+        result = _spark_line([0, 0, 0, 0])
+        self.assertEqual(result, "▁▁▁▁")
+
+    def test_single_nonzero_returns_max_at_that_position(self):
+        from views import _spark_line
+        result = _spark_line([0, 0, 5.0, 0])
+        self.assertIn("█", result)
+        self.assertEqual(result[2], "█")
+        self.assertEqual(result[0], "▁")
+
+    def test_all_equal_nonzero_returns_all_max(self):
+        from views import _spark_line
+        result = _spark_line([3.0, 3.0, 3.0])
+        self.assertTrue(all(c == "█" for c in result))
+
+    def test_length_matches_input(self):
+        from views import _spark_line
+        self.assertEqual(len(_spark_line([1, 2, 3, 4, 5, 6, 7, 8])), 8)
+
+    def test_ascending_sequence_is_monotone(self):
+        from views import _spark_line
+        blocks = "▁▂▃▄▅▆▇█"
+        result = _spark_line([1, 2, 3, 4, 5, 6, 7, 8])
+        for i in range(len(result) - 1):
+            self.assertLessEqual(
+                blocks.index(result[i]), blocks.index(result[i + 1]),
+                f"Non-monotone at position {i}: {result}"
+            )
