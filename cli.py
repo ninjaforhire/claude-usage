@@ -501,7 +501,11 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
         raw = _read_keychain()
         oauth = parse_keychain_credentials(raw)
         usage = _accts.fetch_usage(oauth)
-        email = input("Account email for these credentials: ").strip()
+        email = _accts.fetch_profile_email(oauth)
+        if not email:
+            email = input("Account email for these credentials: ").strip()
+        else:
+            print(f"Detected account: {email}")
         billing = input("Billing renewal day-of-month (e.g. 11): ").strip()
         try:
             billing_day = int(billing)
@@ -522,7 +526,6 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
                 "error": None,
             },
         })
-        _accts.set_keychain_owner(email)
         print(f"Saved {email}. 5hr utilization: {usage['five_hour']['utilization']}%")
 
     elif sub == "list":

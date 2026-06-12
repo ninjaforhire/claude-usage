@@ -214,7 +214,8 @@ def test_401_on_fresh_token_forces_refresh_and_retries(tmp_path):
             raise urllib.error.HTTPError(url, 401, "Unauthorized", None, None)
         return USAGE_RESPONSE
 
-    with patch.object(accounts, "_get_json", side_effect=fake_get), \
+    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
+         patch.object(accounts, "_get_json", side_effect=fake_get), \
          patch.object(accounts, "_post_json") as post:
         post.return_value = {"access_token": "new_at",
                              "refresh_token": "new_rt", "expires_in": 3600}

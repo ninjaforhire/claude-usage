@@ -157,6 +157,18 @@ def _extract_windows(raw: dict) -> dict:
     }
 
 
+PROFILE_URL = "https://api.anthropic.com/api/oauth/profile"
+
+
+def fetch_profile_email(oauth: dict) -> str | None:
+    """Return the account email for an access token (identity check)."""
+    raw = _get_json(PROFILE_URL, {
+        "Authorization": f"Bearer {oauth['access_token']}",
+        "anthropic-beta": "oauth-2025-04-20",
+    })
+    return (raw.get("account") or {}).get("email")
+
+
 def fetch_usage(oauth: dict) -> dict:
     """Fetch current usage for a single account; returns parsed usage dict."""
     raw = _get_json(USAGE_URL, {
@@ -181,14 +193,19 @@ def fetch_all_usage(path: Path = STORE_PATH) -> list[dict]:
 def _fetch_all_usage_locked(path: Path) -> list[dict]:
     store = load_store(path=path)
     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # The account logged into Claude Code rotates its own tokens, killing our
+    # snapshot (refresh tokens are single-use). Resolve the live keychain's
+    # identity once and prefer those credentials for the matching account.
+    kc, kc_email = None, None
+    try:
+        kc = keychain_oauth()
+        kc_email = fetch_profile_email(kc)
+    except Exception:  # noqa: BLE001 — no keychain / offline: stored tokens only
+        kc = None
     for acct in store["accounts"]:
         try:
-            # The account logged into Claude Code rotates its own tokens,
-            # killing our snapshot (refresh tokens are single-use). For that
-            # account, prefer the live keychain credentials.
-            if store.get("keychain_owner") == acct["email"]:
+            if kc and kc_email and acct["email"] == kc_email:
                 try:
-                    kc = keychain_oauth()
                     usage = fetch_usage(kc)
                     acct["oauth"] = kc
                     acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
