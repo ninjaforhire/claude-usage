@@ -1507,6 +1507,7 @@ function fmtCountdown(iso) {
 }
 
 function fmtAgo(iso) {
+  if (!iso) return 'never';
   const s = Math.floor((Date.now() - new Date(iso)) / 1000);
   if (isNaN(s)) return 'never';
   if (s < 60) return s + 's ago';
@@ -1523,6 +1524,13 @@ function orbHtml(w) {
 
 function renderAccounts() {
   if (!ACCT_DATA) return;
+  const fetched = document.getElementById('accounts-fetched');
+  if (ACCT_DATA.error) {
+    fetched.textContent = 'fetch failed: ' + ACCT_DATA.error;
+    fetched.style.color = '#ff6b6b';
+    return;
+  }
+  fetched.style.color = '';
   const accts = ACCT_DATA.accounts;
   const bestPct = Math.max(...accts.map(a => a.windows.five_hour ? a.windows.five_hour.remaining_pct : -1));
   document.getElementById('accounts-row').innerHTML = accts.map(a => {
@@ -1554,12 +1562,21 @@ async function loadAccounts() {
 }
 
 async function refreshAccounts() {
+  if (refreshAccounts.busy) return;
+  refreshAccounts.busy = true;
   const btn = document.getElementById('accounts-refresh-btn');
   btn.disabled = true;
   try {
-    ACCT_DATA = await (await fetch('/api/accounts/refresh', {method: 'POST'})).json();
-  } finally { btn.disabled = false; }
-  renderAccounts();
+    const resp = await fetch('/api/accounts/refresh', {method: 'POST'});
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    ACCT_DATA = await resp.json();
+    renderAccounts();
+  } catch(e) {
+    document.getElementById('accounts-fetched').textContent = 'refresh failed';
+  } finally {
+    refreshAccounts.busy = false;
+    btn.disabled = false;
+  }
 }
 
 setInterval(renderAccounts, 30000);  // tick countdowns + freshness label
@@ -1656,7 +1673,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self._send_json(classify.build_report())
 
         elif path == "/api/accounts":
-            self._send_json(get_accounts_data(refresh=False))
+            try:
+                self._send_json(get_accounts_data(refresh=False))
+            except Exception as e:
+                self._send_json({"accounts": [], "error": str(e)})
 
         elif path == "/icon.svg":
             icon = find_icon_file()
@@ -1709,7 +1729,10 @@ class DashboardHandler(BaseHTTPRequestHandler):
             )
 
         elif path == "/api/accounts/refresh":
-            self._send_json(get_accounts_data(refresh=True))
+            try:
+                self._send_json(get_accounts_data(refresh=True))
+            except Exception as e:
+                self._send_json({"accounts": [], "error": str(e)})
 
         else:
             self.send_response(404)

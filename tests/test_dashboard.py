@@ -435,8 +435,9 @@ def test_api_accounts_refresh_calls_live_fetch():
     from unittest.mock import patch
     import accounts, dashboard
     with patch.object(accounts, "fetch_all_usage", return_value=[]) as live:
-        dashboard.get_accounts_data(refresh=True)
+        data = dashboard.get_accounts_data(refresh=True)
     live.assert_called_once()
+    assert data == {"accounts": []}
 
 
 if __name__ == "__main__":
