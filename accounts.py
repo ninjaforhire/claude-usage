@@ -285,3 +285,166 @@ def public_view(accts: list[dict]) -> list[dict]:
                 }
         out.append(entry)
     return out
+
+
+# ── Subscription cost + lifetime spend ────────────────────────────────────────
+# An account carries `monthly_cost` (USD/mo) and `subscription_intervals`: a list
+# of {"start": "YYYY-MM-DD", "end": "YYYY-MM-DD" | None}. end=None means the
+# subscription is currently open. Multiple intervals capture cancel/restart gaps
+# (Andrew doesn't keep all 3 Max accounts running continuously).
+
+_AVG_MONTH_DAYS = 30.4375  # 365.25 / 12 — prorate partial months for lifetime spend
+
+
+def _as_date(s) -> _dt.date:
+    return _dt.date.fromisoformat(s)
+
+
+def months_active(intervals: list[dict] | None, today: _dt.date | None = None) -> float:
+    """Total prorated months a subscription has been active across all intervals.
+
+    A None/missing end is treated as still-open (counts through today). Future
+    starts and inverted ranges contribute nothing; ends are capped at today so
+    lifetime spend never bills the future.
+    """
+    today = today or _dt.date.today()
+    days = 0
+    for iv in intervals or []:
+        start = _as_date(iv["start"])
+        end = _as_date(iv["end"]) if iv.get("end") else today
+        if end > today:
+            end = today
+        if end > start:
+            days += (end - start).days
+    return days / _AVG_MONTH_DAYS
+
+
+def is_active(account: dict, today: _dt.date | None = None) -> bool:
+    """True if any subscription interval is open on `today`."""
+    today = today or _dt.date.today()
+    for iv in account.get("subscription_intervals") or []:
+        start = _as_date(iv["start"])
+        end = _as_date(iv["end"]) if iv.get("end") else today
+        if start <= today <= end:
+            return True
+    return False
+
+
+def current_monthly_cost(account: dict, today: _dt.date | None = None) -> float:
+    """The monthly_cost if the account is currently subscribed, else 0."""
+    return float(account.get("monthly_cost", 0)) if is_active(account, today) else 0.0
+
+
+def lifetime_spend(account: dict, today: _dt.date | None = None) -> float:
+    """Total USD spent on this subscription to date.
+
+    Prefers the actual `charges` ledger (real amounts paid, tax included) when
+    present — exact and authoritative. Falls back to a prorated estimate
+    (monthly_cost x months active) for accounts with no receipts captured yet.
+    """
+    charges = account.get("charges")
+    if charges:
+        return round(sum(float(c["amount"]) for c in charges), 2)
+    cost = float(account.get("monthly_cost", 0))
+    return round(cost * months_active(account.get("subscription_intervals"), today), 2)
+
+
+# ── Optimal-account recommendation (hybrid score) ─────────────────────────────
+# Goal (Andrew): maximize the Max subscriptions while they're active, defaulting
+# to the main account. Score blends headroom (5hr + weekly remaining), a
+# use-it-or-lose-it "drain" boost for accounts that renew soon with unused weekly
+# allowance, and a bias toward the main account.
+
+MAIN_BONUS = 8.0          # flat score bump for the main account
+DRAIN_WINDOW_DAYS = 14    # renewal-drain only engages within this many days
+THROTTLE_PCT = 15         # 5hr remaining below this = effectively throttled
+
+
+def _healthy(entry: dict) -> bool:
+    """An entry is usable if it errored-free and has both usage windows."""
+    w = entry.get("windows") or {}
+    return not entry.get("error") and "five_hour" in w and "seven_day" in w
+
+
+def account_score(entry: dict) -> tuple[float, list[str]]:
+    """Return (0-100 score, human reasons) for a public_view entry.
+
+    `entry` must already carry `is_main` and `renews_in_days`.
+    """
+    if not _healthy(entry):
+        return 0.0, ["usage unavailable"]
+    h5 = entry["windows"]["five_hour"]["remaining_pct"]
+    h7 = entry["windows"]["seven_day"]["remaining_pct"]
+    # Weekly is the bigger budget; 5hr is the immediate gate — weight weekly more.
+    headroom = 0.4 * h5 + 0.6 * h7
+    reasons = [f"{h7}% weekly free", f"{h5}% 5h free"]
+
+    days = entry.get("renews_in_days")
+    drain = 0.0
+    if days is not None and days <= DRAIN_WINDOW_DAYS:
+        drain = h7 * max(0.0, (DRAIN_WINDOW_DAYS - days) / DRAIN_WINDOW_DAYS)
+        if drain >= 20:
+            reasons.append(f"renews in {days}d — burn weekly now")
+
+    raw = 0.6 * headroom + 0.4 * drain
+    if entry.get("is_main"):
+        raw = min(100.0, raw + MAIN_BONUS)
+        reasons.append("main account")
+    if h5 < THROTTLE_PCT:
+        reasons.append("5h throttled")
+    return round(raw, 1), reasons
+
+
+def recommend(entries: list[dict]) -> tuple[str | None, dict]:
+    """Pick the optimal account email + per-account {score, reasons}.
+
+    Ties break toward the main account. If every account is unhealthy, fall back
+    to the main account (or the first listed).
+    """
+    scored = {}
+    ranking = []
+    for e in entries:
+        s, r = account_score(e)
+        scored[e["email"]] = {"score": s, "reasons": r}
+        ranking.append((s, bool(e.get("is_main")), e["email"]))
+
+    healthy = [x for x in ranking if x[0] > 0]
+    if healthy:
+        optimal = max(healthy, key=lambda x: (x[0], x[1]))[2]
+    else:
+        mains = [x for x in ranking if x[1]]
+        optimal = (mains or ranking or [(0, False, None)])[0][2]
+    return optimal, scored
+
+
+def dashboard_payload(accts: list[dict], today: _dt.date | None = None) -> dict:
+    """Full dashboard JSON: per-account orbs + cost/lifetime + optimal pick.
+
+    Composes `public_view` (orb/usage data) with subscription cost, lifetime
+    spend, and the hybrid recommendation, plus a combined-spend summary.
+    """
+    entries = public_view(accts)
+    by_email = {a["email"]: a for a in accts}
+    for e in entries:
+        a = by_email[e["email"]]
+        e["is_main"] = bool(a.get("is_main", False))
+        e["monthly_cost"] = float(a.get("monthly_cost", 0))
+        e["subscription_intervals"] = a.get("subscription_intervals", [])
+        e["active"] = is_active(a, today)
+        e["current_monthly_cost"] = current_monthly_cost(a, today)
+        e["lifetime_spend"] = lifetime_spend(a, today)
+
+    optimal, scored = recommend(entries)
+    for e in entries:
+        s = scored.get(e["email"], {})
+        e["score"] = s.get("score", 0.0)
+        e["reasons"] = s.get("reasons", [])
+        e["is_optimal"] = e["email"] == optimal
+
+    summary = {
+        "optimal_email": optimal,
+        "active_accounts": sum(1 for e in entries if e["active"]),
+        "total_current_monthly": round(sum(e["current_monthly_cost"] for e in entries), 2),
+        "total_lifetime": round(sum(e["lifetime_spend"] for e in entries), 2),
+    }
+    return {"accounts": entries, "summary": summary}
