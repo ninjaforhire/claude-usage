@@ -67,6 +67,24 @@ PAGE = r"""<!DOCTYPE html>
                     border:1px solid var(--border); border-radius:6px; font-family:ui-monospace,monospace;
                     font-size:12px; padding:10px; }
   .hint { color:var(--muted); font-size:12px; margin:6px 0 14px; }
+  .vitals { display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+  .gauge { background:var(--card); border:1px solid var(--border); border-radius:8px;
+           padding:12px 16px; min-width:150px; flex:1; }
+  .gauge .g-label { color:var(--muted); font-size:11px; text-transform:uppercase; }
+  .gauge .g-val { font-size:20px; font-weight:600; margin:4px 0; }
+  .gauge .g-sub { color:var(--muted); font-size:12px; }
+  .bar { height:6px; background:#0c0f15; border-radius:4px; overflow:hidden; margin-top:8px; }
+  .bar > span { display:block; height:100%; background:var(--healthy); }
+  .bar.warn > span { background:var(--waste); }
+  .bar.critical > span { background:var(--rogue); }
+  .vfindings { background:var(--card); border:1px solid var(--border); border-radius:8px;
+               padding:10px 14px; margin-bottom:18px; }
+  .vfindings .vf { font-size:13px; padding:3px 0; }
+  .vf-critical { color:var(--rogue); } .vf-warn { color:var(--waste); }
+  .sev-pill { padding:2px 10px; border-radius:10px; font-size:11px; font-weight:600; }
+  .sev-ok { background:rgba(52,211,153,.16); color:var(--healthy); }
+  .sev-warn { background:rgba(240,160,32,.18); color:var(--waste); }
+  .sev-critical { background:rgba(248,113,113,.18); color:var(--rogue); }
 </style>
 </head>
 <body>
@@ -80,6 +98,14 @@ PAGE = r"""<!DOCTYPE html>
 </header>
 
 <div class="container">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <h2 style="font-size:15px;margin:0">System Vitals</h2>
+    <span class="sev-pill" id="vitals-sev">—</span>
+    <span class="hint" id="vitals-ts"></span>
+  </div>
+  <div class="vitals" id="vitals"></div>
+  <div class="vfindings" id="vitals-findings" style="display:none"></div>
+
   <div class="counts" id="counts"></div>
 
   <div class="seg" id="view-seg">
@@ -231,6 +257,45 @@ async function copyPrompt(){
   dlg.showModal();
 }
 async function copyFromDialog(){ try{ await navigator.clipboard.writeText(document.getElementById('dlg-text').value); }catch(e){} }
+
+function gauge(label, val, sub, pct, sev){
+  const cls = sev==='critical'?'critical':(sev==='warn'?'warn':'');
+  const w = Math.max(0, Math.min(100, pct||0));
+  return `<div class="gauge"><div class="g-label">${esc(label)}</div>`
+    + `<div class="g-val">${esc(val)}</div><div class="g-sub">${esc(sub)}</div>`
+    + `<div class="bar ${cls}"><span style="width:${w}%"></span></div></div>`;
+}
+async function loadVitals(){
+  let d;
+  try { d = await (await fetch('/api/vitals')).json(); } catch(e){ return; }
+  const sevEl = document.getElementById('vitals-sev');
+  if(!d || !d.vitals){
+    sevEl.className='sev-pill sev-warn'; sevEl.textContent='no data';
+    document.getElementById('vitals-ts').textContent = d && d.error ? d.error : 'system-sentinel has not reported yet';
+    return;
+  }
+  const v=d.vitals, sev=d.severity||'ok';
+  sevEl.className='sev-pill sev-'+sev; sevEl.textContent=sev.toUpperCase();
+  document.getElementById('vitals-ts').textContent = 'updated ' + new Date(d.ts).toLocaleTimeString();
+  const m=v.memory||{}, s=v.swap||{}, c=v.cpu||{}, k=v.disk||{};
+  const memSev = m.pressure_level>=4?'critical':(m.pressure_level>=2||m.free_pct<10?'warn':'ok');
+  const swSev = s.used_mb>8192?'critical':(s.used_mb>4096?'warn':'ok');
+  const cpuSev = c.load_per_core>3?'critical':(c.load_per_core>1.5?'warn':'ok');
+  const dkSev = k.free_gb<10?'critical':(k.free_gb<25?'warn':'ok');
+  document.getElementById('vitals').innerHTML = [
+    gauge('Memory', (m.used_pct||0)+'% used', (m.free_gb||0)+' GB free · pressure '+(m.pressure_level||1), m.used_pct, memSev),
+    gauge('Swap', (s.used_mb||0).toFixed(0)+' MB', 'used of '+(s.total_mb||0).toFixed(0)+' MB', s.total_mb?100*s.used_mb/s.total_mb:0, swSev),
+    gauge('CPU', (c.used_pct||0)+'% used', 'load/core '+(c.load_per_core||0)+' · '+(c.ncpu||0)+' cores', c.used_pct, cpuSev),
+    gauge('Disk', (k.free_gb||0)+' GB free', (k.used_pct||0)+'% used of '+(k.total_gb||0)+' GB', k.used_pct, dkSev),
+  ].join('');
+  const fEl=document.getElementById('vitals-findings');
+  const fs=d.findings||[];
+  if(fs.length){
+    fEl.style.display='block';
+    fEl.innerHTML = fs.slice().sort((a,b)=>(a.severity<b.severity?1:-1)).map(f=>
+      `<div class="vf vf-${esc(f.severity)}">[${esc(f.severity)}] ${esc(f.detail)}</div>`).join('');
+  } else { fEl.style.display='none'; }
+}
 async function exportPrompt(){
   if(!selected.size){ alert('Select at least one item.'); return; }
   const text = await genPrompt();
@@ -240,6 +305,8 @@ async function exportPrompt(){
   const a=document.createElement('a'); a.href=url; a.download=name; a.click(); URL.revokeObjectURL(url);
 }
 load();
+loadVitals();
+setInterval(loadVitals, 30000);
 </script>
 </body>
 </html>

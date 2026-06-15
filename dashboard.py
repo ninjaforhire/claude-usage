@@ -1672,6 +1672,19 @@ class DashboardHandler(BaseHTTPRequestHandler):
             import classify
             self._send_json(classify.build_report())
 
+        elif path == "/api/vitals":
+            # Live system vitals snapshot written by the system-sentinel daemon
+            # (com.mighty.system-sentinel). Report-only; the dashboard never acts.
+            vpath = Path.home() / ".claude" / "daemon-registry" / "system_vitals_latest.json"
+            try:
+                with open(vpath) as fh:
+                    self._send_json(json.load(fh))
+            except (OSError, ValueError) as exc:
+                # Don't echo raw exception text (filesystem paths / OS error
+                # detail) back to the client; log locally, return a generic error.
+                print(f"[/api/vitals] read failed: {exc}")
+                self._send_json({"error": "vitals unavailable", "vitals": None, "findings": []})
+
         elif path == "/api/accounts":
             try:
                 self._send_json(get_accounts_data(refresh=False))
