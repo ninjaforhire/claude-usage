@@ -437,7 +437,7 @@ def test_api_accounts_refresh_calls_live_fetch():
     with patch.object(accounts, "fetch_all_usage", return_value=[]) as live:
         data = dashboard.get_accounts_data(refresh=True)
     live.assert_called_once()
-    assert data == {"accounts": []}
+    assert data["accounts"] == []  # payload now also carries a summary block
 
 
 if __name__ == "__main__":

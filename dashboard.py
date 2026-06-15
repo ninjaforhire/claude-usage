@@ -310,6 +310,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
 <div id="accounts-bar">
   <strong style="color:#d7dee8">Account Limits</strong>
   <span id="accounts-fetched">never fetched</span>
+  <span id="accounts-total" style="margin-left:auto;color:#9aa7b6;font-variant-numeric:tabular-nums"></span>
   <button id="accounts-refresh-btn" class="filter-btn" onclick="refreshAccounts()">&#x21bb; Refresh</button>
 </div>
 <div id="accounts-row"></div>
@@ -1500,6 +1501,7 @@ async function loadData() {
 let ACCT_DATA = null;
 
 function fmtCountdown(iso) {
+  if (!iso) return 'full';   // null resets_at = window untouched, nothing to reset
   const ms = new Date(iso) - Date.now();
   if (isNaN(ms) || ms <= 0) return 'resetting…';
   const h = Math.floor(ms / 3600000), m = Math.floor(ms % 3600000 / 60000);
@@ -1534,25 +1536,29 @@ function renderAccounts() {
   const accts = ACCT_DATA.accounts;
   const bestPct = Math.max(...accts.map(a => a.windows.five_hour ? a.windows.five_hour.remaining_pct : -1));
   document.getElementById('accounts-row').innerHTML = accts.map(a => {
+    const cost = `<span title="actual receipts, tax incl">$${(a.lifetime_spend||0).toFixed(2)} lifetime · $${(a.monthly_cost||0).toFixed(0)}/mo</span>`;
     if (a.error) return `<div class="acct-card acct-error">
       <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
       <div class="acct-plan">${esc(a.plan)}</div></div></div>
-      <div class="acct-error-msg">re-auth: python3 cli.py accounts add<br>${esc(a.error)}</div></div>`;
-    const badge = (a.windows.five_hour && a.windows.five_hour.remaining_pct === bestPct
-                   && bestPct >= 85) ? '<span class="acct-badge">USE ME</span>' : '';
+      <div class="acct-error-msg">re-auth: python3 cli.py accounts add<br>${esc(a.error)}</div>
+      <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span>${cost}</div></div>`;
+    const badge = a.is_optimal ? '<span class="acct-badge">USE ME</span>' : '';
     const gauge = (label, w) => w ? `<div class="acct-gauge">${orbHtml(w)}
       <div class="acct-glabel">${label}</div>
-      <div class="acct-timer">resets ${fmtCountdown(w.resets_at)}</div></div>` : '';
+      <div class="acct-timer">${w.resets_at ? 'resets ' + fmtCountdown(w.resets_at) : 'full'}</div></div>` : '';
     return `<div class="acct-card">
       <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
       <div class="acct-plan">${esc(a.plan)}</div></div>${badge}</div>
       <div class="acct-pair">${gauge('5 hr', a.windows.five_hour)}${gauge('Weekly', a.windows.seven_day)}</div>
-      <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span></div>
+      <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span>${cost}</div>
     </div>`;
   }).join('');
   const newest = accts.map(a => a.fetched_at).filter(Boolean).sort().pop();
   document.getElementById('accounts-fetched').textContent =
     newest ? 'last scan ' + fmtAgo(newest) : 'never fetched';
+  const sum = ACCT_DATA.summary;
+  if (sum) document.getElementById('accounts-total').textContent =
+    `$${sum.total_lifetime.toFixed(2)} lifetime · $${sum.total_current_monthly.toFixed(0)}/mo · ${sum.active_accounts} active`;
 }
 
 async function loadAccounts() {
@@ -1605,7 +1611,7 @@ def get_accounts_data(refresh=False):
     accts = (
         accounts.fetch_all_usage() if refresh else accounts.load_store()["accounts"]
     )
-    return {"accounts": accounts.public_view(accts)}
+    return accounts.dashboard_payload(accts)
 
 
 def find_icon_file():
@@ -1649,6 +1655,9 @@ class DashboardHandler(BaseHTTPRequestHandler):
         if path in ("/", "/index.html"):
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            # No-store on the HTML shell so a code update is never masked by a
+            # stale browser cache. Static assets keep their own max-age.
+            self.send_header("Cache-Control", "no-store")
             self.end_headers()
             self.wfile.write(HTML_TEMPLATE.encode("utf-8"))
 
