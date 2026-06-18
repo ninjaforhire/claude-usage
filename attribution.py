@@ -5,7 +5,7 @@ A `claude -p` subprocess writes a JSONL transcript keyed by its cwd, which the s
 stores in turns.cwd / sessions.project_name. A daemon's plist WorkingDirectory maps to
 that prefix, so we can sum the cost it generated.
 
-Caveat: shared dirs (e.g. Desktop/_Code) mix interactive terminals with daemon-spawned
+Caveat: shared dirs (e.g. _Code) mix interactive terminals with daemon-spawned
 sessions and cannot be cleanly attributed -> flagged "mixed".
 """
 
@@ -16,7 +16,7 @@ from cli import DB_PATH, calc_cost
 
 # Prefixes that hold both interactive and daemon sessions. Cost here is not
 # attributable to any single daemon.
-MIXED_PREFIXES = ("Desktop/_Code", "Desktop/-Code", "Users/mightydesigncenter")
+MIXED_PREFIXES = ("_Code", "Desktop/-Code", "Users/mightydesigncenter")
 
 
 def _norm(prefix):

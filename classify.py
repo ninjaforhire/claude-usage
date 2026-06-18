@@ -60,7 +60,7 @@ def classify_daemon(d):
     # Cost-tier daemon with no measured activity in 30 days.
     # Only a real, non-mixed cwd_prefix yields an attributable measurement. A
     # null/mixed prefix means the daemon's claude -p cost lands in the shared
-    # Desktop/_Code bucket (e.g. code-council, audit-templates) and is not
+    # _Code bucket (e.g. code-council, audit-templates) and is not
     # attributable, so zero measured turns is NOT evidence of death. Liveness
     # for those is a separate signal (last_run), not cost attribution.
     prefix = d.get("cwd_prefix")

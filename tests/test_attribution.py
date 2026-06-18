@@ -33,8 +33,8 @@ def _add(conn, project, cwd, model="claude-opus-4-7", out=1_000_000):
 
 
 def test_is_mixed_flags_shared_root():
-    assert is_mixed("Desktop/_Code")
-    assert is_mixed("/Desktop/_Code/")
+    assert is_mixed("_Code")
+    assert is_mixed("/_Code/")
     assert not is_mixed("tools/design-center-pipeline")
 
 
@@ -46,8 +46,8 @@ def test_null_prefix_returns_zero():
 
 def test_mixed_prefix_not_attributed():
     conn = _conn()
-    _add(conn, "Desktop/_Code", "Desktop/_Code")
-    r = cost_for_prefix(conn, "Desktop/_Code", 30)
+    _add(conn, "_Code", "_Code")
+    r = cost_for_prefix(conn, "_Code", 30)
     assert r["mixed"] is True
     assert r["cost"] == 0.0
 

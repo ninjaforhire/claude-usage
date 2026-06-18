@@ -21,7 +21,7 @@ import os
 from pathlib import Path
 
 DEFAULT_REGISTRY = (
-    Path.home() / "Desktop" / "_Code" / "ops" / "daemon-registry" / "daemons.json"
+    Path.home() / "_Code" / "ops" / "daemon-registry" / "daemons.json"
 )
 
 # The canonical registry lives in _Code (git-tracked, PR-reviewed). But _Code is
