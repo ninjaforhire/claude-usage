@@ -285,3 +285,28 @@ def test_quiet_new_account_with_billing_day_upserts():
     ups.assert_called_once()
     rec = ups.call_args[0][0]
     assert rec["email"] == "z@new.com" and rec["billing_day"] == 10
+
+
+
+# ── accounts refresh: server-independent token rotation ─────────────────────
+
+def test_refresh_calls_fetch_all_and_reports(capsys):
+    """'accounts refresh' rotates via fetch_all_usage (no HTTP server)."""
+    accts = [
+        {"email": "a@b.com", "last_usage": {"error": None}},
+        {"email": "c@d.com", "last_usage": {"error": "HTTP Error 400: Bad Request"}},
+    ]
+    with mock.patch("accounts.fetch_all_usage", return_value=accts) as faus:
+        cli.cmd_accounts(["refresh"])
+    faus.assert_called_once_with()
+    out = capsys.readouterr()
+    assert "Refreshed 2 account(s); 1 healthy." in out.out
+    assert "c@d.com" in out.err  # errored account surfaced to stderr
+
+
+
+def test_freshness_tick_invokes_run_once():
+    import freshness_watch
+    with mock.patch.object(freshness_watch, "run_once") as ro:
+        cli.cmd_freshness_tick()
+    ro.assert_called_once_with()
