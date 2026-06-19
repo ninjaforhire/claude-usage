@@ -26,6 +26,37 @@ import accounts  # reuse remaining_color()
 SESSIONS_DIR = Path.home() / ".codex" / "sessions"
 _MAX_FILES_SCANNED = 12  # newest few rollouts always carry a fresh snapshot
 
+# ── Plan-tier caps ────────────────────────────────────────────────────────────
+# Each entry defines the billing cost and the rate-limit windows for the plan.
+# five_hour_limit_h: the total compute-hours available in the 5-hour rolling window.
+# seven_day_limit_h: the total compute-hours available in the 7-day rolling window.
+# monthly_usd: the flat subscription price in USD.
+#
+# pro-5x ($100/mo) is 5× the Plus (chatgpt-plus / prolite) tier — it must be
+# distinct from chatgpt-pro ($200/mo), which ships higher / effectively unlimited caps.
+PLAN_CAPS: dict[str, dict] = {
+    "chatgpt-plus": {
+        "monthly_usd": 20,
+        "five_hour_limit_h": 5.0,
+        "seven_day_limit_h": 35.0,   # ~5h/day × 7
+    },
+    "pro-5x": {
+        "monthly_usd": 100,
+        "five_hour_limit_h": 25.0,   # 5× Plus five-hour cap
+        "seven_day_limit_h": 175.0,  # 5× Plus weekly cap
+    },
+    "chatgpt-pro": {
+        "monthly_usd": 200,
+        "five_hour_limit_h": None,   # Pro = effectively unlimited (no published hard cap)
+        "seven_day_limit_h": None,
+    },
+}
+
+
+def get_plan_caps(plan: str) -> dict:
+    """Return the cap entry for *plan*, or an empty dict if unknown."""
+    return PLAN_CAPS.get(plan, {})
+
 
 def _find_rate_limits(obj: object) -> dict | None:
     """Locate a ``rate_limits`` dict anywhere in a parsed JSONL record."""

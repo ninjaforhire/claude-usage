@@ -69,3 +69,48 @@ def test_no_data_returns_error(tmp_path):
     out = codex_limits.codex_orb_data(sessions_dir=tmp_path)
     assert out["error"] is not None
     assert out["windows"] == {}
+
+
+# ── PLAN_CAPS tests: pro-5x vs chatgpt-pro ────────────────────────────────────
+
+def test_plan_caps_has_pro_5x():
+    """pro-5x tier must exist in PLAN_CAPS."""
+    assert "pro-5x" in codex_limits.PLAN_CAPS
+
+
+def test_plan_caps_has_chatgpt_pro():
+    """chatgpt-pro tier must exist in PLAN_CAPS so we can compare."""
+    assert "chatgpt-pro" in codex_limits.PLAN_CAPS
+
+
+def test_pro_5x_monthly_is_100():
+    """pro-5x subscription is $100/mo, not $200 (chatgpt-pro)."""
+    assert codex_limits.PLAN_CAPS["pro-5x"]["monthly_usd"] == 100
+
+
+def test_chatgpt_pro_monthly_is_200():
+    """chatgpt-pro is $200/mo — distinct from pro-5x."""
+    assert codex_limits.PLAN_CAPS["chatgpt-pro"]["monthly_usd"] == 200
+
+
+def test_pro_5x_and_chatgpt_pro_caps_differ():
+    """pro-5x (5x Plus) caps must differ from chatgpt-pro (unlimited-ish) caps."""
+    p5x = codex_limits.PLAN_CAPS["pro-5x"]
+    pro = codex_limits.PLAN_CAPS["chatgpt-pro"]
+    assert p5x != pro, "pro-5x and chatgpt-pro must have different cap structures"
+
+
+def test_pro_5x_five_hour_is_5x_plus():
+    """pro-5x five_hour_limit_h should be 5x the Plus (chatgpt-plus) tier."""
+    plus = codex_limits.PLAN_CAPS.get("chatgpt-plus", {})
+    p5x = codex_limits.PLAN_CAPS["pro-5x"]
+    if plus and plus.get("five_hour_limit_h") is not None:
+        assert p5x["five_hour_limit_h"] == 5 * plus["five_hour_limit_h"]
+
+
+def test_plan_caps_get_returns_pro_5x_for_current_plan():
+    """get_plan_caps('pro-5x') returns the pro-5x caps, not pro caps."""
+    caps = codex_limits.get_plan_caps("pro-5x")
+    pro_caps = codex_limits.get_plan_caps("chatgpt-pro")
+    assert caps["monthly_usd"] == 100
+    assert caps != pro_caps
