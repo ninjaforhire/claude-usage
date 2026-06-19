@@ -192,3 +192,27 @@ def test_decoy_event_fires_on_transition_only(tmp_path):
     assert present is True and len(events) == 1
     present, events = fw._decoy_events(True, now=3, path=decoy)
     assert present is True and events == []  # already noted
+
+
+
+# --- run_once: re-homed launchd tick + heartbeat ---------------------------------
+
+
+def test_run_once_writes_heartbeat_ok(tmp_path, monkeypatch):
+    hb = tmp_path / "hb.json"
+    monkeypatch.setattr(fw, "HEARTBEAT_PATH", hb)
+    monkeypatch.setattr(fw, "_tick", lambda state_path=None: None)
+    assert fw.run_once(state_path=tmp_path / "s.json") is True
+    rec = json.loads(hb.read_text())
+    assert rec["ok"] is True and rec["error"] is None and rec["ts"]
+
+
+def test_run_once_records_failure_without_raising(tmp_path, monkeypatch):
+    hb = tmp_path / "hb.json"
+    monkeypatch.setattr(fw, "HEARTBEAT_PATH", hb)
+    def boom(state_path=None):
+        raise RuntimeError("classify down")
+    monkeypatch.setattr(fw, "_tick", boom)
+    assert fw.run_once(state_path=tmp_path / "s.json") is False
+    rec = json.loads(hb.read_text())
+    assert rec["ok"] is False and "classify down" in rec["error"]

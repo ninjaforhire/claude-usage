@@ -301,3 +301,33 @@ def start_watcher(interval_s=INTERVAL_S, state_path=DEFAULT_STATE):
     t = threading.Thread(target=_loop, name="freshness-watch", daemon=True)
     t.start()
     return t
+
+
+HEARTBEAT_PATH = Path.home() / ".claude" / "daemon-registry" / "claude_usage_freshness_health.json"
+
+
+def run_once(state_path=DEFAULT_STATE):
+    """Run exactly one watcher cycle and write a heartbeat receipt.
+
+    The watcher used to live inside the :8080 dashboard process (via
+    start_watcher's daemon thread). With :8080 retired in favor of Jimbo's
+    /usage tab, the launchd maintenance tick calls this every 15 min instead,
+    so daemon-health alerting never goes silent. Returns True on success.
+    """
+    from datetime import datetime, timezone
+
+    ok, err = True, None
+    try:
+        _tick(state_path)
+    except Exception as exc:  # noqa: BLE001 — record failure, never raise
+        ok, err = False, str(exc)
+        print("freshness run_once failed: %s" % exc, file=sys.stderr)
+    try:
+        HEARTBEAT_PATH.write_text(json.dumps({
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "ok": ok,
+            "error": err,
+        }))
+    except OSError:
+        pass
+    return ok

@@ -490,6 +490,12 @@ def _read_keychain() -> str:
     return result.stdout.strip()
 
 
+def cmd_freshness_tick() -> None:
+    """Run one daemon-freshness watch cycle + heartbeat (re-homed off :8080)."""
+    import freshness_watch  # local import — only needed for this subcommand
+    freshness_watch.run_once()
+
+
 def cmd_accounts(rest: list[str] | None = None) -> None:
     """Manage tracked Claude accounts for limit orbs."""
     import accounts as _accts  # local import — only needed for this subcommand
@@ -584,8 +590,22 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
         _accts.save_store(store)
         print(f"Removed {email}")
 
+    elif sub == "refresh":
+        # Server-independent token rotation: fetch_all_usage() refreshes +
+        # persists each account's single-use OAuth chain (the keychain-owner
+        # account uses live keychain creds, so it is never double-rotated).
+        # This is what the :8080 POST /api/accounts/refresh did, minus the web
+        # layer — lets the launchd job rotate orbs with no dashboard running.
+        accts = _accts.fetch_all_usage()
+        healthy = sum(1 for a in accts if not (a.get("last_usage") or {}).get("error"))
+        print(f"Refreshed {len(accts)} account(s); {healthy} healthy.")
+        for a in accts:
+            err = (a.get("last_usage") or {}).get("error")
+            if err:
+                print(f"  {a['email']}: {err}", file=sys.stderr)
+
     else:
-        print("usage: cli.py accounts [add|list|remove <email>]")
+        print("usage: cli.py accounts [add|list|remove <email>|refresh]")
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
@@ -605,10 +625,14 @@ Usage:
                                                  --prompt emits a repair prompt
   python cli.py report [today|week|month|all] [--view table|card|spark]
                                                  Usage report (default: today, card view)
-  python cli.py accounts [add|list|remove]    Manage tracked Claude accounts for limit orbs
+  python cli.py accounts [add|list|remove|refresh]  Manage tracked Claude accounts for limit orbs
                                                  add [--quiet] [--billing-day N]
                                                  --quiet: no prompts (re-captures the live
                                                  keychain account, preserving billing history)
+                                                 refresh: rotate every account's token now
+                                                 (server-independent; no dashboard needed)
+  python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
+                                                 (re-homed off the retired :8080 dashboard)
 """
 
 COMMANDS = {
@@ -620,6 +644,7 @@ COMMANDS = {
     "daemons": cmd_daemons,
     "report": cmd_report,
     "accounts": cmd_accounts,
+    "freshness-tick": cmd_freshness_tick,
 }
 
 def parse_named_arg(args, flag):
