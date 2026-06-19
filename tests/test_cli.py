@@ -5,6 +5,7 @@ import json
 import unittest
 from contextlib import redirect_stdout
 from unittest import mock
+import pytest
 import cli
 from cli import get_pricing, calc_cost, fmt, fmt_cost, PRICING
 
@@ -233,3 +234,54 @@ def test_accounts_remove_without_email_prints_usage(capsys):
     cli.cmd_accounts(rest=["remove"])
     out = capsys.readouterr().out
     assert "usage: cli.py accounts remove <email>" in out
+
+
+
+# ── accounts add --quiet: launchd re-capture path ───────────────────────────
+
+_FRESH = {"access_token": "new", "refresh_token": "newr",
+          "expires_at": "2099-01-01T00:00:00Z"}
+_USAGE = {"five_hour": {"utilization": 3.0, "resets_at": "2099"},
+          "seven_day": {"utilization": 9.0, "resets_at": "2099"}}
+
+
+def test_quiet_existing_account_recaptures_not_upserts():
+    """Existing account -> update_oauth (preserve history), never upsert."""
+    with mock.patch.object(cli, "_read_keychain", return_value="{}"), \
+         mock.patch.object(cli, "parse_keychain_credentials", return_value=_FRESH), \
+         mock.patch("accounts.fetch_profile_email", return_value="x@y.com"), \
+         mock.patch("accounts.fetch_usage", return_value=_USAGE), \
+         mock.patch("accounts.load_store",
+                    return_value={"accounts": [{"email": "x@y.com"}]}), \
+         mock.patch("accounts.update_oauth") as upd, \
+         mock.patch("accounts.upsert_account") as ups:
+        cli.cmd_accounts(["add", "--quiet"])
+    upd.assert_called_once_with("x@y.com", _FRESH, _USAGE)
+    ups.assert_not_called()
+
+
+def test_quiet_new_account_without_billing_exits():
+    """A brand-new account in --quiet mode can't prompt -> hard exit."""
+    with mock.patch.object(cli, "_read_keychain", return_value="{}"), \
+         mock.patch.object(cli, "parse_keychain_credentials", return_value=_FRESH), \
+         mock.patch("accounts.fetch_profile_email", return_value="z@new.com"), \
+         mock.patch("accounts.fetch_usage", return_value=_USAGE), \
+         mock.patch("accounts.load_store", return_value={"accounts": []}), \
+         mock.patch("accounts.upsert_account") as ups:
+        with pytest.raises(SystemExit):
+            cli.cmd_accounts(["add", "--quiet"])
+    ups.assert_not_called()
+
+
+def test_quiet_new_account_with_billing_day_upserts():
+    """New account + --billing-day registers a full record non-interactively."""
+    with mock.patch.object(cli, "_read_keychain", return_value="{}"), \
+         mock.patch.object(cli, "parse_keychain_credentials", return_value=_FRESH), \
+         mock.patch("accounts.fetch_profile_email", return_value="z@new.com"), \
+         mock.patch("accounts.fetch_usage", return_value=_USAGE), \
+         mock.patch("accounts.load_store", return_value={"accounts": []}), \
+         mock.patch("accounts.upsert_account") as ups:
+        cli.cmd_accounts(["add", "--quiet", "--billing-day", "10"])
+    ups.assert_called_once()
+    rec = ups.call_args[0][0]
+    assert rec["email"] == "z@new.com" and rec["billing_day"] == 10

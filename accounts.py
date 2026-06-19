@@ -58,6 +58,27 @@ def upsert_account(acct: dict, path: Path = STORE_PATH) -> None:
     save_store(store, path=path)
 
 
+def update_oauth(email: str, oauth: dict, usage: dict | None = None,
+                 path: Path = STORE_PATH) -> bool:
+    """Refresh only the OAuth tokens (and optionally usage) of a tracked account.
+
+    Re-capturing a logged-in account's live keychain credentials must NOT clobber
+    the record's billing history (charges, subscription_intervals, billing_day,
+    is_main, monthly_cost). Update the credential fields in place and leave
+    everything else untouched. Returns False if no account matches ``email``.
+    """
+    store = load_store(path=path)
+    for acct in store["accounts"]:
+        if acct["email"] == email:
+            acct["oauth"] = oauth
+            if usage is not None:
+                now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
+            save_store(store, path=path)
+            return True
+    return False
+
+
 def set_keychain_owner(email: str, path: Path = STORE_PATH) -> None:
     """Mark which account currently owns the Claude Code keychain credentials."""
     store = load_store(path=path)

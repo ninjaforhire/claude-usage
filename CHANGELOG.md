@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Account orbs stay alive without manual re-login
+
+- **`accounts add --quiet [--billing-day N]`** — non-interactive capture for automation. Re-capturing an already-tracked account now merges into the existing record (refreshes `oauth` + `last_usage` only) instead of replacing it, so billing history (`charges`, `subscription_intervals`, `billing_day`, `is_main`, `monthly_cost`) is preserved. `--quiet` exits non-zero rather than prompting; a brand-new account in quiet mode requires `--billing-day`.
+- New `accounts.update_oauth(email, oauth, usage=None)` — history-safe credential refresh for one account.
+- New `scripts/token_refresh.sh` + `scripts/launchd/com.mighty.claude-usage-token-refresh.plist` (every 15 min): snapshots the live keychain account into the store (server-independent) and POSTs `/api/accounts/refresh` to rotate every idle account's single-use token before it lapses. Keeps the dashboard the sole rotating consumer per idle account, eliminating the recurring re-auth dance. (Dead chains still need one fresh login per account to regenerate — one-time, not recurring.)
+- 6 new tests (3 in `test_accounts.py`, 3 in `test_cli.py`); 260 passing.
+
 ## v1.3.0 — 2026-06-12
 
 ### Account limit orbs (multi-account)

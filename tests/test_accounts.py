@@ -247,3 +247,54 @@ def test_401_on_fresh_token_forces_refresh_and_retries(tmp_path):
     assert result[0]["last_usage"]["error"] is None
     store = accounts.load_store(path=path)
     assert store["accounts"][0]["oauth"]["access_token"] == "new_at"
+
+
+
+# ── update_oauth: re-capture must preserve billing history ───────────────────
+
+def _full_acct(email="x@y.com"):
+    return {
+        "email": email,
+        "plan": "max_20x",
+        "billing_day": 12,
+        "oauth": {"access_token": "old", "refresh_token": "oldr",
+                  "expires_at": "2020-01-01T00:00:00Z"},
+        "last_usage": {"error": "HTTP Error 400: Bad Request"},
+        "is_main": False,
+        "monthly_cost": 213.2,
+        "charges": [{"date": "2026-06-11", "amount": 213.2}],
+        "subscription_intervals": [{"start": "2026-06-11", "end": None}],
+    }
+
+
+def test_update_oauth_preserves_billing_history(tmp_path):
+    path = tmp_path / "s.json"
+    accounts.save_store({"accounts": [_full_acct()]}, path=path)
+    fresh = {"access_token": "new", "refresh_token": "newr",
+             "expires_at": "2099-01-01T00:00:00Z"}
+    usage = {"five_hour": {"utilization": 3.0, "resets_at": "2099"},
+             "seven_day": {"utilization": 9.0, "resets_at": "2099"}}
+    assert accounts.update_oauth("x@y.com", fresh, usage, path=path) is True
+    a = accounts.load_store(path=path)["accounts"][0]
+    assert a["oauth"]["access_token"] == "new"
+    assert a["charges"][0]["amount"] == 213.2
+    assert a["subscription_intervals"][0]["start"] == "2026-06-11"
+    assert a["billing_day"] == 12 and a["monthly_cost"] == 213.2
+    assert a["last_usage"]["error"] is None
+
+
+def test_update_oauth_without_usage_keeps_prior_usage(tmp_path):
+    path = tmp_path / "s.json"
+    accounts.save_store({"accounts": [_full_acct()]}, path=path)
+    fresh = {"access_token": "new", "refresh_token": "newr",
+             "expires_at": "2099-01-01T00:00:00Z"}
+    assert accounts.update_oauth("x@y.com", fresh, None, path=path) is True
+    a = accounts.load_store(path=path)["accounts"][0]
+    assert a["oauth"]["access_token"] == "new"
+    assert a["last_usage"] == {"error": "HTTP Error 400: Bad Request"}
+
+
+def test_update_oauth_unknown_email_returns_false(tmp_path):
+    path = tmp_path / "s.json"
+    accounts.save_store({"accounts": [_full_acct()]}, path=path)
+    assert accounts.update_oauth("ghost@nope.com", {}, None, path=path) is False

@@ -498,15 +498,46 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
     sub = rest[0] if rest else "list"
 
     if sub == "add":
+        # --quiet: non-interactive (no prompts) for the launchd token-refresh
+        # job. --billing-day N: supply the renewal day for a brand-new account
+        # without prompting.
+        quiet = "--quiet" in rest
+        billing_arg = parse_named_arg(rest, "--billing-day")
         raw = _read_keychain()
         oauth = parse_keychain_credentials(raw)
-        usage = _accts.fetch_usage(oauth)
         email = _accts.fetch_profile_email(oauth)
+        try:
+            usage = _accts.fetch_usage(oauth)
+        except Exception as e:  # noqa: BLE001 — fresh token still worth saving
+            usage = None
+            if not quiet:
+                print(f"Warning: usage fetch failed ({e}); saving credentials anyway.")
         if not email:
+            if quiet:
+                print("ERROR: could not detect account email from keychain", file=sys.stderr)
+                sys.exit(1)
             email = input("Account email for these credentials: ").strip()
-        else:
+        elif not quiet:
             print(f"Detected account: {email}")
-        billing = input("Billing renewal day-of-month (e.g. 11): ").strip()
+
+        # Re-capture path: account already tracked -> refresh credentials only,
+        # preserving billing history (charges, intervals, billing_day, is_main).
+        store = _accts.load_store()
+        if any(a["email"] == email for a in store["accounts"]):
+            _accts.update_oauth(email, oauth, usage)
+            if not quiet:
+                print(f"Refreshed credentials for {email}.")
+            return
+
+        # New account: needs a billing day.
+        if billing_arg is not None:
+            billing = billing_arg
+        elif quiet:
+            print(f"ERROR: {email} is new; --billing-day required in --quiet mode",
+                  file=sys.stderr)
+            sys.exit(1)
+        else:
+            billing = input("Billing renewal day-of-month (e.g. 11): ").strip()
         try:
             billing_day = int(billing)
         except ValueError:
@@ -515,6 +546,12 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
         if not 1 <= billing_day <= 28:
             print(f"Billing day must be between 1 and 28, got {billing_day}")
             return
+        if usage is None:
+            try:
+                usage = _accts.fetch_usage(oauth)
+            except Exception as e:  # noqa: BLE001
+                print(f"Cannot register new account without usage data: {e}")
+                return
         _accts.upsert_account({
             "email": email,
             "plan": "max_20x",
@@ -569,6 +606,9 @@ Usage:
   python cli.py report [today|week|month|all] [--view table|card|spark]
                                                  Usage report (default: today, card view)
   python cli.py accounts [add|list|remove]    Manage tracked Claude accounts for limit orbs
+                                                 add [--quiet] [--billing-day N]
+                                                 --quiet: no prompts (re-captures the live
+                                                 keychain account, preserving billing history)
 """
 
 COMMANDS = {
