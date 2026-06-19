@@ -114,3 +114,44 @@ def test_plan_caps_get_returns_pro_5x_for_current_plan():
     pro_caps = codex_limits.get_plan_caps("chatgpt-pro")
     assert caps["monthly_usd"] == 100
     assert caps != pro_caps
+
+
+# ── Orb-wiring tests: the DISPLAYED orb data carries pro-5x caps, not Pro ──────
+
+def test_orb_data_attaches_pro_5x_caps_when_plan_passed(tmp_path):
+    """codex_orb_data(plan='pro-5x') surfaces the $100 pro-5x caps on the orb.
+
+    This is the data the /combined card renders. The displayed tier must be
+    pro-5x ($100), never chatgpt-pro ($200).
+    """
+    d = tmp_path / "2026" / "06" / "15"
+    d.mkdir(parents=True)
+    _rollout(d / "rollout-2026-06-15T01-30-08-aaa.jsonl", [_snap(5.0, 11.0)])
+    out = codex_limits.codex_orb_data(sessions_dir=tmp_path, plan="pro-5x")
+    assert out["plan"] == "pro-5x"
+    assert out["caps"]["monthly_usd"] == 100
+    assert out["caps"]["monthly_usd"] != 200
+    assert out["caps"]["five_hour_limit_h"] == 25.0
+    assert out["caps"]["seven_day_limit_h"] == 175.0
+
+
+def test_orb_data_plan_type_alone_does_not_imply_pro(tmp_path):
+    """The CLI plan_type ('prolite') must NOT be mistaken for chatgpt-pro caps.
+
+    plan_type carries no billing tier; only the passed billing plan resolves caps.
+    With no plan passed, caps stay empty rather than defaulting to a Pro tier.
+    """
+    d = tmp_path / "2026" / "06" / "15"
+    d.mkdir(parents=True)
+    _rollout(d / "rollout-2026-06-15T01-30-08-aaa.jsonl", [_snap(5.0, 11.0)])
+    out = codex_limits.codex_orb_data(sessions_dir=tmp_path)  # no plan
+    assert out["plan_type"] == "prolite"
+    assert out["caps"] == {}  # no plan => no caps, never a $200 Pro fallback
+
+
+def test_orb_data_no_data_still_carries_plan_caps(tmp_path):
+    """Even with no rate-limit data, the error path keeps the pro-5x caps/label."""
+    out = codex_limits.codex_orb_data(sessions_dir=tmp_path, plan="pro-5x")
+    assert out["error"] is not None
+    assert out["plan"] == "pro-5x"
+    assert out["caps"]["monthly_usd"] == 100

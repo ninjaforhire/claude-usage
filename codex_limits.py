@@ -120,11 +120,25 @@ def _window(part: dict | None) -> dict | None:
     return {"remaining_pct": remaining, "resets_at": iso, "color_hi": hi, "color_lo": lo}
 
 
-def codex_orb_data(sessions_dir: Path = SESSIONS_DIR) -> dict:
-    """Codex 5h + weekly orbs in the same shape as a Claude account entry."""
+def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -> dict:
+    """Codex 5h + weekly orbs in the same shape as a Claude account entry.
+
+    Args:
+        sessions_dir: Root of the Codex CLI session rollouts.
+        plan: The *billing* plan string from ``subscriptions.json`` (e.g.
+            ``"pro-5x"``). The CLI rate-limit snapshot only carries an internal
+            ``plan_type`` (e.g. ``"prolite"``), which does NOT distinguish the
+            $100 pro-5x tier from the $200 chatgpt-pro tier. Passing the billing
+            plan lets the orb card show the correct tier label + caps.
+
+    Returns a dict with ``plan_type`` (CLI internal), ``plan`` (billing tier),
+    ``caps`` (the resolved :data:`PLAN_CAPS` entry for *plan*), ``windows``, and
+    ``error``.
+    """
     rl = latest_rate_limits(sessions_dir)
     if not rl:
-        return {"plan_type": None, "windows": {}, "error": "no Codex rate-limit data found"}
+        return {"plan_type": None, "plan": plan, "caps": get_plan_caps(plan or ""),
+                "windows": {}, "error": "no Codex rate-limit data found"}
     windows = {}
     five = _window(rl.get("primary"))
     week = _window(rl.get("secondary"))
@@ -132,4 +146,5 @@ def codex_orb_data(sessions_dir: Path = SESSIONS_DIR) -> dict:
         windows["five_hour"] = five
     if week:
         windows["seven_day"] = week
-    return {"plan_type": rl.get("plan_type"), "windows": windows, "error": None}
+    return {"plan_type": rl.get("plan_type"), "plan": plan,
+            "caps": get_plan_caps(plan or ""), "windows": windows, "error": None}
