@@ -24,11 +24,14 @@ DEFAULT_REGISTRY = (
     Path.home() / "_Code" / "ops" / "daemon-registry" / "daemons.json"
 )
 
-# The canonical registry lives in _Code (git-tracked, PR-reviewed). But _Code is
-# under ~/Desktop, which macOS TCC blocks launchd daemons from reading. The
-# dashboard runs as a launchd daemon, so it reads this mirror instead (~/.claude is
-# already daemon-readable - that's where usage.db lives). save() refreshes both.
-MIRROR_REGISTRY = Path.home() / ".claude" / "daemon-registry" / "daemons.json"
+# Single source of truth (2026-06-21). The registry lives ONLY in _Code
+# (git-tracked, PR-reviewed). The former ~/.claude mirror existed to dodge macOS
+# TCC, which blocked launchd daemons from reading ~/Desktop/_Code. After the
+# 2026-05-20 reorg _Code lives at ~/_Code (a plain home subdir, NOT TCC-blocked),
+# so launchd daemons read the canonical path directly and the mirror is obsolete.
+# The old mirror PATH is kept only as a back-compat symlink -> canonical so no
+# writer can ever desync the two again (that dual-write was the drift source).
+LEGACY_MIRROR = Path.home() / ".claude" / "daemon-registry" / "daemons.json"
 
 # Marker left by seed_manifest for fields the user still needs to fill in.
 TODO = "TODO"
@@ -59,19 +62,13 @@ def _read(path):
 
 
 def load(path=None):
-    """Return {label: entry_dict}. Reads the canonical registry, falling back to the
-    daemon-readable mirror when the canonical path is missing or TCC-blocked."""
+    """Return {label: entry_dict} from the single git-tracked registry."""
     primary = Path(path) if path else registry_path()
     try:
         if primary.exists():
             return _read(primary)
     except (PermissionError, OSError):
-        pass  # launchd daemon under TCC - fall through to the mirror
-    if MIRROR_REGISTRY.exists():
-        try:
-            return _read(MIRROR_REGISTRY)
-        except (PermissionError, OSError):
-            pass
+        pass
     return {}
 
 
@@ -83,8 +80,11 @@ def _write(path, entries):
 
 
 def save(entries_by_label, path=None):
-    """Write the registry (sorted, pretty) to the canonical path and refresh the
-    daemon-readable mirror. Mirror failures are non-fatal."""
+    """Write the registry (sorted, pretty) to the single canonical path.
+
+    The legacy ~/.claude path is a symlink to this file, so it reflects writes
+    automatically — there is no second copy to refresh and therefore no drift.
+    """
     primary = Path(path) if path else registry_path()
     if isinstance(entries_by_label, dict):
         entries = list(entries_by_label.values())
@@ -92,10 +92,6 @@ def save(entries_by_label, path=None):
         entries = list(entries_by_label)
     entries.sort(key=lambda e: e["label"])
     _write(primary, entries)
-    try:
-        _write(MIRROR_REGISTRY, entries)
-    except OSError:
-        pass
 
 
 def is_annotated(entry):
