@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import calendar
+import contextlib
 import datetime as _dt
 import json
 import os
@@ -13,7 +14,13 @@ import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+try:
+    import fcntl  # POSIX-only; the accounts/orbs feature is macOS-only anyway
+except ImportError:  # pragma: no cover — Windows scanner imports accounts.py too
+    fcntl = None
+
 STORE_PATH = Path.home() / ".claude" / "usage_accounts.json"
+LOCK_PATH = Path.home() / ".claude" / "usage_accounts.lock"
 
 TOKEN_URL = "https://platform.claude.com/v1/oauth/token"
 USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
@@ -26,6 +33,42 @@ COLOR_RAMP = [  # (min_remaining_pct, fill_hi, fill_lo)
     (15, "#ff9433", "#c45b06"),
     (0,  "#ff3b3b", "#b30f0f"),
 ]
+
+
+# ── Cross-process store lock ──────────────────────────────────────────────────
+
+@contextlib.contextmanager
+def store_lock(path: Path | None = None):
+    """Exclusive cross-process lock around a store read-modify-write cycle.
+
+    OAuth refresh tokens are single-use: the launchd token-refresh job and a
+    manual ``accounts add``/``refresh`` run in SEPARATE processes, so the
+    in-process ``threading.Lock`` cannot serialize them. Without a file lock both
+    can rotate the same refresh token and persist a stale one, 400/429-ing the
+    account — the failure that grayed the mighty + awebber2k orbs on 2026-06-29.
+    ``flock`` makes the full refresh-fetch-save cycle atomic across processes;
+    the threading lock still guards intra-process concurrency.
+
+    ``path`` defaults to ``LOCK_PATH`` resolved at call time (not bound at import)
+    so tests can redirect it via ``monkeypatch.setattr(accounts, "LOCK_PATH", …)``.
+    No-op where ``fcntl`` is unavailable (Windows); the orbs feature is
+    macOS-only, so the lock is only ever exercised there. Not reentrant — never
+    nest ``store_lock`` within itself (would self-deadlock).
+    """
+    if fcntl is None:
+        yield
+        return
+    p = Path(path) if path is not None else LOCK_PATH
+    p.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(str(p), os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        yield
+    finally:
+        try:
+            fcntl.flock(fd, fcntl.LOCK_UN)
+        finally:
+            os.close(fd)
 
 
 # ── Store layer ───────────────────────────────────────────────────────────────
@@ -51,11 +94,12 @@ def save_store(store: dict, path: Path = STORE_PATH) -> None:
 
 def upsert_account(acct: dict, path: Path = STORE_PATH) -> None:
     """Insert or replace account record by email."""
-    store = load_store(path=path)
-    store["accounts"] = [
-        a for a in store["accounts"] if a["email"] != acct["email"]
-    ] + [acct]
-    save_store(store, path=path)
+    with store_lock():
+        store = load_store(path=path)
+        store["accounts"] = [
+            a for a in store["accounts"] if a["email"] != acct["email"]
+        ] + [acct]
+        save_store(store, path=path)
 
 
 def update_oauth(email: str, oauth: dict, usage: dict | None = None,
@@ -67,16 +111,17 @@ def update_oauth(email: str, oauth: dict, usage: dict | None = None,
     is_main, monthly_cost). Update the credential fields in place and leave
     everything else untouched. Returns False if no account matches ``email``.
     """
-    store = load_store(path=path)
-    for acct in store["accounts"]:
-        if acct["email"] == email:
-            acct["oauth"] = oauth
-            if usage is not None:
-                now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-                acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
-            save_store(store, path=path)
-            return True
-    return False
+    with store_lock():
+        store = load_store(path=path)
+        for acct in store["accounts"]:
+            if acct["email"] == email:
+                acct["oauth"] = oauth
+                if usage is not None:
+                    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+                    acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
+                save_store(store, path=path)
+                return True
+        return False
 
 
 def set_keychain_owner(email: str, path: Path = STORE_PATH) -> None:
@@ -207,7 +252,7 @@ _FETCH_LOCK = threading.Lock()
 
 def fetch_all_usage(path: Path = STORE_PATH) -> list[dict]:
     """Refresh tokens as needed, fetch usage for every account, persist cache."""
-    with _FETCH_LOCK:
+    with _FETCH_LOCK, store_lock():
         return _fetch_all_usage_locked(path)
 
 

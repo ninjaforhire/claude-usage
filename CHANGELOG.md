@@ -8,6 +8,7 @@
 - New `accounts.update_oauth(email, oauth, usage=None)` — history-safe credential refresh for one account.
 - New `scripts/token_refresh.sh` + `scripts/launchd/com.mighty.claude-usage-token-refresh.plist` (every 15 min): snapshots the live keychain account into the store (server-independent) and POSTs `/api/accounts/refresh` to rotate every idle account's single-use token before it lapses. Keeps the dashboard the sole rotating consumer per idle account, eliminating the recurring re-auth dance. (Dead chains still need one fresh login per account to regenerate — one-time, not recurring.)
 - 6 new tests (3 in `test_accounts.py`, 3 in `test_cli.py`); 260 passing.
+- **Cross-process store lock (`accounts.store_lock`)** — the launchd refresh job and a manual `accounts add`/`refresh` run in separate processes, so the in-process `threading.Lock` could not serialize them; both could rotate the same single-use refresh token and persist a stale one (HTTP 400/429, grayed orb). `fetch_all_usage`, `update_oauth`, and `upsert_account` now wrap their store read-modify-write in an `flock` (`~/.claude/usage_accounts.lock`). No-op where `fcntl` is unavailable (Windows). 5 new tests in `test_accounts_lock.py`.
 
 ## v1.3.0 — 2026-06-12
 
