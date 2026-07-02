@@ -608,6 +608,137 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
         print("usage: cli.py accounts [add|list|remove <email>|refresh]")
 
 
+# ── Fable-5 account routing ───────────────────────────────────────────────────
+# Fable 5 usage is capped at 50% of an account's weekly allowance. The usage API
+# reports only OVERALL weekly utilization (no per-model split), so guaranteed
+# Fable headroom = max(0, weekly_remaining - 50): worst case every prior token
+# this window was Fable, so only capacity above the 50% line is provably still
+# open to Fable. Rank active accounts by that headroom, preferring a running
+# weekly window (use-it-or-lose-it) over an idle reserve.
+
+FABLE_CAP_PCT = 50        # Fable 5 may consume at most 50% of the weekly window
+DRAIN_BOOST = 100.0       # running-window bonus: burn a ticking clock before a reserve
+
+
+def _fmt_reset_local(iso: str | None) -> str:
+    """Render a UTC reset timestamp in local time as 'Jul 08 05:59', or '--'."""
+    if not iso:
+        return "--"
+    try:
+        dt = datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone()
+    except (ValueError, AttributeError):
+        return "--"
+    return dt.strftime("%b %d %H:%M")
+
+
+def _fable_rank(entry: dict) -> dict:
+    """Score one dashboard entry for Fable-5 suitability.
+
+    Returns a dict with fable_room, score, and human reasons. score is None when
+    the account is inactive or its usage is unavailable (excluded from routing).
+    """
+    if not entry.get("active"):
+        return {"score": None, "fable_room": 0, "reasons": ["subscription inactive"]}
+    w = entry.get("windows") or {}
+    if entry.get("error") or "seven_day" not in w or "five_hour" not in w:
+        return {"score": None, "fable_room": 0, "reasons": ["usage unavailable"]}
+
+    weekly_free = w["seven_day"]["remaining_pct"]
+    h5 = w["five_hour"]["remaining_pct"]
+    fable_room = max(0, weekly_free - FABLE_CAP_PCT)
+    running = bool(w["seven_day"]["resets_at"])
+    throttled = h5 < 15
+
+    reasons = [f"{fable_room}% Fable room", f"{h5}% 5h free"]
+    if fable_room <= 0:
+        score = -1.0
+        reasons.append("Fable budget spent this window")
+    elif throttled:
+        score = float(fable_room)  # usable, but 5h gate is nearly shut — no drain boost
+        reasons.append("5h throttled — wait for 5h reset")
+    else:
+        score = fable_room + (DRAIN_BOOST if running else 0.0)
+        reasons.append("running window — drain now" if running else "fresh reserve")
+    if entry.get("is_main"):
+        reasons.append("main")
+    return {"score": score, "fable_room": fable_room, "reasons": reasons}
+
+
+def cmd_fable_next(refresh: bool = False) -> None:
+    """Recommend which account to use for Fable-5 work right now.
+
+    Ranks active accounts by guaranteed Fable headroom (weekly_remaining - 50%),
+    favoring a running weekly window over an idle reserve, and prints the exact
+    login switch when the pick isn't the current keychain owner.
+    """
+    import accounts as _accts  # local import — only needed for this subcommand
+
+    if refresh:
+        _accts.fetch_all_usage()
+    store = _accts.load_store()
+    accts = store["accounts"]
+    owner = store.get("keychain_owner")
+    payload = _accts.dashboard_payload(accts)
+    entries = payload["accounts"]
+
+    ranked = []
+    for e in entries:
+        r = _fable_rank(e)
+        ranked.append((e, r))
+
+    def sort_key(item):
+        e, r = item
+        s = r["score"] if r["score"] is not None else -999
+        renews = e.get("renews_in_days")
+        renews = renews if renews is not None else 999
+        return (-s, renews, 0 if e.get("is_main") else 1)
+
+    ranked.sort(key=sort_key)
+
+    print()
+    hr("=")
+    print("  FABLE-NEXT — which account for Fable 5 work")
+    hr("=")
+    print(f"  Keychain now: {owner or 'unknown'}")
+    print(f"  Fable cap: {FABLE_CAP_PCT}% of each account's weekly window")
+    hr()
+    print(f"  {'#':<3}{'ACCOUNT':<34}{'FABLE':<8}{'WEEK':<7}{'5H':<7}{'WKLY RESET':<14}")
+    pick = None
+    for i, (e, r) in enumerate(ranked, 1):
+        w = e.get("windows") or {}
+        week = f"{w['seven_day']['remaining_pct']}%" if "seven_day" in w else "--"
+        h5 = f"{w['five_hour']['remaining_pct']}%" if "five_hour" in w else "--"
+        reset = _fmt_reset_local(w.get("seven_day", {}).get("resets_at")) if "seven_day" in w else "--"
+        fable = f"{r['fable_room']}%" if r["score"] is not None else "n/a"
+        usable = r["score"] is not None and r["score"] > 0
+        if pick is None and usable:
+            pick = e
+            marker = "→"
+        else:
+            marker = " "
+        print(f"  {marker}{i:<2}{e['email']:<34}{fable:<8}{week:<7}{h5:<7}{reset:<14}")
+    hr()
+
+    if pick is None:
+        print("  No account has Fable room right now. All weekly windows >50% spent")
+        print("  or 5h-throttled. Wait for the soonest weekly reset above.")
+        hr("=")
+        print()
+        return
+
+    _, pr = next(r for r in [(e, _fable_rank(e)) for e in [pick]])
+    print(f"  USE: {pick['email']}")
+    print(f"       {', '.join(pr['reasons'])}")
+    if pick["email"] == owner:
+        print("       already logged in — go.")
+    else:
+        print("       NOT the current login — switch:")
+        print("         1. /login  (or `claude` → log in as this account)")
+        print("         2. python3 ~/tools/claude-usage/cli.py accounts add")
+    hr("=")
+    print()
+
+
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 USAGE = """
@@ -633,6 +764,9 @@ Usage:
                                                  (server-independent; no dashboard needed)
   python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
                                                  (re-homed off the retired :8080 dashboard)
+  python cli.py fable-next [--refresh]        Recommend which account to use for Fable 5
+                                                 work now (weekly_remaining - 50% cap);
+                                                 --refresh fetches live usage first
 """
 
 COMMANDS = {
@@ -645,6 +779,7 @@ COMMANDS = {
     "report": cmd_report,
     "accounts": cmd_accounts,
     "freshness-tick": cmd_freshness_tick,
+    "fable-next": cmd_fable_next,
 }
 
 def parse_named_arg(args, flag):
@@ -702,5 +837,7 @@ if __name__ == "__main__":
         cmd_report(period=period_arg, view=view_arg)
     elif command == "accounts":
         cmd_accounts(rest=rest)
+    elif command == "fable-next":
+        cmd_fable_next(refresh="--refresh" in rest)
     else:
         COMMANDS[command]()
