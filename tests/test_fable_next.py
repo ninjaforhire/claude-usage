@@ -5,10 +5,34 @@ from unittest import mock
 from cli import (
     _fable_rank,
     _fmt_reset_local,
+    _norm_discount,
     _switch_to_live_keychain,
     FABLE_CAP_PCT,
     DRAIN_BOOST,
 )
+
+
+# ── fable-cost discount parsing ───────────────────────────────────────────────
+
+def test_discount_default_is_30pct():
+    assert _norm_discount(None) == 0.30
+
+
+def test_discount_accepts_percent_int():
+    assert _norm_discount("30") == 0.30
+    assert _norm_discount("50") == 0.50
+
+
+def test_discount_accepts_percent_sign():
+    assert _norm_discount("30%") == 0.30
+
+
+def test_discount_accepts_fraction():
+    assert _norm_discount("0.3") == 0.3
+
+
+def test_discount_bad_input_falls_back():
+    assert _norm_discount("free") == 0.30
 
 
 def _entry(weekly_free, h5, *, resets_at="2026-07-08T10:00:00Z",

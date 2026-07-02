@@ -696,6 +696,79 @@ def _switch_to_live_keychain(_accts) -> str | None:
     return email
 
 
+def _norm_discount(raw: str | None) -> float:
+    """Parse a discount arg into a 0..1 fraction. Accepts '30', '30%', or '0.3'."""
+    if raw is None:
+        return 0.30
+    s = raw.strip().rstrip("%")
+    try:
+        v = float(s)
+    except ValueError:
+        return 0.30
+    return v / 100 if v > 1 else v
+
+
+def cmd_fable_cost(pattern: str | None = None, discount: str | None = None) -> None:
+    """Price builds at Fable-5 extra-usage rates (full + discounted).
+
+    Sums real token counts from usage.db for every project matching ``pattern``
+    (SQL LIKE, case-insensitive substring) and prices them at Fable-5 API rates,
+    regardless of the model actually used — the "what if this ran on Fable
+    extra-usage" figure. With no pattern, prices every project.
+    """
+    conn = require_db()
+    conn.row_factory = sqlite3.Row
+    fab = PRICING["claude-fable-5"]
+    frac = _norm_discount(discount)
+
+    like = f"%{pattern}%" if pattern else "%"
+    rows = conn.execute("""
+        SELECT COALESCE(s.project_name, 'unknown') as proj,
+               SUM(t.input_tokens)          as inp,
+               SUM(t.output_tokens)         as out,
+               SUM(t.cache_read_tokens)     as cr,
+               SUM(t.cache_creation_tokens) as cc,
+               COUNT(*)                     as turns,
+               COUNT(DISTINCT t.session_id) as sess
+        FROM turns t LEFT JOIN sessions s ON t.session_id = s.session_id
+        WHERE COALESCE(s.project_name, 'unknown') LIKE ?
+        GROUP BY proj
+        ORDER BY (SUM(t.input_tokens) + SUM(t.cache_read_tokens)) DESC
+    """, (like,)).fetchall()
+    conn.close()
+
+    def fcost(r) -> float:
+        return (
+            (r["inp"] or 0) * fab["input"]       / 1_000_000 +
+            (r["out"] or 0) * fab["output"]      / 1_000_000 +
+            (r["cr"]  or 0) * fab["cache_read"]  / 1_000_000 +
+            (r["cc"]  or 0) * fab["cache_write"] / 1_000_000
+        )
+
+    print()
+    hr("=")
+    print(f"  Fable-5 extra-usage cost  ·  match '{pattern or '*'}'  ·  {round(frac*100)}% off")
+    hr("=")
+    if not rows:
+        print(f"  No projects match '{pattern}'.")
+        hr("=")
+        print()
+        return
+    print(f"  {'PROJECT':<40}{'sess':>5}{'in':>8}{'out':>8}{'cacheR':>9}{'FULL':>11}{'DISC':>11}")
+    total = 0.0
+    for r in rows:
+        c = fcost(r)
+        total += c
+        print(f"  {r['proj'][:39]:<40}{r['sess']:>5}{fmt(r['inp'] or 0):>8}"
+              f"{fmt(r['out'] or 0):>8}{fmt(r['cr'] or 0):>9}"
+              f"{'$'+format(c, ',.2f'):>11}{'$'+format(c*(1-frac), ',.2f'):>11}")
+    hr()
+    print(f"  {'TOTAL':<40}{'':>5}{'':>8}{'':>8}{'':>9}"
+          f"{'$'+format(total, ',.2f'):>11}{'$'+format(total*(1-frac), ',.2f'):>11}")
+    hr("=")
+    print()
+
+
 def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
     """Recommend which account to use for Fable-5 work right now.
 
@@ -805,6 +878,10 @@ Usage:
                                                  --refresh fetches live usage first;
                                                  --switch snapshots the live keychain as the
                                                  new owner (run after logging into the target)
+  python cli.py fable-cost [PATTERN] [--discount N]
+                                                 Price builds at Fable-5 extra-usage rates
+                                                 (full + discounted). PATTERN = project
+                                                 substring (default all); N = 30, 30%, or 0.3
 """
 
 COMMANDS = {
@@ -818,6 +895,7 @@ COMMANDS = {
     "accounts": cmd_accounts,
     "freshness-tick": cmd_freshness_tick,
     "fable-next": cmd_fable_next,
+    "fable-cost": cmd_fable_cost,
 }
 
 def parse_named_arg(args, flag):
@@ -877,5 +955,8 @@ if __name__ == "__main__":
         cmd_accounts(rest=rest)
     elif command == "fable-next":
         cmd_fable_next(refresh="--refresh" in rest, switch="--switch" in rest)
+    elif command == "fable-cost":
+        pattern = next((a for a in rest if not a.startswith("--")), None)
+        cmd_fable_cost(pattern=pattern, discount=parse_named_arg(rest, "--discount"))
     else:
         COMMANDS[command]()
