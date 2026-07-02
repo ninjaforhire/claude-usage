@@ -1,8 +1,14 @@
 """Tests for cli.fable-next — Fable-5 account routing logic."""
 
-import pytest
+from unittest import mock
 
-from cli import _fable_rank, _fmt_reset_local, FABLE_CAP_PCT, DRAIN_BOOST
+from cli import (
+    _fable_rank,
+    _fmt_reset_local,
+    _switch_to_live_keychain,
+    FABLE_CAP_PCT,
+    DRAIN_BOOST,
+)
 
 
 def _entry(weekly_free, h5, *, resets_at="2026-07-08T10:00:00Z",
@@ -69,3 +75,47 @@ def test_reset_formatter_handles_none_and_bad_input():
     assert _fmt_reset_local(None) == "--"
     assert _fmt_reset_local("not-a-date") == "--"
     assert _fmt_reset_local("2026-07-08T10:00:00Z") != "--"
+
+
+# ── --switch (live keychain snapshot) ─────────────────────────────────────────
+
+def _fake_accts(tracked_emails, *, detected_email, oauth=None):
+    """Build a stand-in accounts module for _switch_to_live_keychain."""
+    m = mock.Mock()
+    m.keychain_oauth.return_value = oauth or {"access_token": "t"}
+    m.fetch_profile_email.return_value = detected_email
+    m.fetch_usage.return_value = {"five_hour": {}, "seven_day": {}}
+    m.load_store.return_value = {"accounts": [{"email": e} for e in tracked_emails]}
+    return m
+
+
+def test_switch_snapshots_tracked_account():
+    m = _fake_accts(["a@x.com", "b@x.com"], detected_email="b@x.com")
+    assert _switch_to_live_keychain(m) == "b@x.com"
+    m.update_oauth.assert_called_once()
+    m.set_keychain_owner.assert_called_once_with("b@x.com")
+
+
+def test_switch_refuses_untracked_account():
+    m = _fake_accts(["a@x.com"], detected_email="stranger@x.com")
+    assert _switch_to_live_keychain(m) is None
+    m.update_oauth.assert_not_called()
+    m.set_keychain_owner.assert_not_called()
+
+
+def test_switch_handles_unreadable_keychain():
+    m = mock.Mock()
+    m.keychain_oauth.side_effect = RuntimeError("no keychain")
+    assert _switch_to_live_keychain(m) is None
+    m.set_keychain_owner.assert_not_called()
+
+
+def test_switch_saves_creds_even_when_usage_fetch_fails():
+    m = _fake_accts(["a@x.com"], detected_email="a@x.com")
+    m.fetch_usage.side_effect = RuntimeError("429")
+    assert _switch_to_live_keychain(m) == "a@x.com"
+    # usage falls back to None, but creds + ownership still persist
+    args, _ = m.update_oauth.call_args
+    assert args[0] == "a@x.com"
+    assert args[2] is None
+    m.set_keychain_owner.assert_called_once_with("a@x.com")

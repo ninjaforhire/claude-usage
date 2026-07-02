@@ -664,15 +664,50 @@ def _fable_rank(entry: dict) -> dict:
     return {"score": score, "fable_room": fable_room, "reasons": reasons}
 
 
-def cmd_fable_next(refresh: bool = False) -> None:
+def _switch_to_live_keychain(_accts) -> str | None:
+    """Snapshot the live Claude Code keychain into the store as the new owner.
+
+    Run right after logging Claude Code into a different account: reads the live
+    keychain, refreshes that (already-tracked) account's credentials + usage, and
+    marks it keychain_owner. Returns the detected email, or None if the account
+    could not be read/detected/matched.
+    """
+    try:
+        oauth = _accts.keychain_oauth()
+        email = _accts.fetch_profile_email(oauth)
+    except Exception as e:  # noqa: BLE001 — no keychain / offline / bad token
+        print(f"  Could not read keychain: {e}")
+        return None
+    if not email:
+        print("  Could not detect account email from keychain.")
+        return None
+    tracked = {a["email"] for a in _accts.load_store()["accounts"]}
+    if email not in tracked:
+        print(f"  {email} is logged in but not tracked. Register it first:")
+        print("    python3 ~/tools/claude-usage/cli.py accounts add")
+        return None
+    try:
+        usage = _accts.fetch_usage(oauth)
+    except Exception:  # noqa: BLE001 — save creds even if usage fetch fails
+        usage = None
+    _accts.update_oauth(email, oauth, usage)
+    _accts.set_keychain_owner(email)
+    print(f"  Snapshotted live keychain -> {email} (now keychain owner).")
+    return email
+
+
+def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
     """Recommend which account to use for Fable-5 work right now.
 
     Ranks active accounts by guaranteed Fable headroom (weekly_remaining - 50%),
     favoring a running weekly window over an idle reserve, and prints the exact
-    login switch when the pick isn't the current keychain owner.
+    login switch when the pick isn't the current keychain owner. With switch=True,
+    first snapshots the live keychain (run after /login into the target account).
     """
     import accounts as _accts  # local import — only needed for this subcommand
 
+    if switch:
+        _switch_to_live_keychain(_accts)
     if refresh:
         _accts.fetch_all_usage()
     store = _accts.load_store()
@@ -734,7 +769,7 @@ def cmd_fable_next(refresh: bool = False) -> None:
     else:
         print("       NOT the current login — switch:")
         print("         1. /login  (or `claude` → log in as this account)")
-        print("         2. python3 ~/tools/claude-usage/cli.py accounts add")
+        print("         2. python3 ~/tools/claude-usage/cli.py fable-next --switch")
     hr("=")
     print()
 
@@ -764,9 +799,12 @@ Usage:
                                                  (server-independent; no dashboard needed)
   python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
                                                  (re-homed off the retired :8080 dashboard)
-  python cli.py fable-next [--refresh]        Recommend which account to use for Fable 5
+  python cli.py fable-next [--refresh] [--switch]
+                                                 Recommend which account to use for Fable 5
                                                  work now (weekly_remaining - 50% cap);
-                                                 --refresh fetches live usage first
+                                                 --refresh fetches live usage first;
+                                                 --switch snapshots the live keychain as the
+                                                 new owner (run after logging into the target)
 """
 
 COMMANDS = {
@@ -838,6 +876,6 @@ if __name__ == "__main__":
     elif command == "accounts":
         cmd_accounts(rest=rest)
     elif command == "fable-next":
-        cmd_fable_next(refresh="--refresh" in rest)
+        cmd_fable_next(refresh="--refresh" in rest, switch="--switch" in rest)
     else:
         COMMANDS[command]()
