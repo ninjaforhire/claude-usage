@@ -4,6 +4,14 @@ processes.py - Live process snapshot + rogue detection.
 Rogue = a long-lived process that no plist explains and whose parent is not an
 interactive shell. Interactive `claude` CLIs (parent -zsh) and Claude.app helpers
 are explicitly whitelisted so they never get flagged.
+
+Two classes of `claude` run headless BY DESIGN and must also never be flagged:
+  * Claude Code's own background daemon supervisor (`claude daemon run ...`) -
+    auth refresh + bg workers. It double-forks and reparents to launchd, so the
+    interactive-shell heuristic always misfires on it.
+  * Jimbo mission workers (`claude -p ... --mcp-config .../jimbo-mcp.json`),
+    spawned by run_mission.py / the jimbo server and bounded by --max-turns.
+See `_is_managed_claude`.
 """
 
 import subprocess
@@ -61,6 +69,49 @@ def _is_whitelisted(proc):
     return any(s in proc["command"] for s in WHITELIST_SUBSTR)
 
 
+# Substrings on a managed claude's own command line (checked first, cheap).
+_MANAGED_CLAUDE_SUBSTR = (
+    " daemon run",     # Claude Code's built-in background daemon supervisor
+    "jimbo-mcp.json",  # Jimbo mission worker (its --mcp-config path)
+    "/jimbo",          # Jimbo-spawned (mcp path or spawned-by cwd)
+)
+
+# Ancestor command substrings that mark a claude as Jimbo-managed (parent walk).
+_MANAGED_PARENT_SUBSTR = (
+    "run_mission.py",  # standalone / crontab mission runner
+    "run_server.py",   # jimbo server that spawns mission workers
+    "/jimbo/",         # any jimbo host process
+)
+
+
+def _is_managed_claude(proc, by_pid):
+    """A headless `claude` that runs by design - never rogue.
+
+    Covers Claude Code's own daemon supervisor and Jimbo mission workers, both
+    of which are correctly detached from any interactive shell. Detected either
+    by the process's own command line or by walking its parent chain up to a
+    known Jimbo runner (the mission child's parent is the mission process, which
+    is itself reparented to launchd once the standalone runner exits).
+    """
+    cmd = proc["command"]
+    if any(s in cmd for s in _MANAGED_CLAUDE_SUBSTR):
+        return True
+    seen = set()
+    cur = proc
+    for _ in range(6):  # bounded parent walk; guards against pid-reuse cycles
+        ppid = cur.get("ppid")
+        if ppid is None or ppid in seen:
+            break
+        seen.add(ppid)
+        parent = by_pid.get(ppid)
+        if parent is None:
+            break
+        if any(s in parent.get("command", "") for s in _MANAGED_PARENT_SUBSTR):
+            return True
+        cur = parent
+    return False
+
+
 def find_rogues(procs=None, cpu_threshold=DEFAULT_CPU_THRESHOLD):
     """Return claude processes that look like runaway/orphaned background work.
 
@@ -81,6 +132,8 @@ def find_rogues(procs=None, cpu_threshold=DEFAULT_CPU_THRESHOLD):
         is_claude = "/.local/bin/claude" in cmd or cmd.endswith("/claude")
         if not is_claude:
             continue
+        if _is_managed_claude(p, by_pid):
+            continue  # Claude's own daemon / Jimbo mission worker - headless by design
         reasons = []
         if not _is_interactive_claude(p, by_pid):
             reasons.append("claude process not attached to an interactive shell")
