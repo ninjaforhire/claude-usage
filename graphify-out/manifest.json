@@ -1,12 +1,17 @@
 {
-  "tests/__init__.py": {
-    "mtime": 1777374132.0916653,
-    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
-    "semantic_hash": ""
-  },
   "CLAUDE.md": {
     "mtime": 1780768916.5146656,
     "ast_hash": "261ea8ac2a73498b4e9ec366ca59c786",
+    "semantic_hash": ""
+  },
+  "cli.py": {
+    "mtime": 1782951513.3403091,
+    "ast_hash": "84853a458e351141fa3e58f27b6ccb90",
+    "semantic_hash": ""
+  },
+  "dashboard.py": {
+    "mtime": 1781506136.8895438,
+    "ast_hash": "69aea6a8c158d829b75adcd30fdd4312",
     "semantic_hash": ""
   },
   "Formula/claude-usage.rb": {
@@ -25,13 +30,8 @@
     "semantic_hash": ""
   },
   "classify.py": {
-    "mtime": 1781794943.868314,
-    "ast_hash": "fd7d4ddff8d11867f1e77760e622e4dd",
-    "semantic_hash": ""
-  },
-  "cli.py": {
-    "mtime": 1781882957.7986577,
-    "ast_hash": "34b20dd6136e740d5c7fbaafb5debcbf",
+    "mtime": 1783507859.6647174,
+    "ast_hash": "a81ca661c345e7b8f9947a94e59cdfaa",
     "semantic_hash": ""
   },
   "codex_limits.py": {
@@ -40,8 +40,8 @@
     "semantic_hash": ""
   },
   "daemon_page.py": {
-    "mtime": 1781501674.6518238,
-    "ast_hash": "9d8b30bf84c130d0519db5770f25ae68",
+    "mtime": 1783507606.647926,
+    "ast_hash": "11b70872b4d04d7db656ff41ecaee00b",
     "semantic_hash": ""
   },
   "daemons.py": {
@@ -49,14 +49,9 @@
     "ast_hash": "c2e001bef32a810154ab59189935a758",
     "semantic_hash": ""
   },
-  "dashboard.py": {
-    "mtime": 1781506136.8895438,
-    "ast_hash": "69aea6a8c158d829b75adcd30fdd4312",
-    "semantic_hash": ""
-  },
   "freshness_watch.py": {
-    "mtime": 1781882957.7992418,
-    "ast_hash": "7ecc79671d94f465deffb4b09346beb0",
+    "mtime": 1783507620.577822,
+    "ast_hash": "3a5f30d0b4710a5d0ef10b9282989ffe",
     "semantic_hash": ""
   },
   "notify.py": {
@@ -65,8 +60,8 @@
     "semantic_hash": ""
   },
   "processes.py": {
-    "mtime": 1780405667.5444698,
-    "ast_hash": "1ffa8123c595b9bf5fdd1def54c8d66d",
+    "mtime": 1783508883.5660045,
+    "ast_hash": "41fd0ec322904bb6fce74b15343cb1df",
     "semantic_hash": ""
   },
   "promptgen.py": {
@@ -104,6 +99,11 @@
     "ast_hash": "e5de8c8691b4b0686bed93c80f2e18da",
     "semantic_hash": ""
   },
+  "tests/__init__.py": {
+    "mtime": 1777374132.0916653,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": ""
+  },
   "tests/test_accounts.py": {
     "mtime": 1781878821.549436,
     "ast_hash": "eb509da933290ffc5303b76312b0f7e7",
@@ -125,8 +125,8 @@
     "semantic_hash": ""
   },
   "tests/test_classify.py": {
-    "mtime": 1781111279.932036,
-    "ast_hash": "a2163cf792dcb0ea5282baa0385dcf6d",
+    "mtime": 1783507870.1209044,
+    "ast_hash": "24f866dee53f05cdff56a126ba45785f",
     "semantic_hash": ""
   },
   "tests/test_cli.py": {
@@ -142,6 +142,11 @@
   "tests/test_dashboard.py": {
     "mtime": 1781505782.3552098,
     "ast_hash": "91fa4637873fcddee5a1ff38d277c295",
+    "semantic_hash": ""
+  },
+  "tests/test_fable_next.py": {
+    "mtime": 1782951529.670631,
+    "ast_hash": "732fe136526524a35d595a0061114641",
     "semantic_hash": ""
   },
   "tests/test_freshness_watch.py": {
@@ -337,6 +342,11 @@
   "vscode-extension/resources/icon_large.png": {
     "mtime": 1780768916.5287962,
     "ast_hash": "ba1101f7d2a3c9c4a95646a42d78b1fa",
+    "semantic_hash": ""
+  },
+  "tests/test_processes.py": {
+    "mtime": 1783508905.077795,
+    "ast_hash": "9644ea099b9779cf7f4540414c7a6a37",
     "semantic_hash": ""
   }
 }

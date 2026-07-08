@@ -697,17 +697,27 @@
       "label": "_bootout_cmd()",
       "file_type": "code",
       "source_file": "classify.py",
-      "source_location": "L25",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "classify_bootout_cmd",
       "community": 8,
       "norm_label": "_bootout_cmd()"
     },
     {
+      "label": "_is_vendor()",
+      "file_type": "code",
+      "source_file": "classify.py",
+      "source_location": "L73",
+      "_origin": "ast",
+      "id": "classify_is_vendor",
+      "community": 8,
+      "norm_label": "_is_vendor()"
+    },
+    {
       "label": "classify_daemon()",
       "file_type": "code",
       "source_file": "classify.py",
-      "source_location": "L30",
+      "source_location": "L77",
       "_origin": "ast",
       "id": "classify_classify_daemon",
       "community": 8,
@@ -717,7 +727,7 @@
       "label": "build_report()",
       "file_type": "code",
       "source_file": "classify.py",
-      "source_location": "L112",
+      "source_location": "L199",
       "_origin": "ast",
       "id": "classify_build_report",
       "community": 8,
@@ -737,9 +747,9 @@
       "label": "Return (bucket, reasons[], remediation|None) for one merged daemon dict.",
       "file_type": "rationale",
       "source_file": "classify.py",
-      "source_location": "L31",
+      "source_location": "L78",
       "_origin": "ast",
-      "id": "classify_rationale_31",
+      "id": "classify_rationale_78",
       "community": 8,
       "norm_label": "return (bucket, reasons[], remediation|none) for one merged daemon dict."
     },
@@ -747,9 +757,9 @@
       "label": "Full report dict consumed by the dashboard API and the CLI.      {       \"daemon",
       "file_type": "rationale",
       "source_file": "classify.py",
-      "source_location": "L113",
+      "source_location": "L200",
       "_origin": "ast",
-      "id": "classify_rationale_113",
+      "id": "classify_rationale_200",
       "community": 8,
       "norm_label": "full report dict consumed by the dashboard api and the cli.      {       \"daemon"
     },
@@ -1810,7 +1820,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "notify",
-      "community": 14,
+      "community": 13,
       "norm_label": "notify.py"
     },
     {
@@ -1820,7 +1830,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "notify_post_jimbo",
-      "community": 14,
+      "community": 13,
       "norm_label": "_post_jimbo()"
     },
     {
@@ -1830,7 +1840,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "notify_osa_escape",
-      "community": 14,
+      "community": 13,
       "norm_label": "_osa_escape()"
     },
     {
@@ -1840,7 +1850,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "notify_osascript_notify",
-      "community": 14,
+      "community": 13,
       "norm_label": "_osascript_notify()"
     },
     {
@@ -1850,7 +1860,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "notify_alert",
-      "community": 14,
+      "community": 13,
       "norm_label": "alert()"
     },
     {
@@ -1860,7 +1870,7 @@
       "source_location": "L98",
       "_origin": "ast",
       "id": "notify_digest",
-      "community": 14,
+      "community": 13,
       "norm_label": "digest()"
     },
     {
@@ -1870,7 +1880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "notify_rationale_1",
-      "community": 14,
+      "community": 13,
       "norm_label": "notify.py - fire-and-forget daemon alerting.  two sinks, both best-effort, neith"
     },
     {
@@ -1880,7 +1890,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "notify_rationale_25",
-      "community": 14,
+      "community": 13,
       "norm_label": "post a payload to jimbo. returns true on 2xx, false on any failure."
     },
     {
@@ -1890,7 +1900,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "notify_rationale_40",
-      "community": 14,
+      "community": 13,
       "norm_label": "escape a string for safe embedding in an applescript double-quoted literal."
     },
     {
@@ -1900,7 +1910,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "notify_rationale_50",
-      "community": 14,
+      "community": 13,
       "norm_label": "fire a local macos notification. returns true on success, false otherwise."
     },
     {
@@ -1910,7 +1920,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "notify_rationale_69",
-      "community": 14,
+      "community": 13,
       "norm_label": "alert that ``label`` went unhealthy. hits both sinks; never raises.      args:"
     },
     {
@@ -1920,7 +1930,7 @@
       "source_location": "L99",
       "_origin": "ast",
       "id": "notify_rationale_99",
-      "community": 14,
+      "community": 13,
       "norm_label": "send the daily digest (one batched telegram message via jimbo).      jimbo-only"
     },
     {
@@ -1937,7 +1947,7 @@
       "label": "snapshot()",
       "file_type": "code",
       "source_file": "processes.py",
-      "source_location": "L22",
+      "source_location": "L30",
       "_origin": "ast",
       "id": "processes_snapshot",
       "community": 36,
@@ -1947,7 +1957,7 @@
       "label": "_is_interactive_claude()",
       "file_type": "code",
       "source_file": "processes.py",
-      "source_location": "L51",
+      "source_location": "L59",
       "_origin": "ast",
       "id": "processes_is_interactive_claude",
       "community": 36,
@@ -1957,17 +1967,27 @@
       "label": "_is_whitelisted()",
       "file_type": "code",
       "source_file": "processes.py",
-      "source_location": "L60",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "processes_is_whitelisted",
       "community": 36,
       "norm_label": "_is_whitelisted()"
     },
     {
+      "label": "_is_managed_claude()",
+      "file_type": "code",
+      "source_file": "processes.py",
+      "source_location": "L87",
+      "_origin": "ast",
+      "id": "processes_is_managed_claude",
+      "community": 36,
+      "norm_label": "_is_managed_claude()"
+    },
+    {
       "label": "find_rogues()",
       "file_type": "code",
       "source_file": "processes.py",
-      "source_location": "L64",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "processes_find_rogues",
       "community": 36,
@@ -1987,9 +2007,9 @@
       "label": "Return list of {pid, ppid, cpu, mem, etime, command} for all processes.",
       "file_type": "rationale",
       "source_file": "processes.py",
-      "source_location": "L23",
+      "source_location": "L31",
       "_origin": "ast",
-      "id": "processes_rationale_23",
+      "id": "processes_rationale_31",
       "community": 36,
       "norm_label": "return list of {pid, ppid, cpu, mem, etime, command} for all processes."
     },
@@ -1997,19 +2017,29 @@
       "label": "A `claude` CLI launched from an interactive shell (the user's terminals).",
       "file_type": "rationale",
       "source_file": "processes.py",
-      "source_location": "L52",
+      "source_location": "L60",
       "_origin": "ast",
-      "id": "processes_rationale_52",
+      "id": "processes_rationale_60",
       "community": 36,
       "norm_label": "a `claude` cli launched from an interactive shell (the user's terminals)."
+    },
+    {
+      "label": "A headless `claude` that runs by design - never rogue.      Covers Claude Code's",
+      "file_type": "rationale",
+      "source_file": "processes.py",
+      "source_location": "L88",
+      "_origin": "ast",
+      "id": "processes_rationale_88",
+      "community": 36,
+      "norm_label": "a headless `claude` that runs by design - never rogue.      covers claude code's"
     },
     {
       "label": "Return claude processes that look like runaway/orphaned background work.      Sc",
       "file_type": "rationale",
       "source_file": "processes.py",
-      "source_location": "L65",
+      "source_location": "L116",
       "_origin": "ast",
-      "id": "processes_rationale_65",
+      "id": "processes_rationale_116",
       "community": 36,
       "norm_label": "return claude processes that look like runaway/orphaned background work.      sc"
     },
@@ -3564,60 +3594,90 @@
       "norm_label": "_daemon()"
     },
     {
-      "label": "test_unannotated_is_unknown()",
+      "label": "test_unannotated_is_undeclared()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L27",
+      "source_location": "L29",
       "_origin": "ast",
-      "id": "tests_test_classify_test_unannotated_is_unknown",
+      "id": "tests_test_classify_test_unannotated_is_undeclared",
       "community": 8,
-      "norm_label": "test_unannotated_is_unknown()"
+      "norm_label": "test_unannotated_is_undeclared()"
     },
     {
       "label": "test_healthy_when_declared_and_quiet()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L33",
+      "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_classify_test_healthy_when_declared_and_quiet",
       "community": 8,
       "norm_label": "test_healthy_when_declared_and_quiet()"
     },
     {
-      "label": "test_disabled_but_loaded_is_waste()",
+      "label": "test_disabled_but_loaded_is_disabled_drift()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L40",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "tests_test_classify_test_disabled_but_loaded_is_waste",
+      "id": "tests_test_classify_test_disabled_but_loaded_is_disabled_drift",
       "community": 8,
-      "norm_label": "test_disabled_but_loaded_is_waste()"
+      "norm_label": "test_disabled_but_loaded_is_disabled_drift()"
     },
     {
-      "label": "test_nonzero_exit_is_waste()",
+      "label": "test_nonzero_exit_on_scheduled_is_broken()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L49",
+      "source_location": "L52",
       "_origin": "ast",
-      "id": "tests_test_classify_test_nonzero_exit_is_waste",
+      "id": "tests_test_classify_test_nonzero_exit_on_scheduled_is_broken",
       "community": 8,
-      "norm_label": "test_nonzero_exit_is_waste()"
+      "norm_label": "test_nonzero_exit_on_scheduled_is_broken()"
     },
     {
-      "label": "test_cost_tier_idle_is_waste()",
+      "label": "test_sigterm_exit_is_healthy()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L55",
+      "source_location": "L59",
       "_origin": "ast",
-      "id": "tests_test_classify_test_cost_tier_idle_is_waste",
+      "id": "tests_test_classify_test_sigterm_exit_is_healthy",
       "community": 8,
-      "norm_label": "test_cost_tier_idle_is_waste()"
+      "norm_label": "test_sigterm_exit_is_healthy()"
+    },
+    {
+      "label": "test_keepalive_running_with_nonzero_exit_is_healthy()",
+      "file_type": "code",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L65",
+      "_origin": "ast",
+      "id": "tests_test_classify_test_keepalive_running_with_nonzero_exit_is_healthy",
+      "community": 8,
+      "norm_label": "test_keepalive_running_with_nonzero_exit_is_healthy()"
+    },
+    {
+      "label": "test_keepalive_dead_with_nonzero_exit_is_broken()",
+      "file_type": "code",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "tests_test_classify_test_keepalive_dead_with_nonzero_exit_is_broken",
+      "community": 8,
+      "norm_label": "test_keepalive_dead_with_nonzero_exit_is_broken()"
+    },
+    {
+      "label": "test_cost_tier_idle_is_broken()",
+      "file_type": "code",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L82",
+      "_origin": "ast",
+      "id": "tests_test_classify_test_cost_tier_idle_is_broken",
+      "community": 8,
+      "norm_label": "test_cost_tier_idle_is_broken()"
     },
     {
       "label": "test_cost_tier_active_is_healthy()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L63",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_classify_test_cost_tier_active_is_healthy",
       "community": 8,
@@ -3627,7 +3687,7 @@
       "label": "test_mixed_dir_not_flagged_idle()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L70",
+      "source_location": "L97",
       "_origin": "ast",
       "id": "tests_test_classify_test_mixed_dir_not_flagged_idle",
       "community": 8,
@@ -3637,7 +3697,7 @@
       "label": "test_disabled_idle_not_double_flagged()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L77",
+      "source_location": "L104",
       "_origin": "ast",
       "id": "tests_test_classify_test_disabled_idle_not_double_flagged",
       "community": 8,
@@ -3647,7 +3707,7 @@
       "label": "test_past_eol_is_waste()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L84",
+      "source_location": "L111",
       "_origin": "ast",
       "id": "tests_test_classify_test_past_eol_is_waste",
       "community": 8,
@@ -3657,7 +3717,7 @@
       "label": "test_future_eol_is_healthy()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L90",
+      "source_location": "L118",
       "_origin": "ast",
       "id": "tests_test_classify_test_future_eol_is_healthy",
       "community": 8,
@@ -3667,17 +3727,57 @@
       "label": "test_bad_eol_date_ignored()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L95",
+      "source_location": "L123",
       "_origin": "ast",
       "id": "tests_test_classify_test_bad_eol_date_ignored",
       "community": 8,
       "norm_label": "test_bad_eol_date_ignored()"
     },
     {
+      "label": "test_vendor_helper_is_vendor_ignore()",
+      "file_type": "code",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L131",
+      "_origin": "ast",
+      "id": "tests_test_classify_test_vendor_helper_is_vendor_ignore",
+      "community": 8,
+      "norm_label": "test_vendor_helper_is_vendor_ignore()"
+    },
+    {
+      "label": "test_vendor_helper_loaded_drift_is_still_vendor_ignore()",
+      "file_type": "code",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L139",
+      "_origin": "ast",
+      "id": "tests_test_classify_test_vendor_helper_loaded_drift_is_still_vendor_ignore",
+      "community": 8,
+      "norm_label": "test_vendor_helper_loaded_drift_is_still_vendor_ignore()"
+    },
+    {
+      "label": "test_disabled_off_with_stale_exit_is_healthy()",
+      "file_type": "code",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L149",
+      "_origin": "ast",
+      "id": "tests_test_classify_test_disabled_off_with_stale_exit_is_healthy",
+      "community": 8,
+      "norm_label": "test_disabled_off_with_stale_exit_is_healthy()"
+    },
+    {
+      "label": "test_vendor_prefix_beats_eol()",
+      "file_type": "code",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L158",
+      "_origin": "ast",
+      "id": "tests_test_classify_test_vendor_prefix_beats_eol",
+      "community": 8,
+      "norm_label": "test_vendor_prefix_beats_eol()"
+    },
+    {
       "label": "_heartbeat()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L106",
+      "source_location": "L172",
       "_origin": "ast",
       "id": "tests_test_classify_heartbeat",
       "community": 8,
@@ -3687,47 +3787,47 @@
       "label": "test_fresh_ok_heartbeat_is_healthy()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L115",
+      "source_location": "L181",
       "_origin": "ast",
       "id": "tests_test_classify_test_fresh_ok_heartbeat_is_healthy",
       "community": 8,
       "norm_label": "test_fresh_ok_heartbeat_is_healthy()"
     },
     {
-      "label": "test_missing_heartbeat_is_waste()",
+      "label": "test_missing_heartbeat_is_broken()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L122",
+      "source_location": "L188",
       "_origin": "ast",
-      "id": "tests_test_classify_test_missing_heartbeat_is_waste",
+      "id": "tests_test_classify_test_missing_heartbeat_is_broken",
       "community": 8,
-      "norm_label": "test_missing_heartbeat_is_waste()"
+      "norm_label": "test_missing_heartbeat_is_broken()"
     },
     {
-      "label": "test_stale_heartbeat_is_waste()",
+      "label": "test_stale_heartbeat_is_broken()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L130",
+      "source_location": "L196",
       "_origin": "ast",
-      "id": "tests_test_classify_test_stale_heartbeat_is_waste",
+      "id": "tests_test_classify_test_stale_heartbeat_is_broken",
       "community": 8,
-      "norm_label": "test_stale_heartbeat_is_waste()"
+      "norm_label": "test_stale_heartbeat_is_broken()"
     },
     {
-      "label": "test_failed_run_heartbeat_is_waste()",
+      "label": "test_failed_run_heartbeat_is_broken()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L137",
+      "source_location": "L203",
       "_origin": "ast",
-      "id": "tests_test_classify_test_failed_run_heartbeat_is_waste",
+      "id": "tests_test_classify_test_failed_run_heartbeat_is_broken",
       "community": 8,
-      "norm_label": "test_failed_run_heartbeat_is_waste()"
+      "norm_label": "test_failed_run_heartbeat_is_broken()"
     },
     {
       "label": "test_no_heartbeat_configured_is_unaffected()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L144",
+      "source_location": "L210",
       "_origin": "ast",
       "id": "tests_test_classify_test_no_heartbeat_configured_is_unaffected",
       "community": 8,
@@ -3737,7 +3837,7 @@
       "label": "test_string_freshness_does_not_crash()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L149",
+      "source_location": "L215",
       "_origin": "ast",
       "id": "tests_test_classify_test_string_freshness_does_not_crash",
       "community": 8,
@@ -3747,7 +3847,7 @@
       "label": "test_numeric_string_freshness_is_coerced()",
       "file_type": "code",
       "source_file": "tests/test_classify.py",
-      "source_location": "L157",
+      "source_location": "L223",
       "_origin": "ast",
       "id": "tests_test_classify_test_numeric_string_freshness_is_coerced",
       "community": 8,
@@ -4910,7 +5010,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "tests_test_dashboard_testnonbillablemodelfallback",
-      "community": 17,
+      "community": 16,
       "norm_label": "testnonbillablemodelfallback"
     },
     {
@@ -4920,7 +5020,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "tests_test_dashboard_testnonbillablemodelfallback_test_readurlmodels_fallback_in_html_template",
-      "community": 17,
+      "community": 16,
       "norm_label": ".test_readurlmodels_fallback_in_html_template()"
     },
     {
@@ -4930,7 +5030,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp",
-      "community": 16,
+      "community": 17,
       "norm_label": "testdashboardhttp"
     },
     {
@@ -4940,7 +5040,7 @@
       "source_location": "L256",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_setupclass",
-      "community": 16,
+      "community": 17,
       "norm_label": ".setupclass()"
     },
     {
@@ -4950,7 +5050,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_teardownclass",
-      "community": 16,
+      "community": 17,
       "norm_label": ".teardownclass()"
     },
     {
@@ -4960,7 +5060,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_index_returns_html",
-      "community": 16,
+      "community": 17,
       "norm_label": ".test_index_returns_html()"
     },
     {
@@ -4970,7 +5070,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_index_with_query_string_returns_html",
-      "community": 16,
+      "community": 17,
       "norm_label": ".test_index_with_query_string_returns_html()"
     },
     {
@@ -4980,7 +5080,7 @@
       "source_location": "L303",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_api_data_with_query_string",
-      "community": 16,
+      "community": 17,
       "norm_label": ".test_api_data_with_query_string()"
     },
     {
@@ -4990,7 +5090,7 @@
       "source_location": "L311",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_api_data_returns_json",
-      "community": 16,
+      "community": 17,
       "norm_label": ".test_api_data_returns_json()"
     },
     {
@@ -5000,7 +5100,7 @@
       "source_location": "L320",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_api_rescan_returns_json",
-      "community": 16,
+      "community": 17,
       "norm_label": ".test_api_rescan_returns_json()"
     },
     {
@@ -5010,7 +5110,7 @@
       "source_location": "L331",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_404_for_unknown_path",
-      "community": 16,
+      "community": 17,
       "norm_label": ".test_404_for_unknown_path()"
     },
     {
@@ -5200,7 +5300,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_242",
-      "community": 17,
+      "community": 16,
       "norm_label": "regression: when the user has only non-billable models (e.g. gemma, glm,     loc"
     },
     {
@@ -5210,7 +5310,7 @@
       "source_location": "L253",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_253",
-      "community": 16,
+      "community": 17,
       "norm_label": "integration test: start server and make http requests."
     },
     {
@@ -5770,7 +5870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_notify",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_notify.py"
     },
     {
@@ -5780,7 +5880,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "tests_test_notify_test_alert_hits_both_sinks",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_alert_hits_both_sinks()"
     },
     {
@@ -5790,7 +5890,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "tests_test_notify_test_alert_never_raises_when_both_fail",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_alert_never_raises_when_both_fail()"
     },
     {
@@ -5800,7 +5900,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "tests_test_notify_test_digest_posts_to_digest_url",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_digest_posts_to_digest_url()"
     },
     {
@@ -5810,7 +5910,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_notify_test_digest_never_raises",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_digest_never_raises()"
     },
     {
@@ -5820,7 +5920,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "tests_test_notify_test_post_jimbo_swallows_network_error",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_post_jimbo_swallows_network_error()"
     },
     {
@@ -5830,7 +5930,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "tests_test_notify_test_osascript_returns_false_on_nonzero",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_osascript_returns_false_on_nonzero()"
     },
     {
@@ -5840,7 +5940,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "tests_test_notify_test_osa_escape_neutralizes_quotes_and_newlines",
-      "community": 14,
+      "community": 13,
       "norm_label": "test_osa_escape_neutralizes_quotes_and_newlines()"
     },
     {
@@ -5850,8 +5950,128 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_notify_rationale_1",
-      "community": 14,
+      "community": 13,
       "norm_label": "behavior tests for notify.alert \u2014 fire-and-forget daemon alerting."
+    },
+    {
+      "label": "test_processes.py",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_test_processes",
+      "community": 36,
+      "norm_label": "test_processes.py"
+    },
+    {
+      "label": "_proc()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "tests_test_processes_proc",
+      "community": 36,
+      "norm_label": "_proc()"
+    },
+    {
+      "label": "TestFindRogues",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues",
+      "community": 36,
+      "norm_label": "testfindrogues"
+    },
+    {
+      "label": "._pids()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L29",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_pids",
+      "community": 36,
+      "norm_label": "._pids()"
+    },
+    {
+      "label": ".test_claude_daemon_supervisor_not_rogue()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue",
+      "community": 36,
+      "norm_label": ".test_claude_daemon_supervisor_not_rogue()"
+    },
+    {
+      "label": ".test_jimbo_mission_worker_not_rogue_by_command()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L46",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command",
+      "community": 36,
+      "norm_label": ".test_jimbo_mission_worker_not_rogue_by_command()"
+    },
+    {
+      "label": ".test_jimbo_mission_worker_not_rogue_by_parent()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L60",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent",
+      "community": 36,
+      "norm_label": ".test_jimbo_mission_worker_not_rogue_by_parent()"
+    },
+    {
+      "label": ".test_interactive_claude_not_rogue()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L71",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue",
+      "community": 36,
+      "norm_label": ".test_interactive_claude_not_rogue()"
+    },
+    {
+      "label": ".test_genuine_orphan_still_rogue()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L76",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue",
+      "community": 36,
+      "norm_label": ".test_genuine_orphan_still_rogue()"
+    },
+    {
+      "label": ".test_orphan_rogue_recommends_kill()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L82",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_test_orphan_rogue_recommends_kill",
+      "community": 36,
+      "norm_label": ".test_orphan_rogue_recommends_kill()"
+    },
+    {
+      "label": ".test_parent_walk_is_bounded_on_cycle()",
+      "file_type": "code",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L87",
+      "_origin": "ast",
+      "id": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle",
+      "community": 36,
+      "norm_label": ".test_parent_walk_is_bounded_on_cycle()"
+    },
+    {
+      "label": "Tests for processes.find_rogues - managed-claude whitelisting.  Regression guard",
+      "file_type": "rationale",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "tests_test_processes_rationale_1",
+      "community": 36,
+      "norm_label": "tests for processes.find_rogues - managed-claude whitelisting.  regression guard"
     },
     {
       "label": "test_promptgen.py",
@@ -6790,7 +7010,7 @@
       "source_location": "L608",
       "_origin": "ast",
       "id": "tests_test_scanner_testcrossfilesessiontotals",
-      "community": 69,
+      "community": 67,
       "norm_label": "testcrossfilesessiontotals"
     },
     {
@@ -6800,7 +7020,7 @@
       "source_location": "L611",
       "_origin": "ast",
       "id": "tests_test_scanner_testcrossfilesessiontotals_setup",
-      "community": 69,
+      "community": 67,
       "norm_label": ".setup()"
     },
     {
@@ -6820,7 +7040,7 @@
       "source_location": "L655",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount",
-      "community": 67,
+      "community": 69,
       "norm_label": "testparsejsonlfilelinecount"
     },
     {
@@ -6830,7 +7050,7 @@
       "source_location": "L658",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_setup",
-      "community": 67,
+      "community": 69,
       "norm_label": ".setup()"
     },
     {
@@ -6840,7 +7060,7 @@
       "source_location": "L661",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_test_line_count_matches_file",
-      "community": 67,
+      "community": 69,
       "norm_label": ".test_line_count_matches_file()"
     },
     {
@@ -6850,7 +7070,7 @@
       "source_location": "L670",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_test_empty_file_returns_zero",
-      "community": 67,
+      "community": 69,
       "norm_label": ".test_empty_file_returns_zero()"
     },
     {
@@ -7030,7 +7250,7 @@
       "source_location": "L609",
       "_origin": "ast",
       "id": "tests_test_scanner_rationale_609",
-      "community": 69,
+      "community": 67,
       "norm_label": "test that session totals are correct when the same session spans multiple files."
     },
     {
@@ -7050,7 +7270,7 @@
       "source_location": "L656",
       "_origin": "ast",
       "id": "tests_test_scanner_rationale_656",
-      "community": 67,
+      "community": 69,
       "norm_label": "test that parse_jsonl_file returns correct line count."
     },
     {
@@ -11591,6 +11811,16 @@
       "target": "classify_classify_daemon"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "classify.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "classify",
+      "target": "classify_is_vendor"
+    },
+    {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -11671,6 +11901,17 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "classify.py",
+      "source_location": "L88",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "classify_classify_daemon",
+      "target": "classify_is_vendor"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "classify.py",
       "source_location": "L142",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -11681,10 +11922,10 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "classify.py",
-      "source_location": "L31",
+      "source_location": "L78",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "classify_rationale_31",
+      "source": "classify_rationale_78",
       "target": "classify_classify_daemon"
     },
     {
@@ -11725,10 +11966,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L56",
+      "source_location": "L83",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_cost_tier_idle_is_waste",
+      "source": "tests_test_classify_test_cost_tier_idle_is_broken",
       "target": "classify_classify_daemon"
     },
     {
@@ -11736,10 +11977,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L41",
+      "source_location": "L44",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_disabled_but_loaded_is_waste",
+      "source": "tests_test_classify_test_disabled_but_loaded_is_disabled_drift",
       "target": "classify_classify_daemon"
     },
     {
@@ -11758,10 +11999,21 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L139",
+      "source_location": "L152",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_failed_run_heartbeat_is_waste",
+      "source": "tests_test_classify_test_disabled_off_with_stale_exit_is_healthy",
+      "target": "classify_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L205",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_failed_run_heartbeat_is_broken",
       "target": "classify_classify_daemon"
     },
     {
@@ -11802,10 +12054,32 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L123",
+      "source_location": "L76",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_missing_heartbeat_is_waste",
+      "source": "tests_test_classify_test_keepalive_dead_with_nonzero_exit_is_broken",
+      "target": "classify_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L68",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_keepalive_running_with_nonzero_exit_is_healthy",
+      "target": "classify_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L189",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_missing_heartbeat_is_broken",
       "target": "classify_classify_daemon"
     },
     {
@@ -11835,10 +12109,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L50",
+      "source_location": "L53",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_nonzero_exit_is_waste",
+      "source": "tests_test_classify_test_nonzero_exit_on_scheduled_is_broken",
       "target": "classify_classify_daemon"
     },
     {
@@ -11868,10 +12142,21 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L132",
+      "source_location": "L61",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_stale_heartbeat_is_waste",
+      "source": "tests_test_classify_test_sigterm_exit_is_healthy",
+      "target": "classify_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_stale_heartbeat_is_broken",
       "target": "classify_classify_daemon"
     },
     {
@@ -11890,20 +12175,53 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L28",
+      "source_location": "L30",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_unannotated_is_unknown",
+      "source": "tests_test_classify_test_unannotated_is_undeclared",
+      "target": "classify_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L132",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_vendor_helper_is_vendor_ignore",
+      "target": "classify_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L141",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_vendor_helper_loaded_drift_is_still_vendor_ignore",
+      "target": "classify_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L160",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_vendor_prefix_beats_eol",
       "target": "classify_classify_daemon"
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "classify.py",
-      "source_location": "L113",
+      "source_location": "L200",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "classify_rationale_113",
+      "source": "classify_rationale_200",
       "target": "classify_build_report"
     },
     {
@@ -11952,9 +12270,9 @@
       "source_file": "cli.py",
       "source_location": "L711",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli",
-      "target": "cli_cmd_fable_cost",
-      "confidence_score": 1.0
+      "target": "cli_cmd_fable_cost"
     },
     {
       "relation": "contains",
@@ -12092,9 +12410,9 @@
       "source_file": "cli.py",
       "source_location": "L699",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "contains",
@@ -12658,9 +12976,9 @@
       "source_file": "cli.py",
       "source_location": "L762",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_cmd_fable_cost",
-      "target": "cli_fmt",
-      "confidence_score": 1.0
+      "target": "cli_fmt"
     },
     {
       "relation": "calls",
@@ -12889,9 +13207,9 @@
       "source_file": "cli.py",
       "source_location": "L749",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_cmd_fable_cost",
-      "target": "cli_hr",
-      "confidence_score": 1.0
+      "target": "cli_hr"
     },
     {
       "relation": "calls",
@@ -12944,9 +13262,9 @@
       "source_file": "cli.py",
       "source_location": "L719",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_cmd_fable_cost",
-      "target": "cli_require_db",
-      "confidence_score": 1.0
+      "target": "cli_require_db"
     },
     {
       "relation": "calls",
@@ -13333,9 +13651,9 @@
       "source_file": "cli.py",
       "source_location": "L722",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_cmd_fable_cost",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "rationale_for",
@@ -13343,9 +13661,9 @@
       "source_file": "cli.py",
       "source_location": "L700",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_rationale_700",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "imports",
@@ -13354,9 +13672,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "calls",
@@ -13365,9 +13683,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next_test_discount_accepts_fraction",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "calls",
@@ -13376,9 +13694,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next_test_discount_accepts_percent_int",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "calls",
@@ -13387,9 +13705,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next_test_discount_accepts_percent_sign",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "calls",
@@ -13398,9 +13716,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next_test_discount_bad_input_falls_back",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "calls",
@@ -13409,9 +13727,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next_test_discount_default_is_30pct",
-      "target": "cli_norm_discount",
-      "confidence_score": 1.0
+      "target": "cli_norm_discount"
     },
     {
       "relation": "rationale_for",
@@ -13419,9 +13737,9 @@
       "source_file": "cli.py",
       "source_location": "L712",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_rationale_712",
-      "target": "cli_cmd_fable_cost",
-      "confidence_score": 1.0
+      "target": "cli_cmd_fable_cost"
     },
     {
       "relation": "rationale_for",
@@ -13449,9 +13767,9 @@
       "source_file": "cli.py",
       "source_location": "L773",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_rationale_773",
-      "target": "cli_cmd_fable_next",
-      "confidence_score": 1.0
+      "target": "cli_cmd_fable_next"
     },
     {
       "relation": "rationale_for",
@@ -13459,9 +13777,9 @@
       "source_file": "cli.py",
       "source_location": "L902",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "cli_rationale_902",
-      "target": "cli_parse_named_arg",
-      "confidence_score": 1.0
+      "target": "cli_parse_named_arg"
     },
     {
       "relation": "contains",
@@ -14914,6 +15232,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "processes.py",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "processes",
+      "target": "processes_is_managed_claude",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "processes.py",
       "source_location": "L60",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -14941,6 +15269,17 @@
       "target": "processes"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "tests_test_processes",
+      "target": "processes",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -14955,11 +15294,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "processes.py",
-      "source_location": "L23",
+      "source_location": "L31",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "processes_rationale_23",
-      "target": "processes_snapshot"
+      "source": "processes_rationale_31",
+      "target": "processes_snapshot",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -14976,11 +15315,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "processes.py",
-      "source_location": "L52",
+      "source_location": "L60",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "processes_rationale_52",
-      "target": "processes_is_interactive_claude"
+      "source": "processes_rationale_60",
+      "target": "processes_is_interactive_claude",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -14994,14 +15333,35 @@
       "target": "processes_is_whitelisted"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "processes.py",
+      "source_location": "L135",
+      "weight": 1.0,
+      "source": "processes_find_rogues",
+      "target": "processes_is_managed_claude",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "processes.py",
-      "source_location": "L65",
+      "source_location": "L88",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "processes_rationale_65",
-      "target": "processes_find_rogues"
+      "source": "processes_rationale_88",
+      "target": "processes_is_managed_claude",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "processes.py",
+      "source_location": "L116",
+      "weight": 1.0,
+      "source": "processes_rationale_116",
+      "target": "processes_find_rogues",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -18185,21 +18545,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L55",
+      "source_location": "L82",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_classify",
-      "target": "tests_test_classify_test_cost_tier_idle_is_waste"
+      "target": "tests_test_classify_test_cost_tier_idle_is_broken"
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L40",
+      "source_location": "L43",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_classify",
-      "target": "tests_test_classify_test_disabled_but_loaded_is_waste"
+      "target": "tests_test_classify_test_disabled_but_loaded_is_disabled_drift"
     },
     {
       "relation": "contains",
@@ -18215,11 +18575,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L137",
+      "source_location": "L149",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_classify",
-      "target": "tests_test_classify_test_failed_run_heartbeat_is_waste"
+      "target": "tests_test_classify_test_disabled_off_with_stale_exit_is_healthy"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L203",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify",
+      "target": "tests_test_classify_test_failed_run_heartbeat_is_broken"
     },
     {
       "relation": "contains",
@@ -18255,11 +18625,31 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L122",
+      "source_location": "L74",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_classify",
-      "target": "tests_test_classify_test_missing_heartbeat_is_waste"
+      "target": "tests_test_classify_test_keepalive_dead_with_nonzero_exit_is_broken"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L65",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify",
+      "target": "tests_test_classify_test_keepalive_running_with_nonzero_exit_is_healthy"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L188",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify",
+      "target": "tests_test_classify_test_missing_heartbeat_is_broken"
     },
     {
       "relation": "contains",
@@ -18285,11 +18675,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L49",
+      "source_location": "L52",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_classify",
-      "target": "tests_test_classify_test_nonzero_exit_is_waste"
+      "target": "tests_test_classify_test_nonzero_exit_on_scheduled_is_broken"
     },
     {
       "relation": "contains",
@@ -18315,11 +18705,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L130",
+      "source_location": "L59",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_classify",
-      "target": "tests_test_classify_test_stale_heartbeat_is_waste"
+      "target": "tests_test_classify_test_sigterm_exit_is_healthy"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L196",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify",
+      "target": "tests_test_classify_test_stale_heartbeat_is_broken"
     },
     {
       "relation": "contains",
@@ -18335,11 +18735,41 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L27",
+      "source_location": "L29",
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "tests_test_classify",
-      "target": "tests_test_classify_test_unannotated_is_unknown"
+      "target": "tests_test_classify_test_unannotated_is_undeclared"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L131",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify",
+      "target": "tests_test_classify_test_vendor_helper_is_vendor_ignore"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L139",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify",
+      "target": "tests_test_classify_test_vendor_helper_loaded_drift_is_still_vendor_ignore"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L158",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify",
+      "target": "tests_test_classify_test_vendor_prefix_beats_eol"
     },
     {
       "relation": "rationale_for",
@@ -18378,10 +18808,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L57",
+      "source_location": "L84",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_cost_tier_idle_is_waste",
+      "source": "tests_test_classify_test_cost_tier_idle_is_broken",
       "target": "tests_test_classify_daemon"
     },
     {
@@ -18389,10 +18819,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L42",
+      "source_location": "L45",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_disabled_but_loaded_is_waste",
+      "source": "tests_test_classify_test_disabled_but_loaded_is_disabled_drift",
       "target": "tests_test_classify_daemon"
     },
     {
@@ -18411,10 +18841,21 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L139",
+      "source_location": "L153",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_failed_run_heartbeat_is_waste",
+      "source": "tests_test_classify_test_disabled_off_with_stale_exit_is_healthy",
+      "target": "tests_test_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L205",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_failed_run_heartbeat_is_broken",
       "target": "tests_test_classify_daemon"
     },
     {
@@ -18455,10 +18896,32 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L124",
+      "source_location": "L77",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_missing_heartbeat_is_waste",
+      "source": "tests_test_classify_test_keepalive_dead_with_nonzero_exit_is_broken",
+      "target": "tests_test_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_keepalive_running_with_nonzero_exit_is_healthy",
+      "target": "tests_test_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L190",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_missing_heartbeat_is_broken",
       "target": "tests_test_classify_daemon"
     },
     {
@@ -18488,10 +18951,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L50",
+      "source_location": "L53",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_nonzero_exit_is_waste",
+      "source": "tests_test_classify_test_nonzero_exit_on_scheduled_is_broken",
       "target": "tests_test_classify_daemon"
     },
     {
@@ -18521,10 +18984,21 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L132",
+      "source_location": "L61",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_stale_heartbeat_is_waste",
+      "source": "tests_test_classify_test_sigterm_exit_is_healthy",
+      "target": "tests_test_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_stale_heartbeat_is_broken",
       "target": "tests_test_classify_daemon"
     },
     {
@@ -18543,10 +19017,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L28",
+      "source_location": "L30",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_unannotated_is_unknown",
+      "source": "tests_test_classify_test_unannotated_is_undeclared",
       "target": "tests_test_classify_daemon"
     },
     {
@@ -18554,10 +19028,43 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L138",
+      "source_location": "L133",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_failed_run_heartbeat_is_waste",
+      "source": "tests_test_classify_test_vendor_helper_is_vendor_ignore",
+      "target": "tests_test_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L142",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_vendor_helper_loaded_drift_is_still_vendor_ignore",
+      "target": "tests_test_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L161",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_vendor_prefix_beats_eol",
+      "target": "tests_test_classify_daemon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_classify.py",
+      "source_location": "L204",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "tests_test_classify_test_failed_run_heartbeat_is_broken",
       "target": "tests_test_classify_heartbeat"
     },
     {
@@ -18587,10 +19094,10 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_classify.py",
-      "source_location": "L131",
+      "source_location": "L197",
       "weight": 1.0,
       "confidence_score": 1.0,
-      "source": "tests_test_classify_test_stale_heartbeat_is_waste",
+      "source": "tests_test_classify_test_stale_heartbeat_is_broken",
       "target": "tests_test_classify_heartbeat"
     },
     {
@@ -20295,9 +20802,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next",
-      "target": "tests_test_fable_next_test_discount_accepts_fraction",
-      "confidence_score": 1.0
+      "target": "tests_test_fable_next_test_discount_accepts_fraction"
     },
     {
       "relation": "contains",
@@ -20305,9 +20812,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next",
-      "target": "tests_test_fable_next_test_discount_accepts_percent_int",
-      "confidence_score": 1.0
+      "target": "tests_test_fable_next_test_discount_accepts_percent_int"
     },
     {
       "relation": "contains",
@@ -20315,9 +20822,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next",
-      "target": "tests_test_fable_next_test_discount_accepts_percent_sign",
-      "confidence_score": 1.0
+      "target": "tests_test_fable_next_test_discount_accepts_percent_sign"
     },
     {
       "relation": "contains",
@@ -20325,9 +20832,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next",
-      "target": "tests_test_fable_next_test_discount_bad_input_falls_back",
-      "confidence_score": 1.0
+      "target": "tests_test_fable_next_test_discount_bad_input_falls_back"
     },
     {
       "relation": "contains",
@@ -20335,9 +20842,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next",
-      "target": "tests_test_fable_next_test_discount_default_is_30pct",
-      "confidence_score": 1.0
+      "target": "tests_test_fable_next_test_discount_default_is_30pct"
     },
     {
       "relation": "contains",
@@ -20475,9 +20982,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next_rationale_40",
-      "target": "tests_test_fable_next_entry",
-      "confidence_score": 1.0
+      "target": "tests_test_fable_next_entry"
     },
     {
       "relation": "calls",
@@ -20562,9 +21069,9 @@
       "source_file": "tests/test_fable_next.py",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_fable_next_rationale_107",
-      "target": "tests_test_fable_next_fake_accts",
-      "confidence_score": 1.0
+      "target": "tests_test_fable_next_fake_accts"
     },
     {
       "relation": "calls",
@@ -21238,6 +21745,259 @@
       "confidence_score": 1.0,
       "source": "tests_test_notify_rationale_1",
       "target": "tests_test_notify"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "tests_test_processes",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "tests_test_processes",
+      "target": "tests_test_processes_testfindrogues",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "tests_test_processes_rationale_1",
+      "target": "tests_test_processes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L78",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L72",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L62",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L83",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_orphan_rogue_recommends_kill",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle",
+      "target": "tests_test_processes_proc",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_pids",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L60",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L82",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_test_orphan_rogue_recommends_kill",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues",
+      "target": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue",
+      "target": "tests_test_processes_testfindrogues_pids",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue",
+      "target": "tests_test_processes_testfindrogues_pids",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue",
+      "target": "tests_test_processes_testfindrogues_pids",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command",
+      "target": "tests_test_processes_testfindrogues_pids",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L69",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent",
+      "target": "tests_test_processes_testfindrogues_pids",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_processes.py",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle",
+      "target": "tests_test_processes_testfindrogues_pids",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -27122,5 +27882,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "22b063dd34dbd2140c5c1ea479dee3f9b8d921e3"
+  "built_at_commit": "a563c3e8fec36586847f71073215d1a97549af34"
 }
