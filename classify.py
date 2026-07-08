@@ -1,12 +1,24 @@
 """
 classify.py - Merge daemons with the registry, bucket them, and emit remediation.
 
-Buckets:
-  HEALTHY - declared, in its expected state, no failures.
-  WASTE   - loaded but expected disabled / repeated nonzero exit / cost-tier daemon
-            idle 30d / past EOL date.
-  UNKNOWN - a plist with no registry annotation (needs the user to declare it).
-  ROGUE   - (processes, not plists) handled by processes.find_rogues.
+Buckets (a daemon lands in exactly one):
+  HEALTHY        - declared, in its expected state, no failures.
+  BROKEN         - a declared, WANTED daemon that is failing (nonzero exit on a
+                   scheduled job, stale/missing/failed heartbeat, cost-tier idle
+                   30d). Fix it — do NOT bootout. This is the "broken but wanted"
+                   class that used to be mislabeled WASTE.
+  DISABLED-DRIFT - declared disabled but currently loaded. Bootout resolves it.
+  WASTE          - genuinely should not exist: past its EOL date. Safe to remove.
+  VENDOR-IGNORE  - third-party helper (Adobe / Steam / Samsung / Google Keystone /
+                   Elgato / Canva). App-managed, re-registers itself; never MIGHTY
+                   waste. Surfaced for visibility only.
+  UNDECLARED     - a plist with no registry annotation. Action = declare it in
+                   daemons.json, not "investigate".
+  ROGUE          - (processes, not plists) handled by processes.find_rogues.
+
+Exit-code nuance: -15 (SIGTERM) is a normal launchd stop/restart and never a
+failure. A KeepAlive daemon that is currently loaded with a live PID is running
+NOW, so a nonzero *last* exit is a historical restart artifact, not a fault.
 
 Report-only: every finding carries the exact command, but nothing is executed.
 """
@@ -21,48 +33,125 @@ import processes as processes_mod
 import registry as registry_mod
 from attribution import attribute
 
+# Third-party helpers whose plists their own apps install and re-install. We
+# neither own nor permanently bootout these — a bootout is cosmetic because the
+# app re-adds the job on its next launch/update. Never WASTE.
+VENDOR_PREFIXES = (
+    "com.adobe.",
+    "com.valvesoftware.",
+    "com.samsung.",
+    "com.google.keystone.",
+    "com.google.GoogleUpdater",
+    "com.elgato.",
+    "com.canva.",
+)
+
+# Claude-tier daemons run `claude -p` on the ClaudeMax subscription. Their
+# "cost" is subscription-token attribution, NOT billed API dollars.
+CLAUDE_TIERS = ("opus", "sonnet", "haiku")
+
+# The bucket set the freshness watcher alerts on (actionable). VENDOR-IGNORE and
+# UNDECLARED are surfaced but never paged.
+ALERT_BUCKETS = ("WASTE", "BROKEN", "DISABLED-DRIFT")
+
+COUNT_BUCKETS = (
+    "HEALTHY",
+    "BROKEN",
+    "DISABLED-DRIFT",
+    "WASTE",
+    "VENDOR-IGNORE",
+    "UNDECLARED",
+    "ROGUE",
+)
+
 
 def _bootout_cmd(label):
     uid = os.getuid()
     return f"launchctl bootout gui/{uid}/{label}"
 
 
+def _is_vendor(label):
+    return any(label.startswith(p) for p in VENDOR_PREFIXES)
+
+
 def classify_daemon(d):
     """Return (bucket, reasons[], remediation|None) for one merged daemon dict."""
     reasons = []
+    label = d.get("label", "")
     expected = d.get("expected_state")
     annotated = expected not in (None, registry_mod.TODO, "")
+    schedule = d.get("schedule") or ""
+    is_keepalive = schedule.startswith("always-on")
+
+    # Vendor helpers first — they can be "declared disabled but loaded" (drift),
+    # but that is cosmetic, not MIGHTY waste, so short-circuit before WASTE logic.
+    if _is_vendor(label):
+        if expected == "disabled" and d.get("loaded"):
+            # No remediation: bootout is cosmetic (the app re-adds the job), and
+            # surfacing the command would invite exactly the pointless action the
+            # VENDOR-IGNORE bucket exists to discourage.
+            return (
+                "VENDOR-IGNORE",
+                ["vendor helper loaded despite disabled decl — bootout is cosmetic (its app re-adds it)"],
+                None,
+            )
+        return (
+            "VENDOR-IGNORE",
+            ["third-party vendor helper (app-managed, not MIGHTY-owned)"],
+            None,
+        )
 
     if not annotated:
-        return ("UNKNOWN", ["not declared in daemons.json"], None)
+        return (
+            "UNDECLARED",
+            ["not declared in daemons.json — add an entry to classify it"],
+            None,
+        )
 
-    # Past end-of-life.
+    # Past end-of-life → genuine WASTE (retired, safe to remove).
     eol = d.get("eol_date")
     if eol:
         try:
             if date.fromisoformat(str(eol)) < date.today():
-                reasons.append(f"past EOL ({eol})")
+                return (
+                    "WASTE",
+                    [f"past EOL ({eol}) — retired, safe to remove"],
+                    _bootout_cmd(label),
+                )
         except ValueError:
             pass
 
-    # Declared off but actually loaded.
+    # Declared off but actually loaded → its own DISABLED-DRIFT state; bootout
+    # resolves it cleanly. (Separate from WASTE so the dashboard can tell "left
+    # running by mistake" apart from "should not exist at all".)
     if expected == "disabled" and d.get("loaded"):
-        reasons.append("declared disabled but currently loaded")
+        return (
+            "DISABLED-DRIFT",
+            ["declared disabled but currently loaded"],
+            _bootout_cmd(label),
+        )
 
-    # Repeated failures (nonzero last exit on a loaded job).
-    # ok_exit_codes lets a daemon declare nonzero exits that are healthy
-    # signals (e.g. mission-watchdog exits 2 when it fires alerts).
+    # Repeated failures (nonzero last exit). ok_exit_codes lets a daemon declare
+    # nonzero exits that are healthy signals (e.g. mission-watchdog exits 2 when
+    # it fires alerts). -15 (SIGTERM) is ALWAYS ok — it's a normal launchd
+    # stop/restart. A KeepAlive daemon currently loaded with a live PID is
+    # running NOW, so its last nonzero exit is a prior restart artifact, not a
+    # fault (this is the forge-tunnel / server-reconnect false-positive class).
+    # Runtime failure checks apply only to WANTED daemons (enabled/scheduled). A
+    # declared-disabled daemon that is merely off must never become BROKEN off a
+    # stale historical exit — BROKEN is reserved for daemons we expect to run.
+    wanted = expected in ("enabled", "scheduled")
     le = d.get("last_exit")
-    ok_exits = d.get("ok_exit_codes") or []
-    if le not in (None, 0) and le not in ok_exits:
+    ok_exits = set(d.get("ok_exit_codes") or [])
+    ok_exits.add(-15)
+    keepalive_running = is_keepalive and d.get("pid") is not None
+    if wanted and le not in (None, 0) and le not in ok_exits and not keepalive_running:
         reasons.append(f"last exit code {le}")
 
-    # Cost-tier daemon with no measured activity in 30 days.
-    # Only a real, non-mixed cwd_prefix yields an attributable measurement. A
-    # null/mixed prefix means the daemon's claude -p cost lands in the shared
-    # _Code bucket (e.g. code-council, audit-templates) and is not
-    # attributable, so zero measured turns is NOT evidence of death. Liveness
-    # for those is a separate signal (last_run), not cost attribution.
+    # Cost-tier daemon with no measured activity in 30 days. Only a real,
+    # non-mixed cwd_prefix yields an attributable measurement; a null/mixed
+    # prefix means the spend lands in the shared _Code bucket and zero measured
+    # turns is NOT evidence of death.
     prefix = d.get("cwd_prefix")
     attributable = prefix not in (None, "", registry_mod.TODO) and not d.get("cost_mixed")
     if (
@@ -75,14 +164,9 @@ def classify_daemon(d):
 
     # Heartbeat freshness. A daemon that writes a per-run receipt is stale when
     # the file is missing, older than its freshness budget, or records a failed
-    # run. This catches the silent-no-op class (exits 0 but did nothing) that
-    # stdout/stderr-mtime liveness misses — the failure mode behind the
-    # 2026-06-09 notion-sync outage. Generic: any daemon that declares a
-    # heartbeat_file gets freshness coverage for free.
+    # run. Catches the silent-no-op class (exits 0 but did nothing).
     hb = d.get("heartbeat_file")
     if hb and expected in ("enabled", "scheduled"):
-        # Coerce defensively: a string like "6" or "TODO" in the registry must
-        # not crash the whole report with a float-vs-str TypeError.
         try:
             max_h = float(d.get("freshness_max_hours") or 6)
         except (TypeError, ValueError):
@@ -105,7 +189,10 @@ def classify_daemon(d):
                         reasons.append("last run failed: %s" % rec.get("error"))
 
     if reasons:
-        return ("WASTE", reasons, _bootout_cmd(d["label"]))
+        # A declared, WANTED daemon that is failing is BROKEN, not WASTE. The
+        # fix is to repair it (dashboard "Fix →" runs /fix-daemon), not bootout,
+        # so remediation is None here.
+        return ("BROKEN", reasons, None)
     return ("HEALTHY", [], None)
 
 
@@ -116,7 +203,8 @@ def build_report(agents_dir=None, db_path=None, registry_file=None):
       "daemons": [ {label, bucket, reasons, remediation, schedule, loaded,
                     last_exit, cost_7d, cost_30d, cost_mixed, purpose, ...}, ... ],
       "rogues":  [ {pid, command, reasons, remediation, cpu, ...}, ... ],
-      "counts":  {HEALTHY, WASTE, UNKNOWN, ROGUE},
+      "counts":  {HEALTHY, BROKEN, DISABLED-DRIFT, WASTE, VENDOR-IGNORE,
+                  UNDECLARED, ROGUE},
       "registry_path": str,
     }
     """
@@ -137,12 +225,15 @@ def build_report(agents_dir=None, db_path=None, registry_file=None):
 
     attribute(merged, db_path=db_path) if db_path else attribute(merged)
 
-    counts = {"HEALTHY": 0, "WASTE": 0, "UNKNOWN": 0, "ROGUE": 0}
+    counts = {b: 0 for b in COUNT_BUCKETS}
     for d in merged:
         bucket, reasons, remediation = classify_daemon(d)
         d["bucket"] = bucket
         d["reasons"] = reasons
         d["remediation"] = remediation
+        # Flag claude -p subscription-token spend so the UI never renders it as
+        # billed API dollars.
+        d["cost_subscription"] = d.get("cost_tier") in CLAUDE_TIERS
         counts[bucket] += 1
 
     rogues = processes_mod.find_rogues()

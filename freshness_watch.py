@@ -117,7 +117,7 @@ def check_and_alert(report, alerted, now, notifier=notify.alert):
     waste = {
         d["label"]: d
         for d in report.get("daemons", [])
-        if d.get("bucket") == "WASTE"
+        if d.get("bucket") in classify.ALERT_BUCKETS
     }
     for label in list(updated):
         if label not in waste:
@@ -199,7 +199,7 @@ def build_digest(report, state, events, now):
     worth sending today."""
     lines = []
     waste = sorted(
-        (d for d in report.get("daemons", []) if d.get("bucket") == "WASTE"),
+        (d for d in report.get("daemons", []) if d.get("bucket") in classify.ALERT_BUCKETS),
         key=lambda d: d["label"],
     )
     for d in waste:

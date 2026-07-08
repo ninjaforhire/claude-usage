@@ -16,7 +16,8 @@ PAGE = r"""<!DOCTYPE html>
   :root {
     --bg:#0f1115; --card:#171a21; --border:#262b36; --text:#e6e9ef;
     --muted:#8b93a7; --accent:#5b9bd5; --waste:#f0a020; --rogue:#f87171;
-    --unknown:#a78bfa; --healthy:#34d399;
+    --unknown:#a78bfa; --healthy:#34d399; --broken:#fb923c; --drift:#facc15;
+    --vendor:#64748b;
   }
   * { box-sizing:border-box; }
   body { margin:0; font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -46,8 +47,11 @@ PAGE = r"""<!DOCTYPE html>
   .badge { padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
   .b-WASTE { background:rgba(240,160,32,.18); color:var(--waste); }
   .b-ROGUE { background:rgba(248,113,113,.18); color:var(--rogue); }
-  .b-UNKNOWN { background:rgba(167,139,250,.18); color:var(--unknown); }
+  .b-UNDECLARED { background:rgba(167,139,250,.18); color:var(--unknown); }
   .b-HEALTHY { background:rgba(52,211,153,.16); color:var(--healthy); }
+  .b-BROKEN { background:rgba(251,146,60,.18); color:var(--broken); }
+  .b-DISABLED-DRIFT { background:rgba(250,204,21,.16); color:var(--drift); }
+  .b-VENDOR-IGNORE { background:rgba(100,116,139,.20); color:var(--vendor); }
   .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
   .reasons { color:var(--muted); font-size:12px; }
   .cmd { color:var(--waste); }
@@ -170,7 +174,7 @@ async function load(){
 
 function renderCounts(){
   const c = report.counts||{};
-  const order = [['HEALTHY','healthy'],['WASTE','waste'],['ROGUE','rogue'],['UNKNOWN','unknown']];
+  const order = [['HEALTHY','healthy'],['BROKEN','broken'],['DISABLED-DRIFT','drift'],['WASTE','waste'],['VENDOR-IGNORE','vendor'],['UNDECLARED','undeclared'],['ROGUE','rogue']];
   document.getElementById('counts').innerHTML = order.map(([k,cls])=>
     `<div class="count-card"><div class="n b-${k}" style="background:none;padding:0">${c[k]||0}</div><div class="l">${k}</div></div>`
   ).join('');
@@ -180,10 +184,10 @@ function items(){
   const ds = (report.daemons||[]).map(d=>({...d, _key:'d:'+d.label}));
   const rs = (report.rogues||[]).map(r=>({...r, _key:'r:'+r.pid, label:null}));
   let all = ds.concat(rs);
-  if(view==='waste') all = all.filter(x=>['WASTE','ROGUE','UNKNOWN'].includes(x.bucket));
+  if(view==='waste') all = all.filter(x=>['ROGUE','WASTE','BROKEN','DISABLED-DRIFT','UNDECLARED'].includes(x.bucket));
   all.sort((a,b)=>{
     let av=a[sortCol], bv=b[sortCol];
-    if(sortCol==='bucket'){ const ord={ROGUE:0,WASTE:1,UNKNOWN:2,HEALTHY:3}; av=ord[a.bucket]; bv=ord[b.bucket]; }
+    if(sortCol==='bucket'){ const ord={ROGUE:0,WASTE:1,BROKEN:2,'DISABLED-DRIFT':3,UNDECLARED:4,'VENDOR-IGNORE':5,HEALTHY:6}; av=ord[a.bucket]; bv=ord[b.bucket]; }
     av=av==null?'':av; bv=bv==null?'':bv;
     return (av<bv?-1:av>bv?1:0)*(sortDir==='asc'?1:-1);
   });
@@ -196,10 +200,15 @@ function render(){
     const k = x._key, checked = selected.has(k)?'checked':'';
     const label = x.label!=null ? esc(x.label) : 'process pid '+x.pid+' <span class="mono">'+esc((x.command||'').slice(0,48))+'</span>';
     const state = x.label!=null ? (x.loaded?'loaded':'off') : (x.cpu!=null?x.cpu.toFixed(0)+'% cpu':'');
-    const cost = x.cost_30d!=null ? ('$'+x.cost_30d.toFixed(2)+(x.cost_mixed?'*':'')) : '';
+    // claude -p daemons bill ClaudeMax SUBSCRIPTION tokens, not API dollars —
+    // mark them "sub" so the number is never read as real spend.
+    const cost = x.cost_30d!=null ? ('$'+x.cost_30d.toFixed(2)+(x.cost_mixed?'*':'')+(x.cost_subscription?' sub':'')) : '';
     const why = (x.reasons||[]).join('; ');
     const cmd = x.remediation ? `<div class="cmd mono">${esc(x.remediation)}</div>` : '';
-    const fix = (x.label!=null && x.bucket!=='HEALTHY')
+    // Fix→ (/fix-daemon) only for actionable states. VENDOR-IGNORE is app-owned;
+    // UNDECLARED needs a registry entry, not a repair.
+    const noFix = ['HEALTHY','VENDOR-IGNORE','UNDECLARED'];
+    const fix = (x.label!=null && !noFix.includes(x.bucket))
       ? `<button class="btn fixbtn" data-label="${esc(x.label)}" onclick="copyFix(this)">Fix &rarr;</button>` : '';
     return `<tr>
       <td><input type="checkbox" ${checked} onchange="toggle('${k}',this.checked)"></td>
@@ -213,7 +222,7 @@ function render(){
     </tr>`;
   }).join('');
   document.getElementById('row-hint').textContent =
-    list.length + ' rows' + (view==='all' ? ' (* = shared dir, cost not attributable)' : '');
+    list.length + ' rows' + (view==='all' ? ' (* = shared dir, cost not attributable; sub = ClaudeMax subscription tokens, not billed API $)' : '');
   updateCart();
 }
 
