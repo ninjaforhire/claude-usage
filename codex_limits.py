@@ -95,6 +95,21 @@ def _last_rate_limits_in(path: Path) -> dict | None:
     return last
 
 
+def latest_model(sessions_dir: Path = SESSIONS_DIR) -> str | None:
+    """The model of the newest Codex session (e.g. ``gpt-5.6-sol``)."""
+    import re
+    files = sorted(sessions_dir.glob("**/rollout-*.jsonl"))
+    for path in reversed(files[-_MAX_FILES_SCANNED:]):
+        try:
+            text = path.read_text(errors="ignore")
+        except OSError:
+            continue
+        hits = re.findall(r'"model"\s*:\s*"([^"]+)"', text)
+        if hits:
+            return hits[-1]
+    return None
+
+
 def latest_rate_limits(sessions_dir: Path = SESSIONS_DIR) -> dict | None:
     """The most recent Codex rate-limit snapshot across all session rollouts."""
     files = sorted(sessions_dir.glob("**/rollout-*.jsonl"))
@@ -138,7 +153,8 @@ def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -
     rl = latest_rate_limits(sessions_dir)
     if not rl:
         return {"plan_type": None, "plan": plan, "caps": get_plan_caps(plan or ""),
-                "windows": {}, "error": "no Codex rate-limit data found"}
+                "model": latest_model(sessions_dir), "windows": {},
+                "error": "no Codex rate-limit data found"}
     windows = {}
     five = _window(rl.get("primary"))
     week = _window(rl.get("secondary"))
@@ -147,4 +163,5 @@ def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -
     if week:
         windows["seven_day"] = week
     return {"plan_type": rl.get("plan_type"), "plan": plan,
-            "caps": get_plan_caps(plan or ""), "windows": windows, "error": None}
+            "caps": get_plan_caps(plan or ""), "model": latest_model(sessions_dir),
+            "windows": windows, "error": None}
