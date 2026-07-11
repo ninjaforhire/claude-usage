@@ -113,9 +113,34 @@ def get_dashboard_data(db_path=DB_PATH):
             "cache_creation": r["total_cache_creation"] or 0,
         })
 
+    # ── Scan freshness (drives the staleness banner) ─────────────────────────
+    row = conn.execute("SELECT MAX(mtime) AS m FROM processed_files").fetchone()
+    last_scan_epoch = row["m"] or 0
+
     conn.close()
 
+    unscanned = 0
+    if last_scan_epoch:
+        try:
+            import scanner
+            for d in scanner.DEFAULT_PROJECTS_DIRS:
+                base = Path(d).expanduser()
+                if not base.is_dir():
+                    continue
+                for p in base.rglob("*.jsonl"):
+                    try:
+                        if p.stat().st_mtime > last_scan_epoch:
+                            unscanned += 1
+                    except OSError:
+                        continue
+        except Exception:
+            unscanned = -1  # walk failed; banner shows age only
+
     return {
+        "freshness": {
+            "last_scan_epoch": last_scan_epoch,
+            "unscanned_files": unscanned,
+        },
         "all_models":      all_models,
         "daily_by_model":  daily_by_model,
         "hourly_by_model": hourly_by_model,
@@ -269,6 +294,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .acct-timer{font-size:11px;font-variant-numeric:tabular-nums;margin-top:2px}
   .acct-meta{display:flex;justify-content:space-between;margin-top:14px;padding-top:10px;border-top:1px solid #1d2530;font-size:10.5px;color:#7a8696}
   .acct-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#0f2;color:#031;box-shadow:0 0 12px #0f26}
+  .acct-badge-inactive{background:#4F4F50;color:#161617;box-shadow:none}
+  .acct-inactive{opacity:.55;filter:saturate(.4)}
   .acct-error{filter:grayscale(1) brightness(.6)}
   .acct-error-msg{font-size:10.5px;color:#ff6b6b;margin-top:8px;text-align:center}
   #accounts-bar{display:flex;align-items:center;gap:10px;padding:0 24px;font-size:11px;color:#7a8696}
@@ -306,6 +333,8 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <div class="meta" id="meta">Loading...</div>
   <button id="rescan-btn" onclick="triggerRescan()" title="Rebuild the database from scratch by re-scanning all JSONL files. Use if data looks stale or costs seem wrong.">&#x21bb; Rescan</button>
 </header>
+
+<div id="freshness-banner" style="display:none;padding:8px 24px;font-size:12px;border-bottom:1px solid var(--border)"></div>
 
 <div id="accounts-bar">
   <strong style="color:#d7dee8">Account Limits</strong>
@@ -538,6 +567,7 @@ const PRICING = {
   'claude-opus-4-7':   { input:  5.00, output: 25.00, cache_write:  6.25, cache_read: 0.50 },
   'claude-opus-4-6':   { input:  5.00, output: 25.00, cache_write:  6.25, cache_read: 0.50 },
   'claude-opus-4-5':   { input:  5.00, output: 25.00, cache_write:  6.25, cache_read: 0.50 },
+  'claude-sonnet-5':   { input:  3.00, output: 15.00, cache_write:  3.75, cache_read: 0.30 },
   'claude-sonnet-4-7': { input:  3.00, output: 15.00, cache_write:  3.75, cache_read: 0.30 },
   'claude-sonnet-4-6': { input:  3.00, output: 15.00, cache_write:  3.75, cache_read: 0.30 },
   'claude-sonnet-4-5': { input:  3.00, output: 15.00, cache_write:  3.75, cache_read: 0.30 },
@@ -562,7 +592,7 @@ function getPricing(model) {
   if (m.includes('fable'))  return PRICING['claude-fable-5'];
   if (m.includes('mythos')) return PRICING['claude-mythos-5'];
   if (m.includes('opus'))   return PRICING['claude-opus-4-8'];
-  if (m.includes('sonnet')) return PRICING['claude-sonnet-4-6'];
+  if (m.includes('sonnet')) return PRICING['claude-sonnet-5'];
   if (m.includes('haiku'))  return PRICING['claude-haiku-4-5'];
   return null;
 }
@@ -1470,6 +1500,21 @@ async function loadData() {
     const refreshNote = rangeIncludesToday(selectedRange) ? '<br>Auto-refresh in 30s' : '';
     document.getElementById('meta').innerHTML = 'Updated: ' + esc(d.generated_at) + refreshNote;
 
+    // Freshness banner: surface a stale scan instead of silently charting old data.
+    const fb = document.getElementById('freshness-banner');
+    if (fb && d.freshness && d.freshness.last_scan_epoch) {
+      const ageMin = Math.floor((Date.now()/1000 - d.freshness.last_scan_epoch) / 60);
+      const ageTxt = ageMin >= 120 ? Math.floor(ageMin/60) + 'h ' + (ageMin%60) + 'm' : ageMin + 'm';
+      const un = d.freshness.unscanned_files;
+      const stale = un > 50 || (ageMin > 120 && un > 0);  // quiet period with nothing unscanned is not stale
+      fb.style.display = '';
+      fb.style.color = stale ? '#ff6b6b' : 'var(--muted)';
+      fb.style.background = stale ? 'rgba(199,78,57,0.12)' : 'transparent';
+      fb.textContent = 'Last scan ' + ageTxt + ' ago' +
+        (un > 0 ? ' \u00b7 ' + un + ' transcript file' + (un === 1 ? '' : 's') + ' not yet scanned' : '') +
+        (stale ? ' \u2014 data below is INCOMPLETE. Hit Rescan or wait for the 30-min scan daemon.' : '');
+    } else if (fb) { fb.style.display = 'none'; }
+
     const isFirstLoad = rawData === null;
     rawData = d;
 
@@ -1542,11 +1587,12 @@ function renderAccounts() {
       <div class="acct-plan">${esc(a.plan)}</div></div></div>
       <div class="acct-error-msg">re-auth: python3 cli.py accounts add<br>${esc(a.error)}</div>
       <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span>${cost}</div></div>`;
-    const badge = a.is_optimal ? '<span class="acct-badge">USE ME</span>' : '';
+    const badge = a.is_optimal ? '<span class="acct-badge">USE ME</span>'
+      : (a.active === false ? '<span class="acct-badge acct-badge-inactive">INACTIVE</span>' : '');
     const gauge = (label, w) => w ? `<div class="acct-gauge">${orbHtml(w)}
       <div class="acct-glabel">${label}</div>
       <div class="acct-timer">${w.resets_at ? 'resets ' + fmtCountdown(w.resets_at) : 'full'}</div></div>` : '';
-    return `<div class="acct-card">
+    return `<div class="acct-card${a.active === false ? ' acct-inactive' : ''}">
       <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
       <div class="acct-plan">${esc(a.plan)}</div></div>${badge}</div>
       <div class="acct-pair">${gauge('5 hr', a.windows.five_hour)}${gauge('Weekly', a.windows.seven_day)}</div>

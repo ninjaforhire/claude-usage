@@ -84,6 +84,11 @@ Pricing is duplicated in two places that **must stay in sync**:
 
 The entire UI lives in `HTML_TEMPLATE` as a raw string. Chart.js is loaded from CDN.
 
+## Freshness + ccusage reconciliation
+
+- A LaunchAgent (`com.mighty.claude-usage-scan`, 30-min `StartInterval`) keeps `~/.claude/usage.db` current; the dashboard shows a freshness banner (`/api/data` → `freshness`) that goes red when the last scan is >2h old or >50 transcript files are unscanned. If the chart looks low, check the banner before debugging anything else.
+- Totals will read ~10-25% BELOW `ccusage`: ccusage counts codex sessions (`~/.codex/usage.db`) and replayed JSONL records, while this scanner dedupes per `message.id` (the documented streaming-dedupe invariant) and only walks Claude Code transcript dirs. That direction of drift is expected; the reverse (this DB higher than ccusage) is not.
+
 ## Testing notes
 
 - `tests/test_scanner.py` and `tests/test_dashboard.py` use `tempfile.NamedTemporaryFile` for an isolated DB; never touch the user's real `~/.claude/usage.db`.

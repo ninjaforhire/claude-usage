@@ -27,6 +27,7 @@ PRICING = {
     "claude-opus-4-7":   {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25},
     "claude-opus-4-6":   {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25},
     "claude-opus-4-5":   {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25},
+    "claude-sonnet-5":   {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
     "claude-sonnet-4-7": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
     "claude-sonnet-4-6": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
     "claude-sonnet-4-5": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
@@ -52,7 +53,7 @@ def get_pricing(model):
     if "opus" in m:
         return PRICING["claude-opus-4-8"]
     if "sonnet" in m:
-        return PRICING["claude-sonnet-4-6"]
+        return PRICING["claude-sonnet-5"]
     if "haiku" in m:
         return PRICING["claude-haiku-4-5"]
     return None

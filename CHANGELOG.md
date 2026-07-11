@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### Freshness + Claude 5
+
+- Scan-freshness banner: `/api/data` now returns `freshness` (last-scan epoch + unscanned transcript count); the dashboard shows "last scan Xm ago" and turns red past 2h stale with unscanned files present or >50 unscanned. Root-caused the 2026-07-10 "lowest usage ever" incident (scan stale since 07-08; 52k turns backfilled).
+- New LaunchAgent `com.mighty.claude-usage-scan` (30-min incremental scan) referenced in AGENTS.md; ccusage reconciliation note added (DB reads ~10-25% under ccusage by design).
+- Pricing: `claude-sonnet-5` added to `PRICING` in cli.py + dashboard.py; sonnet substring fallback now resolves to Sonnet 5.
+- Account orbs: INACTIVE badge + desaturated card for accounts with no open subscription interval.
+- `codex_limits.latest_model()` — newest Codex session model (e.g. gpt-5.6-sol) rides on `codex_orb_data`.
+
 ### Account orbs stay alive without manual re-login
 
 - **`accounts add --quiet [--billing-day N]`** — non-interactive capture for automation. Re-capturing an already-tracked account now merges into the existing record (refreshes `oauth` + `last_usage` only) instead of replacing it, so billing history (`charges`, `subscription_intervals`, `billing_day`, `is_main`, `monthly_cost`) is preserved. `--quiet` exits non-zero rather than prompting; a brand-new account in quiet mode requires `--billing-day`.
