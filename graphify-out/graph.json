@@ -777,7 +777,7 @@
       "label": "get_pricing()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L38",
+      "source_location": "L39",
       "_origin": "ast",
       "id": "cli_get_pricing",
       "community": 9,
@@ -787,7 +787,7 @@
       "label": "calc_cost()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L60",
+      "source_location": "L61",
       "_origin": "ast",
       "id": "cli_calc_cost",
       "community": 33,
@@ -797,7 +797,7 @@
       "label": "fmt()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L71",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "cli_fmt",
       "community": 21,
@@ -807,7 +807,7 @@
       "label": "fmt_cost()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L78",
+      "source_location": "L79",
       "_origin": "ast",
       "id": "cli_fmt_cost",
       "community": 22,
@@ -817,7 +817,7 @@
       "label": "hr()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L81",
+      "source_location": "L82",
       "_origin": "ast",
       "id": "cli_hr",
       "community": 22,
@@ -827,7 +827,7 @@
       "label": "require_db()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L84",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "cli_require_db",
       "community": 22,
@@ -837,7 +837,7 @@
       "label": "cmd_scan()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L93",
+      "source_location": "L94",
       "_origin": "ast",
       "id": "cli_cmd_scan",
       "community": 22,
@@ -847,7 +847,7 @@
       "label": "cmd_today()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L98",
+      "source_location": "L99",
       "_origin": "ast",
       "id": "cli_cmd_today",
       "community": 22,
@@ -857,7 +857,7 @@
       "label": "cmd_week()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L157",
+      "source_location": "L158",
       "_origin": "ast",
       "id": "cli_cmd_week",
       "community": 22,
@@ -867,7 +867,7 @@
       "label": "cmd_stats()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L253",
+      "source_location": "L254",
       "_origin": "ast",
       "id": "cli_cmd_stats",
       "community": 22,
@@ -877,7 +877,7 @@
       "label": "cmd_report()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L371",
+      "source_location": "L372",
       "_origin": "ast",
       "id": "cli_cmd_report",
       "community": 22,
@@ -887,7 +887,7 @@
       "label": "cmd_daemons()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L385",
+      "source_location": "L386",
       "_origin": "ast",
       "id": "cli_cmd_daemons",
       "community": 22,
@@ -897,7 +897,7 @@
       "label": "cmd_dashboard()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L436",
+      "source_location": "L437",
       "_origin": "ast",
       "id": "cli_cmd_dashboard",
       "community": 22,
@@ -907,7 +907,7 @@
       "label": "parse_keychain_credentials()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L468",
+      "source_location": "L469",
       "_origin": "ast",
       "id": "cli_parse_keychain_credentials",
       "community": 38,
@@ -917,7 +917,7 @@
       "label": "_read_keychain()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L486",
+      "source_location": "L487",
       "_origin": "ast",
       "id": "cli_read_keychain",
       "community": 38,
@@ -927,7 +927,7 @@
       "label": "cmd_freshness_tick()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L493",
+      "source_location": "L494",
       "_origin": "ast",
       "id": "cli_cmd_freshness_tick",
       "community": 22,
@@ -937,7 +937,7 @@
       "label": "cmd_accounts()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L499",
+      "source_location": "L500",
       "_origin": "ast",
       "id": "cli_cmd_accounts",
       "community": 38,
@@ -947,7 +947,7 @@
       "label": "_fmt_reset_local()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L623",
+      "source_location": "L624",
       "_origin": "ast",
       "id": "cli_fmt_reset_local",
       "community": 65,
@@ -957,7 +957,7 @@
       "label": "_fable_rank()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L634",
+      "source_location": "L635",
       "_origin": "ast",
       "id": "cli_fable_rank",
       "community": 65,
@@ -967,7 +967,7 @@
       "label": "_switch_to_live_keychain()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L667",
+      "source_location": "L668",
       "_origin": "ast",
       "id": "cli_switch_to_live_keychain",
       "community": 65,
@@ -977,7 +977,7 @@
       "label": "_norm_discount()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L699",
+      "source_location": "L700",
       "_origin": "ast",
       "id": "cli_norm_discount",
       "community": 65,
@@ -987,7 +987,7 @@
       "label": "cmd_fable_cost()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L711",
+      "source_location": "L712",
       "_origin": "ast",
       "id": "cli_cmd_fable_cost",
       "community": 22,
@@ -997,17 +997,17 @@
       "label": "cmd_fable_next()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L772",
+      "source_location": "L773",
       "_origin": "ast",
       "id": "cli_cmd_fable_next",
-      "community": 65,
+      "community": 22,
       "norm_label": "cmd_fable_next()"
     },
     {
       "label": "parse_named_arg()",
       "file_type": "code",
       "source_file": "cli.py",
-      "source_location": "L901",
+      "source_location": "L902",
       "_origin": "ast",
       "id": "cli_parse_named_arg",
       "community": 38,
@@ -1027,9 +1027,9 @@
       "label": "Parse macOS Keychain JSON into a normalised OAuth dict.      Args:         raw:",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L469",
+      "source_location": "L470",
       "_origin": "ast",
-      "id": "cli_rationale_469",
+      "id": "cli_rationale_470",
       "community": 38,
       "norm_label": "parse macos keychain json into a normalised oauth dict.      args:         raw:"
     },
@@ -1037,9 +1037,9 @@
       "label": "Read credentials from macOS Keychain; returns raw JSON string.",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L487",
+      "source_location": "L488",
       "_origin": "ast",
-      "id": "cli_rationale_487",
+      "id": "cli_rationale_488",
       "community": 38,
       "norm_label": "read credentials from macos keychain; returns raw json string."
     },
@@ -1047,9 +1047,9 @@
       "label": "Run one daemon-freshness watch cycle + heartbeat (re-homed off :8080).",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L494",
+      "source_location": "L495",
       "_origin": "ast",
-      "id": "cli_rationale_494",
+      "id": "cli_rationale_495",
       "community": 22,
       "norm_label": "run one daemon-freshness watch cycle + heartbeat (re-homed off :8080)."
     },
@@ -1057,9 +1057,9 @@
       "label": "Manage tracked Claude accounts for limit orbs.",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L500",
+      "source_location": "L501",
       "_origin": "ast",
-      "id": "cli_rationale_500",
+      "id": "cli_rationale_501",
       "community": 38,
       "norm_label": "manage tracked claude accounts for limit orbs."
     },
@@ -1067,9 +1067,9 @@
       "label": "Render a UTC reset timestamp in local time as 'Jul 08 05:59', or '--'.",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L624",
+      "source_location": "L625",
       "_origin": "ast",
-      "id": "cli_rationale_624",
+      "id": "cli_rationale_625",
       "community": 65,
       "norm_label": "render a utc reset timestamp in local time as 'jul 08 05:59', or '--'."
     },
@@ -1077,9 +1077,9 @@
       "label": "Score one dashboard entry for Fable-5 suitability.      Returns a dict with fabl",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L635",
+      "source_location": "L636",
       "_origin": "ast",
-      "id": "cli_rationale_635",
+      "id": "cli_rationale_636",
       "community": 65,
       "norm_label": "score one dashboard entry for fable-5 suitability.      returns a dict with fabl"
     },
@@ -1087,9 +1087,9 @@
       "label": "Snapshot the live Claude Code keychain into the store as the new owner.      Run",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L668",
+      "source_location": "L669",
       "_origin": "ast",
-      "id": "cli_rationale_668",
+      "id": "cli_rationale_669",
       "community": 65,
       "norm_label": "snapshot the live claude code keychain into the store as the new owner.      run"
     },
@@ -1097,9 +1097,9 @@
       "label": "Parse a discount arg into a 0..1 fraction. Accepts '30', '30%', or '0.3'.",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L700",
+      "source_location": "L701",
       "_origin": "ast",
-      "id": "cli_rationale_700",
+      "id": "cli_rationale_701",
       "community": 65,
       "norm_label": "parse a discount arg into a 0..1 fraction. accepts '30', '30%', or '0.3'."
     },
@@ -1107,9 +1107,9 @@
       "label": "Price builds at Fable-5 extra-usage rates (full + discounted).      Sums real to",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L712",
+      "source_location": "L713",
       "_origin": "ast",
-      "id": "cli_rationale_712",
+      "id": "cli_rationale_713",
       "community": 22,
       "norm_label": "price builds at fable-5 extra-usage rates (full + discounted).      sums real to"
     },
@@ -1117,19 +1117,19 @@
       "label": "Recommend which account to use for Fable-5 work right now.      Ranks active acc",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L773",
+      "source_location": "L774",
       "_origin": "ast",
-      "id": "cli_rationale_773",
-      "community": 65,
+      "id": "cli_rationale_774",
+      "community": 22,
       "norm_label": "recommend which account to use for fable-5 work right now.      ranks active acc"
     },
     {
       "label": "Extract a --flag VALUE pair from an argument list.",
       "file_type": "rationale",
       "source_file": "cli.py",
-      "source_location": "L902",
+      "source_location": "L903",
       "_origin": "ast",
-      "id": "cli_rationale_902",
+      "id": "cli_rationale_903",
       "community": 38,
       "norm_label": "extract a --flag value pair from an argument list."
     },
@@ -1140,7 +1140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "codex_limits",
-      "community": 3,
+      "community": 29,
       "norm_label": "codex_limits.py"
     },
     {
@@ -1150,7 +1150,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "codex_limits_get_plan_caps",
-      "community": 3,
+      "community": 29,
       "norm_label": "get_plan_caps()"
     },
     {
@@ -1160,7 +1160,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "codex_limits_find_rate_limits",
-      "community": 3,
+      "community": 29,
       "norm_label": "_find_rate_limits()"
     },
     {
@@ -1170,7 +1170,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "codex_limits_last_rate_limits_in",
-      "community": 3,
+      "community": 29,
       "norm_label": "_last_rate_limits_in()"
     },
     {
@@ -1180,37 +1180,47 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "codex_limits_py_path",
-      "community": 3,
+      "community": 29,
       "norm_label": "path"
+    },
+    {
+      "label": "latest_model()",
+      "file_type": "code",
+      "source_file": "codex_limits.py",
+      "source_location": "L98",
+      "_origin": "ast",
+      "id": "codex_limits_latest_model",
+      "community": 29,
+      "norm_label": "latest_model()"
     },
     {
       "label": "latest_rate_limits()",
       "file_type": "code",
       "source_file": "codex_limits.py",
-      "source_location": "L98",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "codex_limits_latest_rate_limits",
-      "community": 3,
+      "community": 29,
       "norm_label": "latest_rate_limits()"
     },
     {
       "label": "_window()",
       "file_type": "code",
       "source_file": "codex_limits.py",
-      "source_location": "L108",
+      "source_location": "L123",
       "_origin": "ast",
       "id": "codex_limits_window",
-      "community": 3,
+      "community": 29,
       "norm_label": "_window()"
     },
     {
       "label": "codex_orb_data()",
       "file_type": "code",
       "source_file": "codex_limits.py",
-      "source_location": "L123",
+      "source_location": "L138",
       "_origin": "ast",
       "id": "codex_limits_codex_orb_data",
-      "community": 3,
+      "community": 29,
       "norm_label": "codex_orb_data()"
     },
     {
@@ -1220,7 +1230,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "codex_limits_rationale_1",
-      "community": 3,
+      "community": 29,
       "norm_label": "read codex (chatgpt/openai) 5h + weekly rate limits from the codex cli sessions."
     },
     {
@@ -1230,7 +1240,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "codex_limits_rationale_57",
-      "community": 3,
+      "community": 29,
       "norm_label": "return the cap entry for *plan*, or an empty dict if unknown."
     },
     {
@@ -1240,7 +1250,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "codex_limits_rationale_62",
-      "community": 3,
+      "community": 29,
       "norm_label": "locate a ``rate_limits`` dict anywhere in a parsed jsonl record."
     },
     {
@@ -1250,37 +1260,47 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "codex_limits_rationale_80",
-      "community": 3,
+      "community": 29,
       "norm_label": "the last ``rate_limits`` snapshot in one rollout file (most recent wins)."
     },
     {
-      "label": "The most recent Codex rate-limit snapshot across all session rollouts.",
+      "label": "The model of the newest Codex session (e.g. ``gpt-5.6-sol``).",
       "file_type": "rationale",
       "source_file": "codex_limits.py",
       "source_location": "L99",
       "_origin": "ast",
       "id": "codex_limits_rationale_99",
-      "community": 3,
+      "community": 29,
+      "norm_label": "the model of the newest codex session (e.g. ``gpt-5.6-sol``)."
+    },
+    {
+      "label": "The most recent Codex rate-limit snapshot across all session rollouts.",
+      "file_type": "rationale",
+      "source_file": "codex_limits.py",
+      "source_location": "L114",
+      "_origin": "ast",
+      "id": "codex_limits_rationale_114",
+      "community": 29,
       "norm_label": "the most recent codex rate-limit snapshot across all session rollouts."
     },
     {
       "label": "Map a primary/secondary limit part to the orb window shape.",
       "file_type": "rationale",
       "source_file": "codex_limits.py",
-      "source_location": "L109",
+      "source_location": "L124",
       "_origin": "ast",
-      "id": "codex_limits_rationale_109",
-      "community": 3,
+      "id": "codex_limits_rationale_124",
+      "community": 29,
       "norm_label": "map a primary/secondary limit part to the orb window shape."
     },
     {
       "label": "Codex 5h + weekly orbs in the same shape as a Claude account entry.      Args:",
       "file_type": "rationale",
       "source_file": "codex_limits.py",
-      "source_location": "L124",
+      "source_location": "L139",
       "_origin": "ast",
-      "id": "codex_limits_rationale_124",
-      "community": 3,
+      "id": "codex_limits_rationale_139",
+      "community": 29,
       "norm_label": "codex 5h + weekly orbs in the same shape as a claude account entry.      args:"
     },
     {
@@ -1450,7 +1470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "dashboard",
-      "community": 17,
+      "community": 35,
       "norm_label": "dashboard.py"
     },
     {
@@ -1467,30 +1487,30 @@
       "label": "get_accounts_data()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1607",
+      "source_location": "L1653",
       "_origin": "ast",
       "id": "dashboard_get_accounts_data",
-      "community": 17,
+      "community": 35,
       "norm_label": "get_accounts_data()"
     },
     {
       "label": "find_icon_file()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1617",
+      "source_location": "L1663",
       "_origin": "ast",
       "id": "dashboard_find_icon_file",
-      "community": 17,
+      "community": 35,
       "norm_label": "find_icon_file()"
     },
     {
       "label": "DashboardHandler",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1638",
+      "source_location": "L1684",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler",
-      "community": 17,
+      "community": 35,
       "norm_label": "dashboardhandler"
     },
     {
@@ -1500,54 +1520,54 @@
       "source_location": "",
       "_origin": "ast",
       "id": "basehttprequesthandler",
-      "community": 17,
+      "community": 35,
       "norm_label": "basehttprequesthandler"
     },
     {
       "label": ".log_message()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1639",
+      "source_location": "L1685",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_log_message",
-      "community": 17,
+      "community": 35,
       "norm_label": ".log_message()"
     },
     {
       "label": "._send_json()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1642",
+      "source_location": "L1688",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_send_json",
-      "community": 17,
+      "community": 35,
       "norm_label": "._send_json()"
     },
     {
       "label": ".do_GET()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1650",
+      "source_location": "L1696",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_do_get",
-      "community": 17,
+      "community": 35,
       "norm_label": ".do_get()"
     },
     {
       "label": ".do_POST()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1721",
+      "source_location": "L1767",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_do_post",
-      "community": 17,
+      "community": 35,
       "norm_label": ".do_post()"
     },
     {
       "label": "serve()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1764",
+      "source_location": "L1810",
       "_origin": "ast",
       "id": "dashboard_serve",
       "community": 22,
@@ -1560,27 +1580,27 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "dashboard_rationale_1",
-      "community": 17,
+      "community": 35,
       "norm_label": "dashboard.py - local web dashboard served on localhost:8080."
     },
     {
       "label": "Account limit data for the orb row; credential-free public view.",
       "file_type": "rationale",
       "source_file": "dashboard.py",
-      "source_location": "L1608",
+      "source_location": "L1654",
       "_origin": "ast",
-      "id": "dashboard_rationale_1608",
-      "community": 17,
+      "id": "dashboard_rationale_1654",
+      "community": 35,
       "norm_label": "account limit data for the orb row; credential-free public view."
     },
     {
       "label": "Locate the extension's icon.svg across both run contexts.      - Bundled in the",
       "file_type": "rationale",
       "source_file": "dashboard.py",
-      "source_location": "L1618",
+      "source_location": "L1664",
       "_origin": "ast",
-      "id": "dashboard_rationale_1618",
-      "community": 17,
+      "id": "dashboard_rationale_1664",
+      "community": 35,
       "norm_label": "locate the extension's icon.svg across both run contexts.      - bundled in the"
     },
     {
@@ -4750,7 +4770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_dashboard",
-      "community": 15,
+      "community": 16,
       "norm_label": "test_dashboard.py"
     },
     {
@@ -4890,7 +4910,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "tests_test_dashboard_testemptystringmodelnormalization",
-      "community": 17,
+      "community": 42,
       "norm_label": "testemptystringmodelnormalization"
     },
     {
@@ -4910,7 +4930,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "tests_test_dashboard_testemptystringmodelnormalization_teardown",
-      "community": 17,
+      "community": 42,
       "norm_label": ".teardown()"
     },
     {
@@ -4920,7 +4940,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "tests_test_dashboard_testemptystringmodelnormalization_test_all_models_contains_unknown_not_empty",
-      "community": 17,
+      "community": 42,
       "norm_label": ".test_all_models_contains_unknown_not_empty()"
     },
     {
@@ -4930,7 +4950,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "tests_test_dashboard_testemptystringmodelnormalization_test_daily_by_model_contains_unknown_not_empty",
-      "community": 17,
+      "community": 42,
       "norm_label": ".test_daily_by_model_contains_unknown_not_empty()"
     },
     {
@@ -4940,7 +4960,7 @@
       "source_location": "L170",
       "_origin": "ast",
       "id": "tests_test_dashboard_testemptystringmodelnormalization_test_hourly_by_model_contains_unknown_not_empty",
-      "community": 17,
+      "community": 42,
       "norm_label": ".test_hourly_by_model_contains_unknown_not_empty()"
     },
     {
@@ -4950,7 +4970,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "tests_test_dashboard_testmixednullandemptymodel",
-      "community": 17,
+      "community": 43,
       "norm_label": "testmixednullandemptymodel"
     },
     {
@@ -4970,7 +4990,7 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "tests_test_dashboard_testmixednullandemptymodel_teardown",
-      "community": 17,
+      "community": 43,
       "norm_label": ".teardown()"
     },
     {
@@ -4980,7 +5000,7 @@
       "source_location": "L219",
       "_origin": "ast",
       "id": "tests_test_dashboard_testmixednullandemptymodel_test_all_models_collapses_to_single_unknown",
-      "community": 17,
+      "community": 43,
       "norm_label": ".test_all_models_collapses_to_single_unknown()"
     },
     {
@@ -4990,7 +5010,7 @@
       "source_location": "L224",
       "_origin": "ast",
       "id": "tests_test_dashboard_testmixednullandemptymodel_test_daily_collapses_to_single_unknown",
-      "community": 17,
+      "community": 43,
       "norm_label": ".test_daily_collapses_to_single_unknown()"
     },
     {
@@ -5000,7 +5020,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "tests_test_dashboard_testmixednullandemptymodel_test_hourly_collapses_to_single_unknown",
-      "community": 17,
+      "community": 43,
       "norm_label": ".test_hourly_collapses_to_single_unknown()"
     },
     {
@@ -5030,7 +5050,7 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp",
-      "community": 17,
+      "community": 40,
       "norm_label": "testdashboardhttp"
     },
     {
@@ -5040,7 +5060,7 @@
       "source_location": "L256",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_setupclass",
-      "community": 17,
+      "community": 40,
       "norm_label": ".setupclass()"
     },
     {
@@ -5050,7 +5070,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_teardownclass",
-      "community": 17,
+      "community": 40,
       "norm_label": ".teardownclass()"
     },
     {
@@ -5060,7 +5080,7 @@
       "source_location": "L288",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_index_returns_html",
-      "community": 17,
+      "community": 40,
       "norm_label": ".test_index_returns_html()"
     },
     {
@@ -5070,7 +5090,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_index_with_query_string_returns_html",
-      "community": 17,
+      "community": 40,
       "norm_label": ".test_index_with_query_string_returns_html()"
     },
     {
@@ -5080,7 +5100,7 @@
       "source_location": "L303",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_api_data_with_query_string",
-      "community": 17,
+      "community": 40,
       "norm_label": ".test_api_data_with_query_string()"
     },
     {
@@ -5090,7 +5110,7 @@
       "source_location": "L311",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_api_data_returns_json",
-      "community": 17,
+      "community": 40,
       "norm_label": ".test_api_data_returns_json()"
     },
     {
@@ -5100,7 +5120,7 @@
       "source_location": "L320",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_api_rescan_returns_json",
-      "community": 17,
+      "community": 40,
       "norm_label": ".test_api_rescan_returns_json()"
     },
     {
@@ -5110,7 +5130,7 @@
       "source_location": "L331",
       "_origin": "ast",
       "id": "tests_test_dashboard_testdashboardhttp_test_404_for_unknown_path",
-      "community": 17,
+      "community": 40,
       "norm_label": ".test_404_for_unknown_path()"
     },
     {
@@ -5210,7 +5230,7 @@
       "source_location": "L383",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity",
-      "community": 17,
+      "community": 66,
       "norm_label": "testpricingparity"
     },
     {
@@ -5220,7 +5240,7 @@
       "source_location": "L386",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity_extract_js_pricing",
-      "community": 17,
+      "community": 66,
       "norm_label": "._extract_js_pricing()"
     },
     {
@@ -5230,7 +5250,7 @@
       "source_location": "L398",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity_test_all_cli_models_in_dashboard",
-      "community": 17,
+      "community": 66,
       "norm_label": ".test_all_cli_models_in_dashboard()"
     },
     {
@@ -5240,7 +5260,7 @@
       "source_location": "L404",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity_test_prices_match",
-      "community": 17,
+      "community": 66,
       "norm_label": ".test_prices_match()"
     },
     {
@@ -5250,7 +5270,7 @@
       "source_location": "L418",
       "_origin": "ast",
       "id": "tests_test_dashboard_test_api_accounts_returns_cached_view_without_network",
-      "community": 15,
+      "community": 16,
       "norm_label": "test_api_accounts_returns_cached_view_without_network()"
     },
     {
@@ -5260,7 +5280,7 @@
       "source_location": "L434",
       "_origin": "ast",
       "id": "tests_test_dashboard_test_api_accounts_refresh_calls_live_fetch",
-      "community": 15,
+      "community": 16,
       "norm_label": "test_api_accounts_refresh_calls_live_fetch()"
     },
     {
@@ -5270,7 +5290,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_1",
-      "community": 15,
+      "community": 16,
       "norm_label": "tests for dashboard.py - api endpoint and data retrieval."
     },
     {
@@ -5280,7 +5300,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_128",
-      "community": 17,
+      "community": 42,
       "norm_label": "regression: turns with model='' (empty string) must group as 'unknown'.     coal"
     },
     {
@@ -5290,7 +5310,7 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_178",
-      "community": 17,
+      "community": 43,
       "norm_label": "regression: a mix of model=null and model='' rows must collapse into a     singl"
     },
     {
@@ -5310,7 +5330,7 @@
       "source_location": "L253",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_253",
-      "community": 17,
+      "community": 40,
       "norm_label": "integration test: start server and make http requests."
     },
     {
@@ -5380,7 +5400,7 @@
       "source_location": "L384",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_384",
-      "community": 17,
+      "community": 66,
       "norm_label": "verify cli and dashboard pricing tables stay in sync."
     },
     {
@@ -5390,7 +5410,7 @@
       "source_location": "L387",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_387",
-      "community": 17,
+      "community": 66,
       "norm_label": "extract pricing values from the dashboard js pricing object."
     },
     {
@@ -6190,7 +6210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_receipts",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_receipts.py"
     },
     {
@@ -6200,7 +6220,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_is_total_paid_not_subtotal",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_amount_is_total_paid_not_subtotal()"
     },
     {
@@ -6210,7 +6230,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_prefers_amount_paid_over_total",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_amount_prefers_amount_paid_over_total()"
     },
     {
@@ -6220,7 +6240,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_handles_thousands_separator",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_amount_handles_thousands_separator()"
     },
     {
@@ -6230,7 +6250,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_none_when_absent",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_amount_none_when_absent()"
     },
     {
@@ -6240,7 +6260,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_receipts_test_plan_extracts_max_20x",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_plan_extracts_max_20x()"
     },
     {
@@ -6250,7 +6270,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "tests_test_receipts_test_plan_extracts_pro",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_plan_extracts_pro()"
     },
     {
@@ -6260,7 +6280,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_test_receipts_test_email_date_to_utc_iso",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_email_date_to_utc_iso()"
     },
     {
@@ -6270,7 +6290,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "tests_test_receipts_test_email_date_late_night_central_rolls_to_utc_day",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_email_date_late_night_central_rolls_to_utc_day()"
     },
     {
@@ -6280,7 +6300,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_receipts_test_classify_kinds",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_classify_kinds()"
     },
     {
@@ -6290,7 +6310,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "tests_test_receipts_test_routes_direct_receipt_to_owner",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_routes_direct_receipt_to_owner()"
     },
     {
@@ -6300,7 +6320,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "tests_test_receipts_test_routes_forwarded_receipt_by_original_recipient",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_routes_forwarded_receipt_by_original_recipient()"
     },
     {
@@ -6310,7 +6330,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "tests_test_receipts_test_routes_unknown_to_owner",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_routes_unknown_to_owner()"
     },
     {
@@ -6320,7 +6340,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "tests_test_receipts_test_parse_receipt_charge_event",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_parse_receipt_charge_event()"
     },
     {
@@ -6330,7 +6350,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "tests_test_receipts_test_parse_receipt_ignores_marketing",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_parse_receipt_ignores_marketing()"
     },
     {
@@ -6340,7 +6360,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_charge_appends_once_and_dedups",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_apply_charge_appends_once_and_dedups()"
     },
     {
@@ -6350,7 +6370,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_skips_api_paygo_charge_without_plan",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_apply_skips_api_paygo_charge_without_plan()"
     },
     {
@@ -6360,7 +6380,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_charge_dedups_against_hand_seeded_ledger",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_apply_charge_dedups_against_hand_seeded_ledger()"
     },
     {
@@ -6370,7 +6390,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_start_opens_interval_when_uncovered",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_apply_start_opens_interval_when_uncovered()"
     },
     {
@@ -6380,7 +6400,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_cancel_closes_open_interval",
-      "community": 6,
+      "community": 14,
       "norm_label": "test_apply_cancel_closes_open_interval()"
     },
     {
@@ -6390,7 +6410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_receipts_rationale_1",
-      "community": 6,
+      "community": 14,
       "norm_label": "tests for the anthropic receipt auto-ingest parser + idempotent ledger upsert."
     },
     {
@@ -7010,7 +7030,7 @@
       "source_location": "L608",
       "_origin": "ast",
       "id": "tests_test_scanner_testcrossfilesessiontotals",
-      "community": 67,
+      "community": 69,
       "norm_label": "testcrossfilesessiontotals"
     },
     {
@@ -7020,7 +7040,7 @@
       "source_location": "L611",
       "_origin": "ast",
       "id": "tests_test_scanner_testcrossfilesessiontotals_setup",
-      "community": 67,
+      "community": 69,
       "norm_label": ".setup()"
     },
     {
@@ -7040,7 +7060,7 @@
       "source_location": "L655",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount",
-      "community": 69,
+      "community": 71,
       "norm_label": "testparsejsonlfilelinecount"
     },
     {
@@ -7050,7 +7070,7 @@
       "source_location": "L658",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_setup",
-      "community": 69,
+      "community": 71,
       "norm_label": ".setup()"
     },
     {
@@ -7060,7 +7080,7 @@
       "source_location": "L661",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_test_line_count_matches_file",
-      "community": 69,
+      "community": 71,
       "norm_label": ".test_line_count_matches_file()"
     },
     {
@@ -7070,7 +7090,7 @@
       "source_location": "L670",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_test_empty_file_returns_zero",
-      "community": 69,
+      "community": 71,
       "norm_label": ".test_empty_file_returns_zero()"
     },
     {
@@ -7250,7 +7270,7 @@
       "source_location": "L609",
       "_origin": "ast",
       "id": "tests_test_scanner_rationale_609",
-      "community": 67,
+      "community": 69,
       "norm_label": "test that session totals are correct when the same session spans multiple files."
     },
     {
@@ -7270,7 +7290,7 @@
       "source_location": "L656",
       "_origin": "ast",
       "id": "tests_test_scanner_rationale_656",
-      "community": 69,
+      "community": 71,
       "norm_label": "test that parse_jsonl_file returns correct line count."
     },
     {
@@ -9726,10 +9746,20 @@
       "norm_label": "dashboard server"
     },
     {
-      "label": "Testing notes",
+      "label": "Freshness + ccusage reconciliation",
       "file_type": "document",
       "source_file": "AGENTS.md",
       "source_location": "L87",
+      "_origin": "ast",
+      "id": "agents_freshness_ccusage_reconciliation",
+      "community": 4,
+      "norm_label": "freshness + ccusage reconciliation"
+    },
+    {
+      "label": "Testing notes",
+      "file_type": "document",
+      "source_file": "AGENTS.md",
+      "source_location": "L92",
       "_origin": "ast",
       "id": "agents_testing_notes",
       "community": 4,
@@ -9739,7 +9769,7 @@
       "label": "Respecting contributors",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "source_location": "L93",
+      "source_location": "L98",
       "_origin": "ast",
       "id": "agents_respecting_contributors",
       "community": 4,
@@ -9749,7 +9779,7 @@
       "label": "Versioning and releases",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "source_location": "L104",
+      "source_location": "L109",
       "_origin": "ast",
       "id": "agents_versioning_and_releases",
       "community": 4,
@@ -9759,7 +9789,7 @@
       "label": "CHANGELOG conventions",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "source_location": "L119",
+      "source_location": "L124",
       "_origin": "ast",
       "id": "agents_changelog_conventions",
       "community": 4,
@@ -9769,7 +9799,7 @@
       "label": "Homebrew formula and self-referential SHA",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "source_location": "L145",
+      "source_location": "L150",
       "_origin": "ast",
       "id": "agents_homebrew_formula_and_self_referential_sha",
       "community": 4,
@@ -9779,7 +9809,7 @@
       "label": "Weekly triage routine",
       "file_type": "document",
       "source_file": "AGENTS.md",
-      "source_location": "L151",
+      "source_location": "L156",
       "_origin": "ast",
       "id": "agents_weekly_triage_routine",
       "community": 4,
@@ -13358,11 +13388,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L469",
+      "source_location": "L470",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_469",
-      "target": "cli_parse_keychain_credentials"
+      "source": "cli_rationale_470",
+      "target": "cli_parse_keychain_credentials",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -13379,21 +13409,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L487",
+      "source_location": "L488",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_487",
-      "target": "cli_read_keychain"
+      "source": "cli_rationale_488",
+      "target": "cli_read_keychain",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L494",
+      "source_location": "L495",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_494",
-      "target": "cli_cmd_freshness_tick"
+      "source": "cli_rationale_495",
+      "target": "cli_cmd_freshness_tick",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -13410,11 +13440,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L500",
+      "source_location": "L501",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_500",
-      "target": "cli_cmd_accounts"
+      "source": "cli_rationale_501",
+      "target": "cli_cmd_accounts",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -13431,11 +13461,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L624",
+      "source_location": "L625",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_624",
-      "target": "cli_fmt_reset_local"
+      "source": "cli_rationale_625",
+      "target": "cli_fmt_reset_local",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -13474,11 +13504,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L635",
+      "source_location": "L636",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_635",
-      "target": "cli_fable_rank"
+      "source": "cli_rationale_636",
+      "target": "cli_fable_rank",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -13583,11 +13613,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L668",
+      "source_location": "L669",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_668",
-      "target": "cli_switch_to_live_keychain"
+      "source": "cli_rationale_669",
+      "target": "cli_switch_to_live_keychain",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -13659,11 +13689,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L700",
+      "source_location": "L701",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_700",
-      "target": "cli_norm_discount"
+      "source": "cli_rationale_701",
+      "target": "cli_norm_discount",
+      "confidence_score": 1.0
     },
     {
       "relation": "imports",
@@ -13735,51 +13765,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L712",
+      "source_location": "L713",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_712",
-      "target": "cli_cmd_fable_cost"
+      "source": "cli_rationale_713",
+      "target": "cli_cmd_fable_cost",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L668",
+      "source_location": "L774",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_668",
-      "target": "cli_cmd_fable_next"
+      "source": "cli_rationale_774",
+      "target": "cli_cmd_fable_next",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "cli.py",
-      "source_location": "L700",
+      "source_location": "L903",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_700",
-      "target": "cli_cmd_fable_next"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "cli.py",
-      "source_location": "L773",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_773",
-      "target": "cli_cmd_fable_next"
-    },
-    {
-      "relation": "rationale_for",
-      "confidence": "EXTRACTED",
-      "source_file": "cli.py",
-      "source_location": "L902",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "cli_rationale_902",
-      "target": "cli_parse_named_arg"
+      "source": "cli_rationale_903",
+      "target": "cli_parse_named_arg",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -13820,6 +13830,16 @@
       "confidence_score": 1.0,
       "source": "codex_limits",
       "target": "codex_limits_last_rate_limits_in"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "codex_limits.py",
+      "source_location": "L98",
+      "weight": 1.0,
+      "source": "codex_limits",
+      "target": "codex_limits_latest_model",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -13954,9 +13974,41 @@
       "source_file": "codex_limits.py",
       "source_location": "L98",
       "weight": 1.0,
+      "source": "codex_limits_latest_model",
+      "target": "codex_limits_py_path",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "codex_limits.py",
+      "source_location": "L98",
+      "weight": 1.0,
       "confidence_score": 1.0,
       "source": "codex_limits_latest_rate_limits",
       "target": "codex_limits_py_path"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "codex_limits.py",
+      "source_location": "L156",
+      "weight": 1.0,
+      "source": "codex_limits_codex_orb_data",
+      "target": "codex_limits_latest_model",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "codex_limits.py",
+      "source_location": "L99",
+      "weight": 1.0,
+      "source": "codex_limits_rationale_99",
+      "target": "codex_limits_latest_model",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -13968,6 +14020,16 @@
       "confidence_score": 1.0,
       "source": "codex_limits_codex_orb_data",
       "target": "codex_limits_latest_rate_limits"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "codex_limits.py",
+      "source_location": "L114",
+      "weight": 1.0,
+      "source": "codex_limits_rationale_114",
+      "target": "codex_limits_latest_rate_limits",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -13994,11 +14056,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "codex_limits.py",
-      "source_location": "L109",
+      "source_location": "L124",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "codex_limits_rationale_109",
-      "target": "codex_limits_window"
+      "source": "codex_limits_rationale_124",
+      "target": "codex_limits_window",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -14009,6 +14071,16 @@
       "confidence_score": 1.0,
       "source": "codex_limits_rationale_124",
       "target": "codex_limits_codex_orb_data"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "codex_limits.py",
+      "source_location": "L139",
+      "weight": 1.0,
+      "source": "codex_limits_rationale_139",
+      "target": "codex_limits_codex_orb_data",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -14511,11 +14583,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "dashboard.py",
-      "source_location": "L1608",
+      "source_location": "L1654",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dashboard_rationale_1608",
-      "target": "dashboard_get_accounts_data"
+      "source": "dashboard_rationale_1654",
+      "target": "dashboard_get_accounts_data",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -14532,11 +14604,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "dashboard.py",
-      "source_location": "L1618",
+      "source_location": "L1664",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dashboard_rationale_1618",
-      "target": "dashboard_find_icon_file"
+      "source": "dashboard_rationale_1664",
+      "target": "dashboard_find_icon_file",
+      "confidence_score": 1.0
     },
     {
       "relation": "inherits",
@@ -15234,9 +15306,9 @@
       "source_file": "processes.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "processes",
-      "target": "processes_is_managed_claude",
-      "confidence_score": 1.0
+      "target": "processes_is_managed_claude"
     },
     {
       "relation": "contains",
@@ -15275,9 +15347,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes",
-      "target": "processes",
-      "confidence_score": 1.0
+      "target": "processes"
     },
     {
       "relation": "calls",
@@ -15296,9 +15368,9 @@
       "source_file": "processes.py",
       "source_location": "L31",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "processes_rationale_31",
-      "target": "processes_snapshot",
-      "confidence_score": 1.0
+      "target": "processes_snapshot"
     },
     {
       "relation": "calls",
@@ -15317,9 +15389,9 @@
       "source_file": "processes.py",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "processes_rationale_60",
-      "target": "processes_is_interactive_claude",
-      "confidence_score": 1.0
+      "target": "processes_is_interactive_claude"
     },
     {
       "relation": "calls",
@@ -15339,9 +15411,9 @@
       "source_file": "processes.py",
       "source_location": "L135",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "processes_find_rogues",
-      "target": "processes_is_managed_claude",
-      "confidence_score": 1.0
+      "target": "processes_is_managed_claude"
     },
     {
       "relation": "rationale_for",
@@ -15349,9 +15421,9 @@
       "source_file": "processes.py",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "processes_rationale_88",
-      "target": "processes_is_managed_claude",
-      "confidence_score": 1.0
+      "target": "processes_is_managed_claude"
     },
     {
       "relation": "rationale_for",
@@ -15359,9 +15431,9 @@
       "source_file": "processes.py",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "processes_rationale_116",
-      "target": "processes_find_rogues",
-      "confidence_score": 1.0
+      "target": "processes_find_rogues"
     },
     {
       "relation": "contains",
@@ -21752,9 +21824,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "contains",
@@ -21762,9 +21834,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L28",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes",
-      "target": "tests_test_processes_testfindrogues",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues"
     },
     {
       "relation": "rationale_for",
@@ -21772,9 +21844,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_rationale_1",
-      "target": "tests_test_processes",
-      "confidence_score": 1.0
+      "target": "tests_test_processes"
     },
     {
       "relation": "calls",
@@ -21783,9 +21855,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "calls",
@@ -21794,9 +21866,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "calls",
@@ -21805,9 +21877,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "calls",
@@ -21816,9 +21888,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "calls",
@@ -21827,9 +21899,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "calls",
@@ -21838,9 +21910,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_orphan_rogue_recommends_kill",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "calls",
@@ -21849,9 +21921,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle",
-      "target": "tests_test_processes_proc",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_proc"
     },
     {
       "relation": "method",
@@ -21859,9 +21931,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L29",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_pids",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_pids"
     },
     {
       "relation": "method",
@@ -21869,9 +21941,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L32",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue"
     },
     {
       "relation": "method",
@@ -21879,9 +21951,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L76",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue"
     },
     {
       "relation": "method",
@@ -21889,9 +21961,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue"
     },
     {
       "relation": "method",
@@ -21899,9 +21971,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command"
     },
     {
       "relation": "method",
@@ -21909,9 +21981,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent"
     },
     {
       "relation": "method",
@@ -21919,9 +21991,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L82",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_test_orphan_rogue_recommends_kill",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_test_orphan_rogue_recommends_kill"
     },
     {
       "relation": "method",
@@ -21929,9 +22001,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L87",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues",
-      "target": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle"
     },
     {
       "relation": "calls",
@@ -21940,9 +22012,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_claude_daemon_supervisor_not_rogue",
-      "target": "tests_test_processes_testfindrogues_pids",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_pids"
     },
     {
       "relation": "calls",
@@ -21951,9 +22023,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_genuine_orphan_still_rogue",
-      "target": "tests_test_processes_testfindrogues_pids",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_pids"
     },
     {
       "relation": "calls",
@@ -21962,9 +22034,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_interactive_claude_not_rogue",
-      "target": "tests_test_processes_testfindrogues_pids",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_pids"
     },
     {
       "relation": "calls",
@@ -21973,9 +22045,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_command",
-      "target": "tests_test_processes_testfindrogues_pids",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_pids"
     },
     {
       "relation": "calls",
@@ -21984,9 +22056,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_jimbo_mission_worker_not_rogue_by_parent",
-      "target": "tests_test_processes_testfindrogues_pids",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_pids"
     },
     {
       "relation": "calls",
@@ -21995,9 +22067,9 @@
       "source_file": "tests/test_processes.py",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_processes_testfindrogues_test_parent_walk_is_bounded_on_cycle",
-      "target": "tests_test_processes_testfindrogues_pids",
-      "confidence_score": 1.0
+      "target": "tests_test_processes_testfindrogues_pids"
     },
     {
       "relation": "contains",
@@ -27224,6 +27296,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "AGENTS.md",
+      "source_location": "L87",
+      "weight": 1.0,
+      "source": "agents_agents_md",
+      "target": "agents_freshness_ccusage_reconciliation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "AGENTS.md",
       "source_location": "L7",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -27882,5 +27964,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "a563c3e8fec36586847f71073215d1a97549af34"
+  "built_at_commit": "20eea0ffcabbdc285f244d4434adbd084fb61583"
 }

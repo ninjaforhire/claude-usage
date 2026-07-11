@@ -5,13 +5,13 @@
     "semantic_hash": ""
   },
   "cli.py": {
-    "mtime": 1782951513.3403091,
-    "ast_hash": "84853a458e351141fa3e58f27b6ccb90",
+    "mtime": 1783704940.682278,
+    "ast_hash": "6e27f847dc8b0249f93580659fb64486",
     "semantic_hash": ""
   },
   "dashboard.py": {
-    "mtime": 1781506136.8895438,
-    "ast_hash": "69aea6a8c158d829b75adcd30fdd4312",
+    "mtime": 1783704951.031664,
+    "ast_hash": "594532f4c15ec2a2c75bccc68f075cf6",
     "semantic_hash": ""
   },
   "Formula/claude-usage.rb": {
@@ -35,8 +35,8 @@
     "semantic_hash": ""
   },
   "codex_limits.py": {
-    "mtime": 1781902830.737023,
-    "ast_hash": "168c39bdd0286cf5d4aaf1ce71fa500a",
+    "mtime": 1783704988.4697907,
+    "ast_hash": "c6a43fa7b851dfb18ec396a98dbfc18b",
     "semantic_hash": ""
   },
   "daemon_page.py": {
@@ -290,8 +290,8 @@
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1780768916.51441,
-    "ast_hash": "e183fbaf1e2be8b0feb463512eaaf862",
+    "mtime": 1783705143.07112,
+    "ast_hash": "56fd0f5ec26d721a2032db4dcbda7371",
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
