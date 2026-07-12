@@ -121,12 +121,22 @@ def latest_rate_limits(sessions_dir: Path = SESSIONS_DIR) -> dict | None:
 
 
 def _window(part: dict | None) -> dict | None:
-    """Map a primary/secondary limit part to the orb window shape."""
+    """Map a primary/secondary limit part to the orb window shape.
+
+    The snapshot comes from the *last* Codex session, so it goes stale as soon
+    as the CLI is idle. If ``resets_at`` is already in the past, the window has
+    rolled over server-side — report it as fully reset (100%, no countdown)
+    instead of freezing on the stale used_percent + "resetting…".
+    """
     if not part:
         return None
+    resets_at = part.get("resets_at")
+    now = _dt.datetime.now(tz=_dt.timezone.utc).timestamp()
+    if resets_at and resets_at <= now:
+        hi, lo = accounts.remaining_color(100)
+        return {"remaining_pct": 100, "resets_at": None, "color_hi": hi, "color_lo": lo}
     remaining = round(min(100, max(0, 100 - part.get("used_percent", 0))))
     hi, lo = accounts.remaining_color(remaining)
-    resets_at = part.get("resets_at")
     iso = (
         _dt.datetime.fromtimestamp(resets_at, tz=_dt.timezone.utc).isoformat()
         if resets_at
