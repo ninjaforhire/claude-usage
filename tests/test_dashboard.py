@@ -382,7 +382,10 @@ class TestHTMLTemplate(unittest.TestCase):
     def test_stale_accounts_render_cached_orbs_with_stale_badge(self):
         self.assertIn("acct-stale-note", HTML_TEMPLATE)
         self.assertIn(">STALE</span>", HTML_TEMPLATE)
-        self.assertIn("' · cached ' + fmtAgo(a.fetched_at)", HTML_TEMPLATE)
+        self.assertIn(
+            "' · cached ' + fmtAgo(a.last_success_at || a.fetched_at)",
+            HTML_TEMPLATE,
+        )
 
     def test_account_errors_render_kind_specific_advice(self):
         self.assertIn("a.error_kind === 'permission'", HTML_TEMPLATE)

@@ -366,6 +366,7 @@ class TestUsageCooldowns(unittest.TestCase):
         )
 
     def test_429_honors_retry_after_and_preserves_windows(self):
+        prior_success = self._cached_account()["last_usage"]["fetched_at"]
         error = self._http_error(
             429,
             {"type": "error", "error": {"message": "Slow down"}},
@@ -375,9 +376,27 @@ class TestUsageCooldowns(unittest.TestCase):
 
         self.assertEqual(result["last_usage"]["error"], "Slow down")
         self.assertEqual(result["last_usage"]["error_kind"], "rate_limit")
+        self.assertEqual(result["last_usage"]["last_success_at"], prior_success)
+        self.assertNotEqual(result["last_usage"]["fetched_at"], prior_success)
         self.assertEqual(result["last_usage"]["five_hour"], USAGE_RESPONSE["five_hour"])
         self.assertEqual(result["last_usage"]["seven_day"], USAGE_RESPONSE["seven_day"])
         self.assert_retry_delay(result["last_usage"], 120)
+
+    def test_chained_failures_preserve_original_success_time(self):
+        acct = self._cached_account()
+        prior_success = acct["last_usage"]["fetched_at"]
+        first_error = self._http_error(429, {"error": {"message": "First"}})
+        second_error = self._http_error(429, {"error": {"message": "Second"}})
+
+        accounts._record_usage_http_error(
+            acct, first_error, datetime(2026, 7, 12, 13, tzinfo=timezone.utc)
+        )
+        accounts._record_usage_http_error(
+            acct, second_error, datetime(2026, 7, 12, 14, tzinfo=timezone.utc)
+        )
+
+        self.assertEqual(acct["last_usage"]["last_success_at"], prior_success)
+        self.assertEqual(acct["last_usage"]["fetched_at"], "2026-07-12T14:00:00Z")
 
     def test_429_without_retry_after_uses_fallback(self):
         error = self._http_error(429, {"error": {"message": "Rate limited"}})
@@ -499,6 +518,10 @@ class TestUsageCooldowns(unittest.TestCase):
         result = self._fetch_with_usage(acct, USAGE_RESPONSE)
 
         self.assertIsNone(result["last_usage"]["error"])
+        self.assertEqual(
+            result["last_usage"]["last_success_at"],
+            result["last_usage"]["fetched_at"],
+        )
         self.assertNotIn("error_kind", result["last_usage"])
         self.assertNotIn("retry_until", result["last_usage"])
 
@@ -508,6 +531,7 @@ class TestUsageCooldowns(unittest.TestCase):
             {
                 "error": "old rate limit",
                 "error_kind": "rate_limit",
+                "last_success_at": "2026-07-12T12:00:00Z",
                 "retry_until": "2020-01-01T00:00:00Z",
             }
         )
@@ -519,6 +543,9 @@ class TestUsageCooldowns(unittest.TestCase):
         self.assertEqual(result["last_usage"]["five_hour"], USAGE_RESPONSE["five_hour"])
         self.assertEqual(result["last_usage"]["seven_day"], USAGE_RESPONSE["seven_day"])
         self.assertIn("network down", result["last_usage"]["error"])
+        self.assertEqual(
+            result["last_usage"]["last_success_at"], "2026-07-12T12:00:00Z"
+        )
         self.assertIsNone(result["last_usage"]["error_kind"])
         self.assertIsNone(result["last_usage"]["retry_until"])
 
@@ -528,6 +555,7 @@ class TestUsageCooldowns(unittest.TestCase):
             {
                 "error": "Org blocked",
                 "error_kind": "permission",
+                "last_success_at": "2026-07-12T12:00:00Z",
                 "retry_until": "2026-07-12T18:00:00Z",
             }
         )
@@ -535,4 +563,5 @@ class TestUsageCooldowns(unittest.TestCase):
         view = accounts.public_view([acct])[0]
 
         self.assertEqual(view["error_kind"], "permission")
+        self.assertEqual(view["last_success_at"], "2026-07-12T12:00:00Z")
         self.assertEqual(view["retry_until"], "2026-07-12T18:00:00Z")

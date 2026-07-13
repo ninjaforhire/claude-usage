@@ -1598,7 +1598,7 @@ function renderAccounts() {
       if (a.windows.five_hour || a.windows.seven_day) {
         const retry = a.retry_until && new Date(a.retry_until) > Date.now()
           ? ' · retry in ' + fmtCountdown(a.retry_until) : '';
-        const staleNote = esc(a.error) + ' · cached ' + fmtAgo(a.fetched_at) + retry;
+        const staleNote = esc(a.error) + ' · cached ' + fmtAgo(a.last_success_at || a.fetched_at) + retry;
         return `<div class="acct-card acct-inactive">
           <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
           <div class="acct-plan">${esc(a.plan)}</div></div><span class="acct-badge acct-badge-inactive">STALE</span></div>

@@ -120,7 +120,12 @@ def update_oauth(email: str, oauth: dict, usage: dict | None = None,
                 acct["oauth"] = oauth
                 if usage is not None:
                     now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-                    acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
+                    acct["last_usage"] = {
+                        **usage,
+                        "fetched_at": now,
+                        "last_success_at": now,
+                        "error": None,
+                    }
                 save_store(store, path=path)
                 return True
         return False
@@ -296,6 +301,11 @@ def _record_usage_http_error(
         error_kind = "permission"
         delay = PERMISSION_BACKOFF
     previous = acct.get("last_usage") or {}
+    last_success_at = previous.get("last_success_at") or (
+        previous.get("fetched_at")
+        if previous and not previous.get("error")
+        else None
+    )
     windows = {
         key: previous[key]
         for key in ("five_hour", "seven_day")
@@ -304,6 +314,7 @@ def _record_usage_http_error(
     acct["last_usage"] = {
         **windows,
         "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "last_success_at": last_success_at,
         "error": message,
         "error_kind": error_kind,
         "retry_until": (now + timedelta(seconds=delay)).strftime(
@@ -344,7 +355,12 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                 try:
                     usage = fetch_usage(kc)
                     acct["oauth"] = kc
-                    acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
+                    acct["last_usage"] = {
+                        **usage,
+                        "fetched_at": now,
+                        "last_success_at": now,
+                        "error": None,
+                    }
                     continue
                 except urllib.error.HTTPError as e:
                     if e.code in (403, 429):
@@ -379,12 +395,21 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                         _record_usage_http_error(acct, retry_error, now_dt)
                         continue
                     raise
-            acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
+            acct["last_usage"] = {
+                **usage,
+                "fetched_at": now,
+                "last_success_at": now,
+                "error": None,
+            }
         except Exception as e:  # noqa: BLE001 — any failure grays this orb only
             prev = acct.get("last_usage") or {}
+            last_success_at = prev.get("last_success_at") or (
+                prev.get("fetched_at") if prev and not prev.get("error") else None
+            )
             acct["last_usage"] = {
                 **prev,
                 "fetched_at": now,
+                "last_success_at": last_success_at,
                 "error": str(e),
                 "error_kind": None,
                 "retry_until": None,
@@ -425,6 +450,7 @@ def public_view(accts: list[dict]) -> list[dict]:
             "plan": a.get("plan", ""),
             "renews_in_days": days_until_renewal(a["billing_day"]) if a.get("billing_day") else None,
             "fetched_at": u.get("fetched_at"),
+            "last_success_at": u.get("last_success_at"),
             "error": u.get("error"),
             "error_kind": u.get("error_kind"),
             "retry_until": u.get("retry_until"),
