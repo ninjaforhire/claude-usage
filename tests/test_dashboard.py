@@ -379,6 +379,25 @@ class TestHTMLTemplate(unittest.TestCase):
         # Bounds case: today returns start === end === today's ISO date
         self.assertIn("range === 'today'", HTML_TEMPLATE)
 
+    def test_stale_accounts_render_cached_orbs_with_stale_badge(self):
+        self.assertIn("acct-stale-note", HTML_TEMPLATE)
+        self.assertIn(">STALE</span>", HTML_TEMPLATE)
+        self.assertIn("' · cached ' + fmtAgo(a.fetched_at)", HTML_TEMPLATE)
+
+    def test_account_errors_render_kind_specific_advice(self):
+        self.assertIn("a.error_kind === 'permission'", HTML_TEMPLATE)
+        self.assertIn("org blocked usage API (Anthropic-side)", HTML_TEMPLATE)
+        self.assertIn("a.error_kind === 'rate_limit'", HTML_TEMPLATE)
+        self.assertIn("rate-limited — retry in", HTML_TEMPLATE)
+        self.assertIn(
+            "hint = a.retry_until && new Date(a.retry_until) > Date.now()",
+            HTML_TEMPLATE,
+        )
+        self.assertIn("rate-limited — retrying soon", HTML_TEMPLATE)
+
+    def test_errored_accounts_cannot_show_use_me_badge(self):
+        self.assertIn("a.is_optimal && !a.error", HTML_TEMPLATE)
+
 
 class TestPricingParity(unittest.TestCase):
     """Verify CLI and dashboard pricing tables stay in sync."""

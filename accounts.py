@@ -26,6 +26,8 @@ TOKEN_URL = "https://platform.claude.com/v1/oauth/token"
 USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
 CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"  # Claude Code's public OAuth client identifier — not a secret
 SKEW = timedelta(seconds=60)
+RATE_LIMIT_BACKOFF = 900
+PERMISSION_BACKOFF = 6 * 3600
 
 COLOR_RAMP = [  # (min_remaining_pct, fill_hi, fill_lo)
     (60, "#39ff6e", "#0fae3e"),
@@ -173,6 +175,32 @@ def _post_json(url: str, payload: dict, timeout: int = 10) -> dict:
         return json.loads(resp.read())
 
 
+def _http_error_detail(e: urllib.error.HTTPError) -> tuple[str, int | None]:
+    """Return the API error message and optional Retry-After delay."""
+    message = str(e)
+    try:
+        body = json.loads(e.read())
+        api_message = (body.get("error") or {}).get("message")
+        if api_message:
+            message = str(api_message)
+    except (
+        json.JSONDecodeError,
+        UnicodeDecodeError,
+        AttributeError,
+        TypeError,
+        OSError,
+    ):
+        pass
+
+    retry_after = None
+    try:
+        value = e.headers.get("Retry-After") if e.headers else None
+        retry_after = int(value) if value is not None else None
+    except (TypeError, ValueError):
+        pass
+    return message, retry_after
+
+
 # ── Token refresh + usage fetch ───────────────────────────────────────────────
 
 def _is_expired(oauth: dict) -> bool:
@@ -256,19 +284,61 @@ def fetch_all_usage(path: Path = STORE_PATH) -> list[dict]:
         return _fetch_all_usage_locked(path)
 
 
+def _record_usage_http_error(
+    acct: dict, error: urllib.error.HTTPError, now: datetime
+) -> None:
+    """Persist a 403/429 usage error while retaining cached usage windows."""
+    message, retry_after = _http_error_detail(error)
+    if error.code == 429:
+        error_kind = "rate_limit"
+        delay = retry_after or RATE_LIMIT_BACKOFF
+    else:
+        error_kind = "permission"
+        delay = PERMISSION_BACKOFF
+    previous = acct.get("last_usage") or {}
+    windows = {
+        key: previous[key]
+        for key in ("five_hour", "seven_day")
+        if key in previous
+    }
+    acct["last_usage"] = {
+        **windows,
+        "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "error": message,
+        "error_kind": error_kind,
+        "retry_until": (now + timedelta(seconds=delay)).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        ),
+    }
+
+
 def _fetch_all_usage_locked(path: Path) -> list[dict]:
     store = load_store(path=path)
-    now = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    now_dt = datetime.now(timezone.utc)
+    now = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     # The account logged into Claude Code rotates its own tokens, killing our
     # snapshot (refresh tokens are single-use). Resolve the live keychain's
-    # identity once and prefer those credentials for the matching account.
-    kc, kc_email = None, None
-    try:
-        kc = keychain_oauth()
-        kc_email = fetch_profile_email(kc)
-    except Exception:  # noqa: BLE001 — no keychain / offline: stored tokens only
-        kc = None
+    # identity once, lazily after cooldown checks, and prefer those credentials
+    # for the matching account.
+    kc, kc_email, kc_resolved = None, None, False
     for acct in store["accounts"]:
+        previous = acct.get("last_usage") or {}
+        retry_until = previous.get("retry_until")
+        if retry_until:
+            try:
+                retry_at = datetime.fromisoformat(retry_until.replace("Z", "+00:00"))
+                if retry_at > now_dt:
+                    continue
+            except (AttributeError, TypeError, ValueError):
+                pass
+
+        if not kc_resolved:
+            kc_resolved = True
+            try:
+                kc = keychain_oauth()
+                kc_email = fetch_profile_email(kc)
+            except Exception:  # noqa: BLE001 — no keychain / offline
+                kc = None
         try:
             if kc and kc_email and acct["email"] == kc_email:
                 try:
@@ -276,6 +346,10 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                     acct["oauth"] = kc
                     acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
                     continue
+                except urllib.error.HTTPError as e:
+                    if e.code in (403, 429):
+                        _record_usage_http_error(acct, e, now_dt)
+                        continue
                 except Exception:  # noqa: BLE001 — fall back to stored tokens
                     pass
             if _is_expired(acct["oauth"]):
@@ -289,17 +363,32 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
             try:
                 usage = fetch_usage(acct["oauth"])
             except urllib.error.HTTPError as e:
+                if e.code in (403, 429):
+                    _record_usage_http_error(acct, e, now_dt)
+                    continue
                 if e.code != 401:
                     raise
                 # Access token can be invalidated before expires_at (e.g. the
                 # logged-in Claude Code session rotated it). Force-refresh once.
                 acct["oauth"] = _refresh(acct["oauth"])
                 save_store(store, path=path)
-                usage = fetch_usage(acct["oauth"])
+                try:
+                    usage = fetch_usage(acct["oauth"])
+                except urllib.error.HTTPError as retry_error:
+                    if retry_error.code in (403, 429):
+                        _record_usage_http_error(acct, retry_error, now_dt)
+                        continue
+                    raise
             acct["last_usage"] = {**usage, "fetched_at": now, "error": None}
         except Exception as e:  # noqa: BLE001 — any failure grays this orb only
             prev = acct.get("last_usage") or {}
-            acct["last_usage"] = {**prev, "fetched_at": now, "error": str(e)}
+            acct["last_usage"] = {
+                **prev,
+                "fetched_at": now,
+                "error": str(e),
+                "error_kind": None,
+                "retry_until": None,
+            }
     save_store(store, path=path)
     return store["accounts"]
 
@@ -337,6 +426,8 @@ def public_view(accts: list[dict]) -> list[dict]:
             "renews_in_days": days_until_renewal(a["billing_day"]) if a.get("billing_day") else None,
             "fetched_at": u.get("fetched_at"),
             "error": u.get("error"),
+            "error_kind": u.get("error_kind"),
+            "retry_until": u.get("retry_until"),
             "windows": {},
         }
         for key in ("five_hour", "seven_day"):

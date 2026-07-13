@@ -22,6 +22,8 @@ set -uo pipefail
 
 REPO="/Users/mightydesigncenter/tools/claude-usage"
 
+echo "[$(date -u +%FT%TZ)] tick"
+
 /usr/bin/python3 "$REPO/cli.py" accounts add --quiet || true
 /usr/bin/python3 "$REPO/cli.py" accounts refresh || true
 /usr/bin/python3 "$REPO/cli.py" freshness-tick || true

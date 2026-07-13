@@ -1,9 +1,14 @@
 """Tests for accounts.py — store layer, token refresh, usage fetch, presentation."""
 
 import datetime as dt
+import io
 import json
 import stat
+import tempfile
+import unittest
+import urllib.error
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from unittest.mock import patch
 
 import accounts
@@ -298,3 +303,236 @@ def test_update_oauth_unknown_email_returns_false(tmp_path):
     path = tmp_path / "s.json"
     accounts.save_store({"accounts": [_full_acct()]}, path=path)
     assert accounts.update_oauth("ghost@nope.com", {}, None, path=path) is False
+
+
+class TestUsageCooldowns(unittest.TestCase):
+    """Regression coverage for server-directed usage API cooldowns."""
+
+    def setUp(self):
+        self.tmpdir = tempfile.TemporaryDirectory()
+        self.path = Path(self.tmpdir.name) / "accounts.json"
+        self.http_errors = []
+
+    def tearDown(self):
+        for error in self.http_errors:
+            error.close()
+        self.tmpdir.cleanup()
+
+    def _http_error(self, code, body, retry_after=None):
+        headers = {}
+        if retry_after is not None:
+            headers["Retry-After"] = str(retry_after)
+        error = urllib.error.HTTPError(
+            accounts.USAGE_URL,
+            code,
+            "usage error",
+            headers,
+            io.BytesIO(json.dumps(body).encode()),
+        )
+        self.http_errors.append(error)
+        return error
+
+    @staticmethod
+    def _cached_account():
+        acct = _acct()
+        acct["last_usage"] = {
+            **USAGE_RESPONSE,
+            "fetched_at": "2026-07-12T12:00:00Z",
+            "error": None,
+        }
+        return acct
+
+    def _fetch_with_usage(self, account, side_effect):
+        accounts.save_store({"accounts": [account]}, path=self.path)
+        usage_patch = (
+            patch.object(accounts, "fetch_usage", side_effect=side_effect)
+            if isinstance(side_effect, Exception)
+            else patch.object(accounts, "fetch_usage", return_value=side_effect)
+        )
+        with patch.object(
+            accounts, "keychain_oauth", side_effect=OSError("no keychain")
+        ), usage_patch:
+            return accounts.fetch_all_usage(path=self.path)[0]
+
+    def assert_retry_delay(self, usage, expected_seconds):
+        fetched = datetime.strptime(
+            usage["fetched_at"], "%Y-%m-%dT%H:%M:%SZ"
+        ).replace(tzinfo=timezone.utc)
+        retry = datetime.strptime(
+            usage["retry_until"], "%Y-%m-%dT%H:%M:%SZ"
+        ).replace(tzinfo=timezone.utc)
+        self.assertAlmostEqual(
+            (retry - fetched).total_seconds(), expected_seconds, delta=1
+        )
+
+    def test_429_honors_retry_after_and_preserves_windows(self):
+        error = self._http_error(
+            429,
+            {"type": "error", "error": {"message": "Slow down"}},
+            retry_after=120,
+        )
+        result = self._fetch_with_usage(self._cached_account(), error)
+
+        self.assertEqual(result["last_usage"]["error"], "Slow down")
+        self.assertEqual(result["last_usage"]["error_kind"], "rate_limit")
+        self.assertEqual(result["last_usage"]["five_hour"], USAGE_RESPONSE["five_hour"])
+        self.assertEqual(result["last_usage"]["seven_day"], USAGE_RESPONSE["seven_day"])
+        self.assert_retry_delay(result["last_usage"], 120)
+
+    def test_429_without_retry_after_uses_fallback(self):
+        error = self._http_error(429, {"error": {"message": "Rate limited"}})
+        result = self._fetch_with_usage(_acct(), error)
+
+        self.assertEqual(result["last_usage"]["error_kind"], "rate_limit")
+        self.assert_retry_delay(result["last_usage"], accounts.RATE_LIMIT_BACKOFF)
+
+    def test_future_cooldown_skips_all_account_http_and_preserves_usage(self):
+        acct = self._cached_account()
+        acct["last_usage"].update(
+            {
+                "error": "Slow down",
+                "error_kind": "rate_limit",
+                "retry_until": (
+                    datetime.now(timezone.utc) + timedelta(minutes=5)
+                ).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            }
+        )
+        before = json.dumps(acct["last_usage"], sort_keys=True)
+        accounts.save_store({"accounts": [acct]}, path=self.path)
+
+        with patch.object(accounts, "keychain_oauth") as keychain, patch.object(
+            accounts, "fetch_profile_email"
+        ) as profile, patch.object(accounts, "fetch_usage") as usage, patch.object(
+            accounts, "_refresh"
+        ) as refresh:
+            result = accounts.fetch_all_usage(path=self.path)[0]
+
+        keychain.assert_not_called()
+        profile.assert_not_called()
+        usage.assert_not_called()
+        refresh.assert_not_called()
+        self.assertEqual(json.dumps(result["last_usage"], sort_keys=True), before)
+
+    def test_expired_cooldown_fetches_again(self):
+        acct = self._cached_account()
+        acct["last_usage"]["retry_until"] = (
+            datetime.now(timezone.utc) - timedelta(seconds=1)
+        ).strftime("%Y-%m-%dT%H:%M:%SZ")
+        accounts.save_store({"accounts": [acct]}, path=self.path)
+
+        with patch.object(
+            accounts, "keychain_oauth", side_effect=OSError("no keychain")
+        ), patch.object(
+            accounts, "fetch_usage", return_value=USAGE_RESPONSE
+        ) as usage:
+            result = accounts.fetch_all_usage(path=self.path)[0]
+
+        usage.assert_called_once()
+        self.assertIsNone(result["last_usage"]["error"])
+
+    def test_403_surfaces_api_message_and_does_not_refresh(self):
+        message = "OAuth authentication is currently not allowed for this organization."
+        error = self._http_error(
+            403,
+            {
+                "type": "error",
+                "error": {"type": "permission_error", "message": message},
+            },
+        )
+        accounts.save_store({"accounts": [self._cached_account()]}, path=self.path)
+
+        with patch.object(
+            accounts, "keychain_oauth", side_effect=OSError("no keychain")
+        ), patch.object(accounts, "fetch_usage", side_effect=error), patch.object(
+            accounts, "_refresh"
+        ) as refresh:
+            result = accounts.fetch_all_usage(path=self.path)[0]
+
+        refresh.assert_not_called()
+        self.assertEqual(result["last_usage"]["error"], message)
+        self.assertEqual(result["last_usage"]["error_kind"], "permission")
+        self.assert_retry_delay(result["last_usage"], accounts.PERMISSION_BACKOFF)
+
+    def test_401_still_force_refreshes_once_and_retries(self):
+        unauthorized = self._http_error(401, {"error": {"message": "Unauthorized"}})
+        refreshed = {
+            "access_token": "new_at",
+            "refresh_token": "new_rt",
+            "expires_at": "2099-01-01T00:00:00Z",
+        }
+        accounts.save_store({"accounts": [_acct()]}, path=self.path)
+
+        with patch.object(
+            accounts, "keychain_oauth", side_effect=OSError("no keychain")
+        ), patch.object(
+            accounts, "fetch_usage", side_effect=[unauthorized, USAGE_RESPONSE]
+        ) as usage, patch.object(
+            accounts, "_refresh", return_value=refreshed
+        ) as refresh:
+            result = accounts.fetch_all_usage(path=self.path)[0]
+
+        refresh.assert_called_once()
+        self.assertEqual(usage.call_count, 2)
+        self.assertIsNone(result["last_usage"]["error"])
+
+    def test_keychain_403_does_not_fall_back_to_stored_credentials(self):
+        error = self._http_error(403, {"error": {"message": "Org blocked"}})
+        accounts.save_store({"accounts": [_acct()]}, path=self.path)
+
+        with patch.object(accounts, "keychain_oauth", return_value={"access_token": "kc"}), \
+             patch.object(accounts, "fetch_profile_email", return_value="a@b.com"), \
+             patch.object(accounts, "fetch_usage", side_effect=error) as usage:
+            result = accounts.fetch_all_usage(path=self.path)[0]
+
+        usage.assert_called_once()
+        self.assertEqual(result["last_usage"]["error_kind"], "permission")
+
+    def test_success_clears_prior_error_metadata(self):
+        acct = self._cached_account()
+        acct["last_usage"].update(
+            {
+                "error": "old",
+                "error_kind": "rate_limit",
+                "retry_until": "2020-01-01T00:00:00Z",
+            }
+        )
+        result = self._fetch_with_usage(acct, USAGE_RESPONSE)
+
+        self.assertIsNone(result["last_usage"]["error"])
+        self.assertNotIn("error_kind", result["last_usage"])
+        self.assertNotIn("retry_until", result["last_usage"])
+
+    def test_transient_error_clears_prior_cooldown_metadata(self):
+        acct = self._cached_account()
+        acct["last_usage"].update(
+            {
+                "error": "old rate limit",
+                "error_kind": "rate_limit",
+                "retry_until": "2020-01-01T00:00:00Z",
+            }
+        )
+
+        result = self._fetch_with_usage(
+            acct, urllib.error.URLError("network down")
+        )
+
+        self.assertEqual(result["last_usage"]["five_hour"], USAGE_RESPONSE["five_hour"])
+        self.assertEqual(result["last_usage"]["seven_day"], USAGE_RESPONSE["seven_day"])
+        self.assertIn("network down", result["last_usage"]["error"])
+        self.assertIsNone(result["last_usage"]["error_kind"])
+        self.assertIsNone(result["last_usage"]["retry_until"])
+
+    def test_public_view_passes_error_kind_and_retry_until(self):
+        acct = self._cached_account()
+        acct["last_usage"].update(
+            {
+                "error": "Org blocked",
+                "error_kind": "permission",
+                "retry_until": "2026-07-12T18:00:00Z",
+            }
+        )
+
+        view = accounts.public_view([acct])[0]
+
+        self.assertEqual(view["error_kind"], "permission")
+        self.assertEqual(view["retry_until"], "2026-07-12T18:00:00Z")

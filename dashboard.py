@@ -298,6 +298,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .acct-inactive{opacity:.55;filter:saturate(.4)}
   .acct-error{filter:grayscale(1) brightness(.6)}
   .acct-error-msg{font-size:10.5px;color:#ff6b6b;margin-top:8px;text-align:center}
+  .acct-stale-note{font-size:10.5px;color:#7a8696;margin-top:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #accounts-bar{display:flex;align-items:center;gap:10px;padding:0 24px;font-size:11px;color:#7a8696}
   .orbC{position:relative;width:104px;height:104px;border-radius:50%;margin:0 auto;overflow:hidden;
     background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.10), rgba(255,255,255,0) 45%),
@@ -1579,19 +1580,41 @@ function renderAccounts() {
   }
   fetched.style.color = '';
   const accts = ACCT_DATA.accounts;
-  const bestPct = Math.max(...accts.map(a => a.windows.five_hour ? a.windows.five_hour.remaining_pct : -1));
+  const bestPct = Math.max(...accts.map(a => !a.error && a.windows.five_hour ? a.windows.five_hour.remaining_pct : -1));
   document.getElementById('accounts-row').innerHTML = accts.map(a => {
     const cost = `<span title="actual receipts, tax incl">$${(a.lifetime_spend||0).toFixed(2)} lifetime · $${(a.monthly_cost||0).toFixed(0)}/mo</span>`;
-    if (a.error) return `<div class="acct-card acct-error">
-      <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
-      <div class="acct-plan">${esc(a.plan)}</div></div></div>
-      <div class="acct-error-msg">re-auth: python3 cli.py accounts add<br>${esc(a.error)}</div>
-      <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span>${cost}</div></div>`;
-    const badge = a.is_optimal ? '<span class="acct-badge">USE ME</span>'
-      : (a.active === false ? '<span class="acct-badge acct-badge-inactive">INACTIVE</span>' : '');
     const gauge = (label, w) => w ? `<div class="acct-gauge">${orbHtml(w)}
       <div class="acct-glabel">${label}</div>
       <div class="acct-timer">${w.resets_at ? 'resets ' + fmtCountdown(w.resets_at) : 'full'}</div></div>` : '';
+    if (a.error) {
+      if (a.windows.five_hour || a.windows.seven_day) {
+        const retry = a.retry_until && new Date(a.retry_until) > Date.now()
+          ? ' · retry in ' + fmtCountdown(a.retry_until) : '';
+        const staleNote = esc(a.error) + ' · cached ' + fmtAgo(a.fetched_at) + retry;
+        return `<div class="acct-card acct-inactive">
+          <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
+          <div class="acct-plan">${esc(a.plan)}</div></div><span class="acct-badge acct-badge-inactive">STALE</span></div>
+          <div class="acct-pair">${gauge('5 hr', a.windows.five_hour)}${gauge('Weekly', a.windows.seven_day)}</div>
+          <div class="acct-stale-note">${staleNote}</div>
+          <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span>${cost}</div>
+        </div>`;
+      }
+      let hint = 're-auth: python3 cli.py accounts add';
+      if (a.error_kind === 'permission') {
+        hint = "org blocked usage API (Anthropic-side) — re-auth won't help";
+      } else if (a.error_kind === 'rate_limit') {
+        hint = a.retry_until && new Date(a.retry_until) > Date.now()
+          ? 'rate-limited — retry in ' + fmtCountdown(a.retry_until)
+          : 'rate-limited — retrying soon';
+      }
+      return `<div class="acct-card acct-error">
+        <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
+        <div class="acct-plan">${esc(a.plan)}</div></div></div>
+        <div class="acct-error-msg">${esc(hint)}<br>${esc(a.error)}</div>
+        <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span>${cost}</div></div>`;
+    }
+    const badge = a.is_optimal && !a.error ? '<span class="acct-badge">USE ME</span>'
+      : (a.active === false ? '<span class="acct-badge acct-badge-inactive">INACTIVE</span>' : '');
     return `<div class="acct-card${a.active === false ? ' acct-inactive' : ''}">
       <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
       <div class="acct-plan">${esc(a.plan)}</div></div>${badge}</div>

@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.3.1 — TBD
+
+### Dashboard
+
+- Rendered cached account-limit orbs as STALE during API errors, surfaced the real error message with error-specific advice, and prevented stale accounts from displaying the USE ME badge.
+
+### Accounts
+
+- Honored usage API 403/429 cooldowns, including `Retry-After`, while preserving last-known usage windows and avoiding duplicate keychain/stored-credential requests.
+- Added UTC timestamps to each account token-refresh maintenance tick for log correlation.
+
 ## Unreleased
 
 ### Freshness + Claude 5
