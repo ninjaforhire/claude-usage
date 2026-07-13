@@ -8,6 +8,7 @@
 
 ### Accounts
 
+- Switched account activity to the charge ledger (paid-through-31-days) with interval fallback, excluded inactive accounts from the USE ME pick, and rendered lapsed accounts as quiet INACTIVE cards in both the standalone and Jimbo usage dashboards.
 - Honored usage API 403/429 cooldowns, including `Retry-After`, while preserving last-known usage windows and avoiding duplicate keychain/stored-credential requests.
 - Added UTC timestamps to each account token-refresh maintenance tick for log correlation.
 
