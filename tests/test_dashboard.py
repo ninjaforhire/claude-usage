@@ -398,6 +398,28 @@ class TestHTMLTemplate(unittest.TestCase):
     def test_errored_accounts_cannot_show_use_me_badge(self):
         self.assertIn("a.is_optimal && !a.error", HTML_TEMPLATE)
 
+    def test_inactive_accounts_render_before_error_handling(self):
+        inactive = HTML_TEMPLATE.index("if (a.active === false)")
+        error = HTML_TEMPLATE.index("if (a.error)", inactive)
+        self.assertLess(inactive, error)
+
+    def test_inactive_accounts_render_quiet_cards(self):
+        start = HTML_TEMPLATE.index("if (a.active === false)")
+        end = HTML_TEMPLATE.index("if (a.error)", start)
+        branch = HTML_TEMPLATE[start:end]
+        self.assertIn('class="acct-card acct-inactive"', branch)
+        self.assertIn(">INACTIVE</span>", branch)
+        self.assertIn("gauge('5 hr', a.windows.five_hour)", branch)
+        self.assertIn("${cost}", branch)
+        for noisy_text in ("STALE", "a.error", "retry", "renews in"):
+            self.assertNotIn(noisy_text, branch)
+
+    def test_inactive_accounts_are_excluded_from_best_percentage(self):
+        self.assertIn(
+            "a.active !== false && !a.error && a.windows.five_hour",
+            HTML_TEMPLATE,
+        )
+
 
 class TestPricingParity(unittest.TestCase):
     """Verify CLI and dashboard pricing tables stay in sync."""

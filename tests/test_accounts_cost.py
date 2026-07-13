@@ -1,6 +1,7 @@
 """Tests for subscription cost, lifetime spend, and optimal-account scoring."""
 
 import datetime as dt
+import unittest
 
 import accounts
 
@@ -19,7 +20,17 @@ def _acct(email, *, is_main=False, cost=200, intervals=None):
     }
 
 
-def _entry(email, h5, h7, *, is_main=False, renews=20, error=None, windows=True):
+def _entry(
+    email,
+    h5,
+    h7,
+    *,
+    is_main=False,
+    renews=20,
+    error=None,
+    windows=True,
+    active=True,
+):
     """A public_view-shaped entry for score/recommend tests."""
     w = {}
     if windows:
@@ -33,6 +44,7 @@ def _entry(email, h5, h7, *, is_main=False, renews=20, error=None, windows=True)
         "renews_in_days": renews,
         "error": error,
         "windows": w,
+        "active": active,
     }
 
 
@@ -156,6 +168,59 @@ def test_all_unhealthy_falls_back_to_main():
     ]
     optimal, _ = accounts.recommend(entries)
     assert optimal == "main"
+
+
+class TestChargeBasedActivityAndRecommendation(unittest.TestCase):
+    def test_fresh_charge_is_active_even_when_interval_is_closed(self):
+        account = _acct(
+            "a@b.com",
+            intervals=[{"start": "2026-04-09", "end": "2026-06-14"}],
+        )
+        account["charges"] = [{"date": TODAY.isoformat(), "amount": 213.20}]
+        self.assertTrue(accounts.is_active(account, today=TODAY))
+
+    def test_old_charge_is_inactive_even_when_interval_is_open(self):
+        account = _acct(
+            "a@b.com", intervals=[{"start": "2026-04-09", "end": None}]
+        )
+        account["charges"] = [{"date": "2026-05-15", "amount": 213.20}]
+        self.assertFalse(accounts.is_active(account, today=TODAY))
+
+    def test_charge_activity_boundary_is_paid_through_30_days(self):
+        account = _acct(
+            "a@b.com", intervals=[{"start": "2026-04-09", "end": None}]
+        )
+        account["charges"] = [{"date": "2026-05-15", "amount": 213.20}]
+        self.assertTrue(accounts.is_active(account, today=dt.date(2026, 6, 14)))
+        self.assertFalse(accounts.is_active(account, today=dt.date(2026, 6, 15)))
+
+    def test_empty_or_missing_charges_fall_back_to_intervals(self):
+        active = _acct(
+            "active", intervals=[{"start": "2026-04-09", "end": None}]
+        )
+        active["charges"] = []
+        inactive = _acct(
+            "inactive",
+            intervals=[{"start": "2026-01-01", "end": "2026-02-01"}],
+        )
+        self.assertTrue(accounts.is_active(active, today=TODAY))
+        self.assertFalse(accounts.is_active(inactive, today=TODAY))
+
+    def test_recommend_never_picks_inactive_when_active_entry_exists(self):
+        entries = [
+            _entry("main", 95, 95, is_main=True, active=False),
+            _entry("active", 30, 30, active=True),
+        ]
+        optimal, _ = accounts.recommend(entries)
+        self.assertEqual(optimal, "active")
+
+    def test_recommend_falls_back_to_main_when_nothing_is_active(self):
+        entries = [
+            _entry("main", 5, 5, is_main=True, active=False),
+            _entry("secondary", 95, 95, active=False),
+        ]
+        optimal, _ = accounts.recommend(entries)
+        self.assertEqual(optimal, "main")
 
 
 # ── dashboard_payload ─────────────────────────────────────────────────────────

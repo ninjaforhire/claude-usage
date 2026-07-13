@@ -477,8 +477,13 @@ def months_active(intervals: list[dict] | None, today: _dt.date | None = None) -
 
 
 def is_active(account: dict, today: _dt.date | None = None) -> bool:
-    """True if any subscription interval is open on `today`."""
+    """True when the latest charge still covers today, with interval fallback."""
     today = today or _dt.date.today()
+    charges = account.get("charges") or []
+    if charges:
+        last_charge = _as_date(max(charge["date"] for charge in charges))
+        return today < last_charge + _dt.timedelta(days=31)
+
     for iv in account.get("subscription_intervals") or []:
         start = _as_date(iv["start"])
         end = _as_date(iv["end"]) if iv.get("end") else today
@@ -563,14 +568,16 @@ def recommend(entries: list[dict]) -> tuple[str | None, dict]:
     for e in entries:
         s, r = account_score(e)
         scored[e["email"]] = {"score": s, "reasons": r}
-        ranking.append((s, bool(e.get("is_main")), e["email"]))
+        ranking.append(
+            (s, bool(e.get("is_main")), e["email"], bool(e.get("active")))
+        )
 
-    healthy = [x for x in ranking if x[0] > 0]
+    healthy = [x for x in ranking if x[0] > 0 and x[3]]
     if healthy:
         optimal = max(healthy, key=lambda x: (x[0], x[1]))[2]
     else:
         mains = [x for x in ranking if x[1]]
-        optimal = (mains or ranking or [(0, False, None)])[0][2]
+        optimal = (mains or ranking or [(0, False, None, False)])[0][2]
     return optimal, scored
 
 

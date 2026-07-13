@@ -1580,12 +1580,20 @@ function renderAccounts() {
   }
   fetched.style.color = '';
   const accts = ACCT_DATA.accounts;
-  const bestPct = Math.max(...accts.map(a => !a.error && a.windows.five_hour ? a.windows.five_hour.remaining_pct : -1));
+  const bestPct = Math.max(...accts.map(a => a.active !== false && !a.error && a.windows.five_hour ? a.windows.five_hour.remaining_pct : -1));
   document.getElementById('accounts-row').innerHTML = accts.map(a => {
     const cost = `<span title="actual receipts, tax incl">$${(a.lifetime_spend||0).toFixed(2)} lifetime · $${(a.monthly_cost||0).toFixed(0)}/mo</span>`;
     const gauge = (label, w) => w ? `<div class="acct-gauge">${orbHtml(w)}
       <div class="acct-glabel">${label}</div>
       <div class="acct-timer">${w.resets_at ? 'resets ' + fmtCountdown(w.resets_at) : 'full'}</div></div>` : '';
+    if (a.active === false) {
+      return `<div class="acct-card acct-inactive">
+        <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
+        <div class="acct-plan">${esc(a.plan)}</div></div><span class="acct-badge acct-badge-inactive">INACTIVE</span></div>
+        <div class="acct-pair">${gauge('5 hr', a.windows.five_hour)}${gauge('Weekly', a.windows.seven_day)}</div>
+        <div class="acct-meta"><span></span>${cost}</div>
+      </div>`;
+    }
     if (a.error) {
       if (a.windows.five_hour || a.windows.seven_day) {
         const retry = a.retry_until && new Date(a.retry_until) > Date.now()
@@ -1613,9 +1621,8 @@ function renderAccounts() {
         <div class="acct-error-msg">${esc(hint)}<br>${esc(a.error)}</div>
         <div class="acct-meta"><span>${a.renews_in_days != null ? 'renews in ' + a.renews_in_days + 'd' : ''}</span>${cost}</div></div>`;
     }
-    const badge = a.is_optimal && !a.error ? '<span class="acct-badge">USE ME</span>'
-      : (a.active === false ? '<span class="acct-badge acct-badge-inactive">INACTIVE</span>' : '');
-    return `<div class="acct-card${a.active === false ? ' acct-inactive' : ''}">
+    const badge = a.is_optimal && !a.error ? '<span class="acct-badge">USE ME</span>' : '';
+    return `<div class="acct-card">
       <div class="acct-head"><div><div class="acct-email">${esc(a.email)}</div>
       <div class="acct-plan">${esc(a.plan)}</div></div>${badge}</div>
       <div class="acct-pair">${gauge('5 hr', a.windows.five_hour)}${gauge('Weekly', a.windows.seven_day)}</div>
