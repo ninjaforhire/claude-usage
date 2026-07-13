@@ -872,7 +872,7 @@ Usage:
                                                  refresh: rotate every account's token now
                                                  (server-independent; no dashboard needed)
   python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
-                                                 (re-homed off the retired :8080 dashboard)
+                                                 (runs standalone, independent of the :8080 dashboard)
   python cli.py fable-next [--refresh] [--switch]
                                                  Recommend which account to use for Fable 5
                                                  work now (weekly_remaining - 50% cap);
