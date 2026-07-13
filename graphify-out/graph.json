@@ -1217,7 +1217,7 @@
       "label": "codex_orb_data()",
       "file_type": "code",
       "source_file": "codex_limits.py",
-      "source_location": "L138",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "codex_limits_codex_orb_data",
       "community": 29,
@@ -1284,22 +1284,22 @@
       "norm_label": "the most recent codex rate-limit snapshot across all session rollouts."
     },
     {
-      "label": "Map a primary/secondary limit part to the orb window shape.",
+      "label": "Map a primary/secondary limit part to the orb window shape.      The snapshot co",
       "file_type": "rationale",
       "source_file": "codex_limits.py",
       "source_location": "L124",
       "_origin": "ast",
       "id": "codex_limits_rationale_124",
       "community": 29,
-      "norm_label": "map a primary/secondary limit part to the orb window shape."
+      "norm_label": "map a primary/secondary limit part to the orb window shape.      the snapshot co"
     },
     {
       "label": "Codex 5h + weekly orbs in the same shape as a Claude account entry.      Args:",
       "file_type": "rationale",
       "source_file": "codex_limits.py",
-      "source_location": "L139",
+      "source_location": "L149",
       "_origin": "ast",
-      "id": "codex_limits_rationale_139",
+      "id": "codex_limits_rationale_149",
       "community": 29,
       "norm_label": "codex 5h + weekly orbs in the same shape as a claude account entry.      args:"
     },
@@ -7030,7 +7030,7 @@
       "source_location": "L608",
       "_origin": "ast",
       "id": "tests_test_scanner_testcrossfilesessiontotals",
-      "community": 67,
+      "community": 69,
       "norm_label": "testcrossfilesessiontotals"
     },
     {
@@ -7040,7 +7040,7 @@
       "source_location": "L611",
       "_origin": "ast",
       "id": "tests_test_scanner_testcrossfilesessiontotals_setup",
-      "community": 67,
+      "community": 69,
       "norm_label": ".setup()"
     },
     {
@@ -7060,7 +7060,7 @@
       "source_location": "L655",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount",
-      "community": 69,
+      "community": 67,
       "norm_label": "testparsejsonlfilelinecount"
     },
     {
@@ -7070,7 +7070,7 @@
       "source_location": "L658",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_setup",
-      "community": 69,
+      "community": 67,
       "norm_label": ".setup()"
     },
     {
@@ -7080,7 +7080,7 @@
       "source_location": "L661",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_test_line_count_matches_file",
-      "community": 69,
+      "community": 67,
       "norm_label": ".test_line_count_matches_file()"
     },
     {
@@ -7090,7 +7090,7 @@
       "source_location": "L670",
       "_origin": "ast",
       "id": "tests_test_scanner_testparsejsonlfilelinecount_test_empty_file_returns_zero",
-      "community": 69,
+      "community": 67,
       "norm_label": ".test_empty_file_returns_zero()"
     },
     {
@@ -7270,7 +7270,7 @@
       "source_location": "L609",
       "_origin": "ast",
       "id": "tests_test_scanner_rationale_609",
-      "community": 67,
+      "community": 69,
       "norm_label": "test that session totals are correct when the same session spans multiple files."
     },
     {
@@ -7290,7 +7290,7 @@
       "source_location": "L656",
       "_origin": "ast",
       "id": "tests_test_scanner_rationale_656",
-      "community": 69,
+      "community": 67,
       "norm_label": "test that parse_jsonl_file returns correct line count."
     },
     {
@@ -14086,11 +14086,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "codex_limits.py",
-      "source_location": "L139",
+      "source_location": "L149",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "codex_limits_rationale_139",
-      "target": "codex_limits_codex_orb_data"
+      "source": "codex_limits_rationale_149",
+      "target": "codex_limits_codex_orb_data",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -27578,9 +27578,9 @@
       "source_file": "CHANGELOG.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "changelog_unreleased",
-      "target": "changelog_freshness_claude_5",
-      "confidence_score": 1.0
+      "target": "changelog_freshness_claude_5"
     },
     {
       "relation": "contains",
@@ -27618,9 +27618,9 @@
       "source_file": "CHANGELOG.md",
       "source_location": "L54",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "changelog_v1_2_3_2026_05_30",
-      "target": "changelog_extension_54",
-      "confidence_score": 1.0
+      "target": "changelog_extension_54"
     },
     {
       "relation": "contains",
@@ -27638,9 +27638,9 @@
       "source_file": "CHANGELOG.md",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "changelog_v1_2_2_2026_05_30",
-      "target": "changelog_dashboard_66",
-      "confidence_score": 1.0
+      "target": "changelog_dashboard_66"
     },
     {
       "relation": "contains",
@@ -27648,9 +27648,9 @@
       "source_file": "CHANGELOG.md",
       "source_location": "L80",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "changelog_v1_2_1_2026_05_29",
-      "target": "changelog_extension_80",
-      "confidence_score": 1.0
+      "target": "changelog_extension_80"
     },
     {
       "relation": "contains",
@@ -27698,9 +27698,9 @@
       "source_file": "CHANGELOG.md",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "changelog_v1_1_1_2026_05_28",
-      "target": "changelog_project_docs_114",
-      "confidence_score": 1.0
+      "target": "changelog_project_docs_114"
     },
     {
       "relation": "contains",
@@ -27708,9 +27708,9 @@
       "source_file": "CHANGELOG.md",
       "source_location": "L121",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "changelog_v1_1_0_2026_05_28",
-      "target": "changelog_dashboard_121",
-      "confidence_score": 1.0
+      "target": "changelog_dashboard_121"
     },
     {
       "relation": "contains",
@@ -27718,9 +27718,9 @@
       "source_file": "CHANGELOG.md",
       "source_location": "L134",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "changelog_v1_1_0_2026_05_28",
-      "target": "changelog_project_docs_134",
-      "confidence_score": 1.0
+      "target": "changelog_project_docs_134"
     },
     {
       "relation": "contains",
@@ -27984,5 +27984,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5e8aeab8f1d4f5670cab430ccaefab27093b905c"
+  "built_at_commit": "977a897bec78083c66b429633f9abbb3d6cb9fed"
 }

@@ -1,7 +1,7 @@
-# Graph Report - claude-usage  (2026-07-10)
+# Graph Report - claude-usage  (2026-07-12)
 
 ## Corpus Check
-- 60 files · ~123,408 words
+- 60 files · ~123,481 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5e8aeab8`
+- Built from commit: `977a897b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -300,16 +300,16 @@ Cohesion: 0.12
 Nodes (30): _fable_rank(), _fmt_reset_local(), _norm_discount(), Render a UTC reset timestamp in local time as 'Jul 08 05:59', or '--'., Score one dashboard entry for Fable-5 suitability.      Returns a dict with fabl, Snapshot the live Claude Code keychain into the store as the new owner.      Run, Parse a discount arg into a 0..1 fraction. Accepts '30', '30%', or '0.3'., _switch_to_live_keychain() (+22 more)
 
 ### Community 67 - "Community 67"
-Cohesion: 0.17
-Nodes (8): _make_user_record(), Integration test: dedup across scan cycles., 3 streaming events for 2 messages should produce 2 turns., Re-scanning a file shouldn't create duplicate turns for same message_id., Test that session totals are correct when the same session spans multiple files., Same session in 2 files with duplicate message_ids should not inflate totals., TestCrossFileSessionTotals, TestMessageIdDedupIntegration
+Cohesion: 0.14
+Nodes (8): _make_user_record(), Integration test: dedup across scan cycles., 3 streaming events for 2 messages should produce 2 turns., Re-scanning a file shouldn't create duplicate turns for same message_id., Same session in 2 files with duplicate message_ids should not inflate totals., Test that parse_jsonl_file returns correct line count., TestMessageIdDedupIntegration, TestParseJsonlFileLineCount
 
 ### Community 68 - "Community 68"
 Cohesion: 0.21
 Nodes (7): Test that updating a file only processes new lines (no double reads)., Growing a file must add only new turns, not re-insert old ones., Session totals should reflect all turns, not double-count., Last timestamp should advance after file grows., A brand-new session discovered during an incremental scan with         non-monot, If mtime changes but line count doesn't grow, skip the file., TestScanIncrementalUpdate
 
 ### Community 69 - "Community 69"
-Cohesion: 0.20
-Nodes (6): aggregate_sessions(), Aggregate turn data back into session-level stats., Tests for scanner.py - JSONL parsing, DB operations, and scanning., Test that parse_jsonl_file returns correct line count., TestAggregateSessions, TestParseJsonlFileLineCount
+Cohesion: 0.24
+Nodes (6): aggregate_sessions(), Aggregate turn data back into session-level stats., Tests for scanner.py - JSONL parsing, DB operations, and scanning., Test that session totals are correct when the same session spans multiple files., TestAggregateSessions, TestCrossFileSessionTotals
 
 ### Community 70 - "Community 70"
 Cohesion: 0.39
