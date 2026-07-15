@@ -913,6 +913,11 @@ if __name__ == "__main__":
 
     command = sys.argv[1]
     rest = sys.argv[2:]
+
+    if "--help" in rest or "-h" in rest:
+        print(USAGE)
+        sys.exit(0)
+
     projects_dir = parse_named_arg(rest, "--projects-dir")
 
     if command == "dashboard":
