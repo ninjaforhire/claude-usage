@@ -1,16 +1,16 @@
-# Graph Report - claude-usage  (2026-07-12)
+# Graph Report - claude-usage  (2026-07-15)
 
 ## Corpus Check
-- 60 files · ~123,481 words
+- 62 files · ~125,948 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1037 nodes · 1689 edges · 65 communities (60 shown, 5 thin omitted)
+- 1096 nodes · 1794 edges · 65 communities (60 shown, 5 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.5)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `977a897b`
+- Built from commit: `b3178a8e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -50,19 +50,20 @@
 - [[_COMMUNITY_Community 32|Community 32]]
 - [[_COMMUNITY_Community 33|Community 33]]
 - [[_COMMUNITY_Community 34|Community 34]]
+- [[_COMMUNITY_Community 35|Community 35]]
 - [[_COMMUNITY_Community 36|Community 36]]
 - [[_COMMUNITY_Community 37|Community 37]]
 - [[_COMMUNITY_Community 38|Community 38]]
 - [[_COMMUNITY_Community 39|Community 39]]
+- [[_COMMUNITY_Community 40|Community 40]]
 - [[_COMMUNITY_Community 41|Community 41]]
+- [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 44|Community 44]]
 - [[_COMMUNITY_Community 45|Community 45]]
-- [[_COMMUNITY_Community 46|Community 46]]
 - [[_COMMUNITY_Community 47|Community 47]]
 - [[_COMMUNITY_Community 48|Community 48]]
 - [[_COMMUNITY_Community 51|Community 51]]
 - [[_COMMUNITY_Community 52|Community 52]]
-- [[_COMMUNITY_Community 53|Community 53]]
 - [[_COMMUNITY_Community 54|Community 54]]
 - [[_COMMUNITY_Community 55|Community 55]]
 - [[_COMMUNITY_Community 56|Community 56]]
@@ -81,15 +82,13 @@
 4. `scan()` - 23 edges
 5. `get_dashboard_data()` - 19 edges
 6. `parse_jsonl_file()` - 19 edges
-7. `TestGetPricing` - 19 edges
-8. `_make_assistant_record()` - 19 edges
-9. `calc_cost()` - 18 edges
-10. `fetch_period_data()` - 17 edges
+7. `TestUsageCooldowns` - 19 edges
+8. `TestGetPricing` - 19 edges
+9. `_make_assistant_record()` - 19 edges
+10. `calc_cost()` - 18 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `TestHTMLTemplate` --uses--> `DashboardHandler`  [INFERRED]
-  tests/test_dashboard.py → dashboard.py
-- `TestNonBillableModelFallback` --uses--> `DashboardHandler`  [INFERRED]
   tests/test_dashboard.py → dashboard.py
 - `test_is_mixed_flags_shared_root()` --calls--> `is_mixed()`  [EXTRACTED]
   tests/test_attribution.py → attribution.py
@@ -97,9 +96,11 @@
   attribution.py → cli.py
 - `build_report()` --calls--> `attribute()`  [EXTRACTED]
   classify.py → attribution.py
+- `fetch_period_data()` --calls--> `calc_cost()`  [EXTRACTED]
+  views.py → cli.py
 
 ## Import Cycles
-- None detected.
+- 1-file cycle: `accounts.py -> accounts.py`
 
 ## Communities (65 total, 5 thin omitted)
 
@@ -112,8 +113,8 @@ Cohesion: 0.06
 Nodes (32): deactivate(), describeMode(), Extension, noInstallMessage(), noPythonMessage(), claudeUsageCandidateNames(), dashboardSpawnArgs(), InstallMode (+24 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.07
-Nodes (56): account_score(), _as_date(), current_monthly_cost(), dashboard_payload(), days_until_renewal(), _extract_windows(), fetch_all_usage(), _fetch_all_usage_locked() (+48 more)
+Cohesion: 0.06
+Nodes (61): account_score(), _as_date(), current_monthly_cost(), dashboard_payload(), days_until_renewal(), _extract_windows(), fetch_all_usage(), _fetch_all_usage_locked() (+53 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.09
@@ -128,28 +129,28 @@ Cohesion: 0.08
 Nodes (31): gather(), last_run_epoch(), launchctl_state(), list_plist_files(), parse_plist(), daemons.py - Inventory and health of launchd agents under ~/Library/LaunchAgents, mtime of the daemon's stdout log as a last-run proxy. None if absent., Return a list of merged daemon dicts: plist fields + live launchctl state. (+23 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.05
-Nodes (30): apply_event(), classify(), _flatten_body(), get_message(), _gws_json(), _headers(), ingest(), list_message_ids() (+22 more)
+Cohesion: 0.11
+Nodes (29): apply_event(), classify(), _flatten_body(), get_message(), _gws_json(), _headers(), ingest(), list_message_ids() (+21 more)
 
 ### Community 7 - "Community 7"
-Cohesion: 0.10
-Nodes (22): _acct(), _expired_acct(), _full_acct(), Tests for accounts.py — store layer, token refresh, usage fetch, presentation., Refresh AND usage fetch both fail -> that account grays; others fine., Refresh endpoint failing (429/dead) must not gray an account whose     access to, Refresh succeeds (tokens rotated) but usage fetch fails — rotated     tokens MUS, Access token invalidated before expires_at (rotated elsewhere) — one forced refr (+14 more)
+Cohesion: 0.08
+Nodes (24): _acct(), _expired_acct(), _full_acct(), Tests for accounts.py — store layer, token refresh, usage fetch, presentation., Refresh AND usage fetch both fail -> that account grays; others fine., Refresh endpoint failing (429/dead) must not gray an account whose     access to, Refresh succeeds (tokens rotated) but usage fetch fails — rotated     tokens MUS, Access token invalidated before expires_at (rotated elsewhere) — one forced refr (+16 more)
 
 ### Community 8 - "Community 8"
 Cohesion: 0.14
 Nodes (35): _bootout_cmd(), build_report(), classify_daemon(), _is_vendor(), classify.py - Merge daemons with the registry, bucket them, and emit remediation, Full report dict consumed by the dashboard API and the CLI.      {       "daemon, Return (bucket, reasons[], remediation|None) for one merged daemon dict., _daemon() (+27 more)
 
 ### Community 9 - "Community 9"
-Cohesion: 0.13
-Nodes (6): get_pricing(), Ensure CLI pricing matches known Anthropic API rates., Regression guard for issue #61 — Opus 4.7 must be present., Model strings from JSONL often have date suffixes., TestGetPricing, TestPricingConsistency
+Cohesion: 0.07
+Nodes (18): get_pricing(), Tests for cli.py - pricing, formatting, and cost calculation., Ensure CLI pricing matches known Anthropic API rates., The VS Code extension passes --no-browser; CLI users get a browser., Existing account -> update_oauth (preserve history), never upsert., A brand-new account in --quiet mode can't prompt -> hard exit., New account + --billing-day registers a full record non-interactively., Regression guard for issue #61 — Opus 4.7 must be present. (+10 more)
 
 ### Community 10 - "Community 10"
-Cohesion: 0.11
+Cohesion: 0.12
 Nodes (5): _make_db(), In-memory SQLite DB with minimal schema and fixture data., TestCardReport, TestSparkReport, TestTableReport
 
 ### Community 11 - "Community 11"
-Cohesion: 0.12
-Nodes (18): _acct(), _entry(), Tests for subscription cost, lifetime spend, and optimal-account scoring., A public_view-shaped entry for score/recommend tests., test_all_unhealthy_falls_back_to_main(), test_current_monthly_cost_full_when_active(), test_current_monthly_cost_zero_when_inactive(), test_is_active_false_when_cancelled() (+10 more)
+Cohesion: 0.10
+Nodes (19): _acct(), _entry(), Tests for subscription cost, lifetime spend, and optimal-account scoring., A public_view-shaped entry for score/recommend tests., test_all_unhealthy_falls_back_to_main(), test_current_monthly_cost_full_when_active(), test_current_monthly_cost_zero_when_inactive(), test_is_active_false_when_cancelled() (+11 more)
 
 ### Community 12 - "Community 12"
 Cohesion: 0.19
@@ -168,31 +169,31 @@ Cohesion: 0.15
 Nodes (10): get_db(), init_db(), insert_turns(), _model_priority(), scanner.py - Scans Claude Code JSONL transcript files and stores data in SQLite., Return a priority score for a model name (higher = more capable)., upsert_sessions(), Tests for dashboard.py - API endpoint and data retrieval. (+2 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.06
-Nodes (18): BaseHTTPRequestHandler, DashboardHandler, find_icon_file(), get_accounts_data(), get_dashboard_data(), dashboard.py - Local web dashboard served on localhost:8080., Account limit data for the orb row; credential-free public view., Locate the extension's icon.svg across both run contexts.      - Bundled in the (+10 more)
+Cohesion: 0.05
+Nodes (21): BaseHTTPRequestHandler, DashboardHandler, find_icon_file(), get_accounts_data(), get_dashboard_data(), dashboard.py - Local web dashboard served on localhost:8080., Account limit data for the orb row; credential-free public view., Locate the extension's icon.svg across both run contexts.      - Bundled in the (+13 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.19
 Nodes (17): build_prompt(), _finding_block(), _is_rogue(), promptgen.py - Turn a selection of findings into a copyable repair-request promp, haiku = trivial toggle/kill, sonnet = log/root-cause, opus = multi-file logic., Return a markdown repair-request prompt for the selected findings., recommend_model(), Behavior tests for promptgen model recommendation + prompt assembly. (+9 more)
 
 ### Community 19 - "Community 19"
-Cohesion: 0.11
-Nodes (12): Tests for cli.py - pricing, formatting, and cost calculation., The VS Code extension passes --no-browser; CLI users get a browser., Existing account -> update_oauth (preserve history), never upsert., A brand-new account in --quiet mode can't prompt -> hard exit., New account + --billing-day registers a full record non-interactively., accounts refresh' rotates via fetch_all_usage (no HTTP server)., test_quiet_existing_account_recaptures_not_upserts(), test_quiet_new_account_with_billing_day_upserts() (+4 more)
+Cohesion: 0.20
+Nodes (9): A. `accounts.py` — charge-based `is_active`, B. `dashboard.py` (JS in HTML_TEMPLATE) — quiet inactive cards, C. Jimbo Usage tab — port the SAME rendering, Changes, Constraints, Expected outcome (acceptance), PLAN 2: Charge-based account activity + quiet inactive cards (both UIs), Proof (+1 more)
 
 ### Community 20 - "Community 20"
 Cohesion: 0.24
 Nodes (15): attribute(), cost_for_prefix(), is_mixed(), _norm(), attribution.py - Attribute usage.db cost to a daemon via its working-directory p, Sum estimated cost over turns whose session project_name ends with cwd_prefix., Annotate each daemon dict (that carries a cwd_prefix) with cost_7d / cost_30d., _add() (+7 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.18
-Nodes (12): fmt(), Connection, TestFmt, _cache_savings(), card_report(), _model_short(), views.py - Display modes for the claude-usage report command.  Public API:     f, Estimate dollars saved by cache reads vs paying full input price. (+4 more)
+Cohesion: 0.15
+Nodes (14): Connection, _cache_savings(), card_report(), _date_range(), _model_short(), views.py - Display modes for the claude-usage report command.  Public API:     f, Estimate dollars saved by cache reads vs paying full input price., Print a tabular usage report to stdout. (+6 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.20
-Nodes (18): cmd_daemons(), cmd_dashboard(), cmd_fable_cost(), cmd_fable_next(), cmd_freshness_tick(), cmd_report(), cmd_scan(), cmd_stats() (+10 more)
+Cohesion: 0.16
+Nodes (20): cmd_daemons(), cmd_dashboard(), cmd_fable_cost(), cmd_fable_next(), cmd_freshness_tick(), cmd_report(), cmd_scan(), cmd_stats() (+12 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.13
+Cohesion: 0.10
 Nodes (7): Verify XSS protection is present (PR #10)., Verify getPricing falls back to substring match for unknown models., Verify getPricing returns null for non-Anthropic models., Hourly distribution chart has a canvas + TZ toggle., Peak-hour set covers UTC 12–17 (Mon–Fri 05:00–11:00 PT)., The 'Today' range button is wired into RANGE_LABELS, RANGE_TICKS,         getRan, TestHTMLTemplate
 
 ### Community 24 - "Community 24"
@@ -200,16 +201,16 @@ Cohesion: 0.13
 Nodes (14): activationEvents, categories, description, displayName, engines, vscode, homepage, icon (+6 more)
 
 ### Community 25 - "Community 25"
-Cohesion: 0.22
-Nodes (5): TestFetchPeriodData, _date_range(), fetch_period_data(), Return (start_iso, end_iso) for a period string, or (None, None) for 'all'., Run all DB queries for a period and return a unified result dict.
+Cohesion: 0.27
+Nodes (3): TestFetchPeriodData, fetch_period_data(), Run all DB queries for a period and return a unified result dict.
 
 ### Community 26 - "Community 26"
 Cohesion: 0.14
 Nodes (13): compilerOptions, esModuleInterop, lib, module, outDir, resolveJsonModule, rootDir, skipLibCheck (+5 more)
 
 ### Community 27 - "Community 27"
-Cohesion: 0.24
-Nodes (6): Tests for views.py — fetch_period_data and display functions., TestSparkLine, Map a list of floats to an 8-level block-character spark string., Print a sparkline trend report. Falls back to table for today/all., _spark_line(), spark_report()
+Cohesion: 0.29
+Nodes (4): Tests for views.py — fetch_period_data and display functions., TestSparkLine, Map a list of floats to an 8-level block-character spark string., _spark_line()
 
 ### Community 28 - "Community 28"
 Cohesion: 0.15
@@ -221,7 +222,7 @@ Nodes (16): codex_orb_data(), _find_rate_limits(), get_plan_caps(), _last_rate_l
 
 ### Community 30 - "Community 30"
 Cohesion: 0.15
-Nodes (13): Account limit orbs (multi-account), Changelog, CI, Dashboard, Distribution, Extension, Project / docs, v1.0.0 — 2026-04-09 (+5 more)
+Nodes (13): Account limit orbs (multi-account), Changelog, Dashboard, Extension, Packaging, Project / docs, Project / docs, v1.0.0 — 2026-04-09 (+5 more)
 
 ### Community 31 - "Community 31"
 Cohesion: 0.17
@@ -229,11 +230,15 @@ Nodes (11): Tests for the cross-process store lock (accounts.store_lock).  Regre
 
 ### Community 32 - "Community 32"
 Cohesion: 0.17
-Nodes (12): Claude Code Usage — VS Code extension, Commands, From a `.vsix` file (local install), From the VS Code Marketplace, How discovery works, Install, Privacy, Requirements (+4 more)
+Nodes (9): Claude Code Usage — VS Code extension, From a `.vsix` file (local install), From the VS Code Marketplace, How discovery works, Install, Privacy, Requirements, Source (+1 more)
 
 ### Community 34 - "Community 34"
 Cohesion: 0.33
 Nodes (3): project_name_from_cwd(), Derive a friendly project name from cwd path., TestProjectNameFromCwd
+
+### Community 35 - "Community 35"
+Cohesion: 0.25
+Nodes (7): Act 3 — Build (2026-07-12, /codex-build), Claude's verdict (round 1), Claude's verdict (round 2) — APPROVED, PLAN-REVIEW-LOG — Account-orb resilience (429/403 cooldowns + stale orbs), Root cause (verified before spec), Round 1 — Codex build, Round 2 — Codex fix (same thread)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.15
@@ -248,12 +253,20 @@ Cohesion: 0.25
 Nodes (8): cmd_accounts(), parse_keychain_credentials(), parse_named_arg(), Parse macOS Keychain JSON into a normalised OAuth dict.      Args:         raw:, Read credentials from macOS Keychain; returns raw JSON string., Manage tracked Claude accounts for limit orbs., Extract a --flag VALUE pair from an argument list., _read_keychain()
 
 ### Community 39 - "Community 39"
-Cohesion: 0.25
-Nodes (8): Claude Code Usage Dashboard, Cost estimates, Files, How it works, Requirements, Usage, VS Code extension, What this tracks
+Cohesion: 0.17
+Nodes (12): Claude Code Usage Dashboard, Cost estimates, Files, How it works, macOS / Linux (clone), macOS / Linux (Homebrew), Quick Start, Requirements (+4 more)
+
+### Community 40 - "Community 40"
+Cohesion: 0.67
+Nodes (3): CI, Distribution, v1.2.0 — 2026-05-29
 
 ### Community 41 - "Community 41"
 Cohesion: 0.33
 Nodes (5): files, fs, path, repoRoot, targetDir
+
+### Community 42 - "Community 42"
+Cohesion: 0.67
+Nodes (3): Commands, Settings, Usage
 
 ### Community 44 - "Community 44"
 Cohesion: 0.40
@@ -262,10 +275,6 @@ Nodes (5): devDependencies, @types/node, @types/vscode, typescript, vitest
 ### Community 45 - "Community 45"
 Cohesion: 0.50
 Nodes (4): Dashboard, Project / docs, Scanner, v1.1.0 — 2026-05-28
-
-### Community 46 - "Community 46"
-Cohesion: 0.50
-Nodes (4): macOS / Linux (clone), macOS / Linux (Homebrew), Quick Start, Windows
 
 ### Community 47 - "Community 47"
 Cohesion: 0.50
@@ -276,16 +285,12 @@ Cohesion: 0.50
 Nodes (4): default, description, type, claudeUsage.pythonPath
 
 ### Community 51 - "Community 51"
-Cohesion: 0.67
-Nodes (3): Dashboard, Extension, v1.2.4 — 2026-05-30
+Cohesion: 0.33
+Nodes (6): Accounts, Dashboard, Dashboard, Extension, v1.2.4 — 2026-05-30, v1.3.1 — TBD
 
 ### Community 52 - "Community 52"
 Cohesion: 0.67
 Nodes (3): Extension, Scanner / CLI, v1.2.3 — 2026-05-30
-
-### Community 53 - "Community 53"
-Cohesion: 0.67
-Nodes (3): Packaging, Project / docs, v1.1.1 — 2026-05-28
 
 ### Community 56 - "Community 56"
 Cohesion: 0.67
@@ -316,24 +321,24 @@ Cohesion: 0.39
 Nodes (3): scan(), Integration test: create fake JSONL files and run scan()., TestScanIntegration
 
 ## Knowledge Gaps
-- **130 isolated node(s):** `Path`, `name`, `displayName`, `description`, `version` (+125 more)
+- **143 isolated node(s):** `Path`, `name`, `displayName`, `description`, `version` (+138 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **5 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
+- **Why does `datetime` connect `Community 17` to `Community 2`, `Community 6`, `Community 7`, `Community 8`, `Community 11`, `Community 15`, `Community 18`, `Community 21`, `Community 22`, `Community 29`?**
+  _High betweenness centrality (0.392) - this node is a cross-community bridge._
 - **Why does `scan()` connect `Community 70` to `Community 0`, `Community 34`, `Community 67`, `Community 68`, `Community 69`, `Community 15`, `Community 22`?**
-  _High betweenness centrality (0.097) - this node is a cross-community bridge._
-- **Why does `calc_cost()` connect `Community 33` to `Community 9`, `Community 19`, `Community 20`, `Community 21`, `Community 22`, `Community 25`?**
-  _High betweenness centrality (0.025) - this node is a cross-community bridge._
-- **Why does `serve()` connect `Community 22` to `Community 17`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Why does `get_pricing()` connect `Community 9` to `Community 33`, `Community 22`?**
+  _High betweenness centrality (0.053) - this node is a cross-community bridge._
 - **What connects `Multi-account OAuth credential store + usage fetch for the dashboard.`, `Exclusive cross-process lock around a store read-modify-write cycle.      OAuth`, `Load the account store from disk, returning empty store if missing.` to the rest of the system?**
-  _326 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _341 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Community 1` be split into smaller, more focused modules?**
   _Cohesion score 0.05541346973572037 - nodes in this community are weakly interconnected._
 - **Should `Community 2` be split into smaller, more focused modules?**
-  _Cohesion score 0.06516290726817042 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0597567424643046 - nodes in this community are weakly interconnected._
 - **Should `Community 3` be split into smaller, more focused modules?**
   _Cohesion score 0.09247311827956989 - nodes in this community are weakly interconnected._
