@@ -5,13 +5,13 @@
     "semantic_hash": ""
   },
   "cli.py": {
-    "mtime": 1783907535.527231,
-    "ast_hash": "073f81e02f5852b22dd438386ee35e14",
+    "mtime": 1784116765.5408196,
+    "ast_hash": "8f54a78c4ce96390b393924dec8827ce",
     "semantic_hash": ""
   },
   "dashboard.py": {
-    "mtime": 1783732249.0009322,
-    "ast_hash": "702f1ccb2fa0684e8200fa2c4f6c1232",
+    "mtime": 1783918625.8447,
+    "ast_hash": "5d1c626f0f5a00afa7a29c7d8e745eba",
     "semantic_hash": ""
   },
   "Formula/claude-usage.rb": {
@@ -20,8 +20,8 @@
     "semantic_hash": ""
   },
   "accounts.py": {
-    "mtime": 1782770129.7975812,
-    "ast_hash": "0113d4a234412b602b82cd5411110434",
+    "mtime": 1783918625.843929,
+    "ast_hash": "77e2780db693af14bd0deede0d1f7f1e",
     "semantic_hash": ""
   },
   "attribution.py": {
@@ -105,13 +105,13 @@
     "semantic_hash": ""
   },
   "tests/test_accounts.py": {
-    "mtime": 1781878821.549436,
-    "ast_hash": "eb509da933290ffc5303b76312b0f7e7",
+    "mtime": 1783918640.9689095,
+    "ast_hash": "e1cbd786aabea68559d17bf48a6788a1",
     "semantic_hash": ""
   },
   "tests/test_accounts_cost.py": {
-    "mtime": 1781503214.544708,
-    "ast_hash": "72f1cd9d0a23bf156612a07355864e28",
+    "mtime": 1783911346.6787534,
+    "ast_hash": "75b28abd5f12148e6bccd7df8dc9d79c",
     "semantic_hash": ""
   },
   "tests/test_accounts_lock.py": {
@@ -140,8 +140,8 @@
     "semantic_hash": ""
   },
   "tests/test_dashboard.py": {
-    "mtime": 1781505782.3552098,
-    "ast_hash": "91fa4637873fcddee5a1ff38d277c295",
+    "mtime": 1783918595.9174266,
+    "ast_hash": "98eb2b5726d7e36f12153867f7fc7773",
     "semantic_hash": ""
   },
   "tests/test_fable_next.py": {
@@ -295,8 +295,8 @@
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1783732249.0001235,
-    "ast_hash": "d7f10eb1ea89fb1eee3f88bd11f49bcf",
+    "mtime": 1783911313.2452102,
+    "ast_hash": "6c1ec3b2a9a84de02c853f8c63cb0066",
     "semantic_hash": ""
   },
   "README.md": {
@@ -347,6 +347,16 @@
   "tests/test_processes.py": {
     "mtime": 1783508905.077795,
     "ast_hash": "9644ea099b9779cf7f4540414c7a6a37",
+    "semantic_hash": ""
+  },
+  "PLAN-REVIEW-LOG.md": {
+    "mtime": 1783909001.8218055,
+    "ast_hash": "718de1ae7ddeba6c4a36bc13fee87919",
+    "semantic_hash": ""
+  },
+  "PLAN.md": {
+    "mtime": 1783910716.0269148,
+    "ast_hash": "d2c126edee2a53a8cc5a68506ea5f2fb",
     "semantic_hash": ""
   }
 }

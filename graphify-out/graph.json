@@ -47,7 +47,7 @@
       "label": "store_lock()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L41",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "accounts_store_lock",
       "community": 2,
@@ -57,7 +57,7 @@
       "label": "Path",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L41",
+      "source_location": "L43",
       "_origin": "ast",
       "id": "accounts_py_path",
       "community": 2,
@@ -67,7 +67,7 @@
       "label": "load_store()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L76",
+      "source_location": "L78",
       "_origin": "ast",
       "id": "accounts_load_store",
       "community": 2,
@@ -77,7 +77,7 @@
       "label": "save_store()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L84",
+      "source_location": "L86",
       "_origin": "ast",
       "id": "accounts_save_store",
       "community": 2,
@@ -87,7 +87,7 @@
       "label": "upsert_account()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L95",
+      "source_location": "L97",
       "_origin": "ast",
       "id": "accounts_upsert_account",
       "community": 2,
@@ -97,7 +97,7 @@
       "label": "update_oauth()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L105",
+      "source_location": "L107",
       "_origin": "ast",
       "id": "accounts_update_oauth",
       "community": 2,
@@ -107,7 +107,7 @@
       "label": "set_keychain_owner()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L127",
+      "source_location": "L134",
       "_origin": "ast",
       "id": "accounts_set_keychain_owner",
       "community": 2,
@@ -117,7 +117,7 @@
       "label": "keychain_oauth()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L137",
+      "source_location": "L144",
       "_origin": "ast",
       "id": "accounts_keychain_oauth",
       "community": 2,
@@ -127,7 +127,7 @@
       "label": "_get_json()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L159",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "accounts_get_json",
       "community": 2,
@@ -137,17 +137,37 @@
       "label": "_post_json()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L165",
+      "source_location": "L172",
       "_origin": "ast",
       "id": "accounts_post_json",
       "community": 2,
       "norm_label": "_post_json()"
     },
     {
+      "label": "_http_error_detail()",
+      "file_type": "code",
+      "source_file": "accounts.py",
+      "source_location": "L183",
+      "_origin": "ast",
+      "id": "accounts_http_error_detail",
+      "community": 2,
+      "norm_label": "_http_error_detail()"
+    },
+    {
+      "label": "HTTPError",
+      "file_type": "code",
+      "source_file": "accounts.py",
+      "source_location": "L183",
+      "_origin": "ast",
+      "id": "httperror",
+      "community": 2,
+      "norm_label": "httperror"
+    },
+    {
       "label": "_is_expired()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L178",
+      "source_location": "L211",
       "_origin": "ast",
       "id": "accounts_is_expired",
       "community": 2,
@@ -157,7 +177,7 @@
       "label": "_refresh()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L187",
+      "source_location": "L220",
       "_origin": "ast",
       "id": "accounts_refresh",
       "community": 2,
@@ -167,7 +187,7 @@
       "label": "_parse_usage()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L202",
+      "source_location": "L235",
       "_origin": "ast",
       "id": "accounts_parse_usage",
       "community": 2,
@@ -177,7 +197,7 @@
       "label": "_extract_windows()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L213",
+      "source_location": "L246",
       "_origin": "ast",
       "id": "accounts_extract_windows",
       "community": 2,
@@ -187,7 +207,7 @@
       "label": "fetch_profile_email()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L229",
+      "source_location": "L262",
       "_origin": "ast",
       "id": "accounts_fetch_profile_email",
       "community": 2,
@@ -197,7 +217,7 @@
       "label": "fetch_usage()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L238",
+      "source_location": "L271",
       "_origin": "ast",
       "id": "accounts_fetch_usage",
       "community": 2,
@@ -207,17 +227,37 @@
       "label": "fetch_all_usage()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L253",
+      "source_location": "L286",
       "_origin": "ast",
       "id": "accounts_fetch_all_usage",
       "community": 2,
       "norm_label": "fetch_all_usage()"
     },
     {
+      "label": "_record_usage_http_error()",
+      "file_type": "code",
+      "source_file": "accounts.py",
+      "source_location": "L292",
+      "_origin": "ast",
+      "id": "accounts_record_usage_http_error",
+      "community": 2,
+      "norm_label": "_record_usage_http_error()"
+    },
+    {
+      "label": "datetime",
+      "file_type": "code",
+      "source_file": "accounts.py",
+      "source_location": "L292",
+      "_origin": "ast",
+      "id": "datetime",
+      "community": 17,
+      "norm_label": "datetime"
+    },
+    {
       "label": "_fetch_all_usage_locked()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L259",
+      "source_location": "L326",
       "_origin": "ast",
       "id": "accounts_fetch_all_usage_locked",
       "community": 2,
@@ -227,7 +267,7 @@
       "label": "remaining_color()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L309",
+      "source_location": "L423",
       "_origin": "ast",
       "id": "accounts_remaining_color",
       "community": 2,
@@ -237,7 +277,7 @@
       "label": "days_until_renewal()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L317",
+      "source_location": "L431",
       "_origin": "ast",
       "id": "accounts_days_until_renewal",
       "community": 2,
@@ -247,7 +287,7 @@
       "label": "date",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L317",
+      "source_location": "L431",
       "_origin": "ast",
       "id": "date",
       "community": 2,
@@ -257,7 +297,7 @@
       "label": "public_view()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L329",
+      "source_location": "L443",
       "_origin": "ast",
       "id": "accounts_public_view",
       "community": 2,
@@ -267,7 +307,7 @@
       "label": "_as_date()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L365",
+      "source_location": "L482",
       "_origin": "ast",
       "id": "accounts_as_date",
       "community": 2,
@@ -277,7 +317,7 @@
       "label": "months_active()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L369",
+      "source_location": "L486",
       "_origin": "ast",
       "id": "accounts_months_active",
       "community": 2,
@@ -287,7 +327,7 @@
       "label": "is_active()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L388",
+      "source_location": "L505",
       "_origin": "ast",
       "id": "accounts_is_active",
       "community": 2,
@@ -297,7 +337,7 @@
       "label": "current_monthly_cost()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L399",
+      "source_location": "L521",
       "_origin": "ast",
       "id": "accounts_current_monthly_cost",
       "community": 2,
@@ -307,7 +347,7 @@
       "label": "lifetime_spend()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L404",
+      "source_location": "L526",
       "_origin": "ast",
       "id": "accounts_lifetime_spend",
       "community": 2,
@@ -317,7 +357,7 @@
       "label": "_healthy()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L429",
+      "source_location": "L551",
       "_origin": "ast",
       "id": "accounts_healthy",
       "community": 2,
@@ -327,7 +367,7 @@
       "label": "account_score()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L435",
+      "source_location": "L557",
       "_origin": "ast",
       "id": "accounts_account_score",
       "community": 2,
@@ -337,7 +377,7 @@
       "label": "recommend()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L464",
+      "source_location": "L586",
       "_origin": "ast",
       "id": "accounts_recommend",
       "community": 2,
@@ -347,7 +387,7 @@
       "label": "dashboard_payload()",
       "file_type": "code",
       "source_file": "accounts.py",
-      "source_location": "L486",
+      "source_location": "L610",
       "_origin": "ast",
       "id": "accounts_dashboard_payload",
       "community": 2,
@@ -367,9 +407,9 @@
       "label": "Exclusive cross-process lock around a store read-modify-write cycle.      OAuth",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L42",
+      "source_location": "L44",
       "_origin": "ast",
-      "id": "accounts_rationale_42",
+      "id": "accounts_rationale_44",
       "community": 2,
       "norm_label": "exclusive cross-process lock around a store read-modify-write cycle.      oauth"
     },
@@ -377,9 +417,9 @@
       "label": "Load the account store from disk, returning empty store if missing.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L77",
+      "source_location": "L79",
       "_origin": "ast",
-      "id": "accounts_rationale_77",
+      "id": "accounts_rationale_79",
       "community": 2,
       "norm_label": "load the account store from disk, returning empty store if missing."
     },
@@ -387,9 +427,9 @@
       "label": "Atomically write the account store with mode 600.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L85",
+      "source_location": "L87",
       "_origin": "ast",
-      "id": "accounts_rationale_85",
+      "id": "accounts_rationale_87",
       "community": 2,
       "norm_label": "atomically write the account store with mode 600."
     },
@@ -397,9 +437,9 @@
       "label": "Insert or replace account record by email.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L96",
+      "source_location": "L98",
       "_origin": "ast",
-      "id": "accounts_rationale_96",
+      "id": "accounts_rationale_98",
       "community": 2,
       "norm_label": "insert or replace account record by email."
     },
@@ -407,9 +447,9 @@
       "label": "Refresh only the OAuth tokens (and optionally usage) of a tracked account.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L107",
+      "source_location": "L109",
       "_origin": "ast",
-      "id": "accounts_rationale_107",
+      "id": "accounts_rationale_109",
       "community": 2,
       "norm_label": "refresh only the oauth tokens (and optionally usage) of a tracked account."
     },
@@ -417,9 +457,9 @@
       "label": "Mark which account currently owns the Claude Code keychain credentials.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L128",
+      "source_location": "L135",
       "_origin": "ast",
-      "id": "accounts_rationale_128",
+      "id": "accounts_rationale_135",
       "community": 2,
       "norm_label": "mark which account currently owns the claude code keychain credentials."
     },
@@ -427,19 +467,29 @@
       "label": "Read the live Claude Code keychain credentials as an oauth dict.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L138",
+      "source_location": "L145",
       "_origin": "ast",
-      "id": "accounts_rationale_138",
+      "id": "accounts_rationale_145",
       "community": 2,
       "norm_label": "read the live claude code keychain credentials as an oauth dict."
+    },
+    {
+      "label": "Return the API error message and optional Retry-After delay.",
+      "file_type": "rationale",
+      "source_file": "accounts.py",
+      "source_location": "L184",
+      "_origin": "ast",
+      "id": "accounts_rationale_184",
+      "community": 2,
+      "norm_label": "return the api error message and optional retry-after delay."
     },
     {
       "label": "Return True if the access token is expired or expiry is unknown.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L179",
+      "source_location": "L212",
       "_origin": "ast",
-      "id": "accounts_rationale_179",
+      "id": "accounts_rationale_212",
       "community": 2,
       "norm_label": "return true if the access token is expired or expiry is unknown."
     },
@@ -447,9 +497,9 @@
       "label": "Exchange a refresh token for a new access token; return updated oauth dict.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L188",
+      "source_location": "L221",
       "_origin": "ast",
-      "id": "accounts_rationale_188",
+      "id": "accounts_rationale_221",
       "community": 2,
       "norm_label": "exchange a refresh token for a new access token; return updated oauth dict."
     },
@@ -457,9 +507,9 @@
       "label": "Extract five_hour and seven_day windows from the raw API response.      Tolerate",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L203",
+      "source_location": "L236",
       "_origin": "ast",
-      "id": "accounts_rationale_203",
+      "id": "accounts_rationale_236",
       "community": 2,
       "norm_label": "extract five_hour and seven_day windows from the raw api response.      tolerate"
     },
@@ -467,9 +517,9 @@
       "label": "Return the account email for an access token (identity check).",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L230",
+      "source_location": "L263",
       "_origin": "ast",
-      "id": "accounts_rationale_230",
+      "id": "accounts_rationale_263",
       "community": 2,
       "norm_label": "return the account email for an access token (identity check)."
     },
@@ -477,9 +527,9 @@
       "label": "Fetch current usage for a single account; returns parsed usage dict.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L239",
+      "source_location": "L272",
       "_origin": "ast",
-      "id": "accounts_rationale_239",
+      "id": "accounts_rationale_272",
       "community": 2,
       "norm_label": "fetch current usage for a single account; returns parsed usage dict."
     },
@@ -487,19 +537,29 @@
       "label": "Refresh tokens as needed, fetch usage for every account, persist cache.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L254",
+      "source_location": "L287",
       "_origin": "ast",
-      "id": "accounts_rationale_254",
+      "id": "accounts_rationale_287",
       "community": 2,
       "norm_label": "refresh tokens as needed, fetch usage for every account, persist cache."
+    },
+    {
+      "label": "Persist a 403/429 usage error while retaining cached usage windows.",
+      "file_type": "rationale",
+      "source_file": "accounts.py",
+      "source_location": "L295",
+      "_origin": "ast",
+      "id": "accounts_rationale_295",
+      "community": 2,
+      "norm_label": "persist a 403/429 usage error while retaining cached usage windows."
     },
     {
       "label": "Return (color_hi, color_lo) for a given remaining-capacity percentage.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L310",
+      "source_location": "L424",
       "_origin": "ast",
-      "id": "accounts_rationale_310",
+      "id": "accounts_rationale_424",
       "community": 2,
       "norm_label": "return (color_hi, color_lo) for a given remaining-capacity percentage."
     },
@@ -507,9 +567,9 @@
       "label": "Return calendar days until the next billing renewal date.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L318",
+      "source_location": "L432",
       "_origin": "ast",
-      "id": "accounts_rationale_318",
+      "id": "accounts_rationale_432",
       "community": 2,
       "norm_label": "return calendar days until the next billing renewal date."
     },
@@ -517,9 +577,9 @@
       "label": "Strip credentials; return everything the dashboard JS needs.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L330",
+      "source_location": "L444",
       "_origin": "ast",
-      "id": "accounts_rationale_330",
+      "id": "accounts_rationale_444",
       "community": 2,
       "norm_label": "strip credentials; return everything the dashboard js needs."
     },
@@ -527,29 +587,29 @@
       "label": "Total prorated months a subscription has been active across all intervals.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L370",
+      "source_location": "L487",
       "_origin": "ast",
-      "id": "accounts_rationale_370",
+      "id": "accounts_rationale_487",
       "community": 2,
       "norm_label": "total prorated months a subscription has been active across all intervals."
     },
     {
-      "label": "True if any subscription interval is open on `today`.",
+      "label": "True when the latest charge still covers today, with interval fallback.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L389",
+      "source_location": "L506",
       "_origin": "ast",
-      "id": "accounts_rationale_389",
+      "id": "accounts_rationale_506",
       "community": 2,
-      "norm_label": "true if any subscription interval is open on `today`."
+      "norm_label": "true when the latest charge still covers today, with interval fallback."
     },
     {
       "label": "The monthly_cost if the account is currently subscribed, else 0.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L400",
+      "source_location": "L522",
       "_origin": "ast",
-      "id": "accounts_rationale_400",
+      "id": "accounts_rationale_522",
       "community": 2,
       "norm_label": "the monthly_cost if the account is currently subscribed, else 0."
     },
@@ -557,9 +617,9 @@
       "label": "Total USD spent on this subscription to date.      Prefers the actual `charges`",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L405",
+      "source_location": "L527",
       "_origin": "ast",
-      "id": "accounts_rationale_405",
+      "id": "accounts_rationale_527",
       "community": 2,
       "norm_label": "total usd spent on this subscription to date.      prefers the actual `charges`"
     },
@@ -567,9 +627,9 @@
       "label": "An entry is usable if it errored-free and has both usage windows.",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L430",
+      "source_location": "L552",
       "_origin": "ast",
-      "id": "accounts_rationale_430",
+      "id": "accounts_rationale_552",
       "community": 2,
       "norm_label": "an entry is usable if it errored-free and has both usage windows."
     },
@@ -577,9 +637,9 @@
       "label": "Return (0-100 score, human reasons) for a public_view entry.      `entry` must a",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L436",
+      "source_location": "L558",
       "_origin": "ast",
-      "id": "accounts_rationale_436",
+      "id": "accounts_rationale_558",
       "community": 2,
       "norm_label": "return (0-100 score, human reasons) for a public_view entry.      `entry` must a"
     },
@@ -587,9 +647,9 @@
       "label": "Pick the optimal account email + per-account {score, reasons}.      Ties break t",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L465",
+      "source_location": "L587",
       "_origin": "ast",
-      "id": "accounts_rationale_465",
+      "id": "accounts_rationale_587",
       "community": 2,
       "norm_label": "pick the optimal account email + per-account {score, reasons}.      ties break t"
     },
@@ -597,9 +657,9 @@
       "label": "Full dashboard JSON: per-account orbs + cost/lifetime + optimal pick.      Compo",
       "file_type": "rationale",
       "source_file": "accounts.py",
-      "source_location": "L487",
+      "source_location": "L611",
       "_origin": "ast",
-      "id": "accounts_rationale_487",
+      "id": "accounts_rationale_611",
       "community": 2,
       "norm_label": "full dashboard json: per-account orbs + cost/lifetime + optimal pick.      compo"
     },
@@ -800,7 +860,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "cli_fmt",
-      "community": 21,
+      "community": 22,
       "norm_label": "fmt()"
     },
     {
@@ -1487,7 +1547,7 @@
       "label": "get_accounts_data()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1653",
+      "source_location": "L1683",
       "_origin": "ast",
       "id": "dashboard_get_accounts_data",
       "community": 17,
@@ -1497,7 +1557,7 @@
       "label": "find_icon_file()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1663",
+      "source_location": "L1693",
       "_origin": "ast",
       "id": "dashboard_find_icon_file",
       "community": 17,
@@ -1507,7 +1567,7 @@
       "label": "DashboardHandler",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1684",
+      "source_location": "L1714",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler",
       "community": 17,
@@ -1527,7 +1587,7 @@
       "label": ".log_message()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1685",
+      "source_location": "L1715",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_log_message",
       "community": 17,
@@ -1537,7 +1597,7 @@
       "label": "._send_json()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1688",
+      "source_location": "L1718",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_send_json",
       "community": 17,
@@ -1547,7 +1607,7 @@
       "label": ".do_GET()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1696",
+      "source_location": "L1726",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_do_get",
       "community": 17,
@@ -1557,7 +1617,7 @@
       "label": ".do_POST()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1767",
+      "source_location": "L1797",
       "_origin": "ast",
       "id": "dashboard_dashboardhandler_do_post",
       "community": 17,
@@ -1567,7 +1627,7 @@
       "label": "serve()",
       "file_type": "code",
       "source_file": "dashboard.py",
-      "source_location": "L1810",
+      "source_location": "L1840",
       "_origin": "ast",
       "id": "dashboard_serve",
       "community": 22,
@@ -1587,9 +1647,9 @@
       "label": "Account limit data for the orb row; credential-free public view.",
       "file_type": "rationale",
       "source_file": "dashboard.py",
-      "source_location": "L1654",
+      "source_location": "L1684",
       "_origin": "ast",
-      "id": "dashboard_rationale_1654",
+      "id": "dashboard_rationale_1684",
       "community": 17,
       "norm_label": "account limit data for the orb row; credential-free public view."
     },
@@ -1597,9 +1657,9 @@
       "label": "Locate the extension's icon.svg across both run contexts.      - Bundled in the",
       "file_type": "rationale",
       "source_file": "dashboard.py",
-      "source_location": "L1664",
+      "source_location": "L1694",
       "_origin": "ast",
-      "id": "dashboard_rationale_1664",
+      "id": "dashboard_rationale_1694",
       "community": 17,
       "norm_label": "locate the extension's icon.svg across both run contexts.      - bundled in the"
     },
@@ -2837,7 +2897,7 @@
       "label": "_acct()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L12",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "tests_test_accounts_acct",
       "community": 7,
@@ -2847,7 +2907,7 @@
       "label": "test_store_round_trip()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L26",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "tests_test_accounts_test_store_round_trip",
       "community": 7,
@@ -2857,7 +2917,7 @@
       "label": "test_store_file_mode_600()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L33",
+      "source_location": "L38",
       "_origin": "ast",
       "id": "tests_test_accounts_test_store_file_mode_600",
       "community": 7,
@@ -2867,7 +2927,7 @@
       "label": "test_load_missing_store_returns_empty()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L40",
+      "source_location": "L45",
       "_origin": "ast",
       "id": "tests_test_accounts_test_load_missing_store_returns_empty",
       "community": 7,
@@ -2877,7 +2937,7 @@
       "label": "test_upsert_replaces_by_email()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L44",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "tests_test_accounts_test_upsert_replaces_by_email",
       "community": 7,
@@ -2887,7 +2947,7 @@
       "label": "_expired_acct()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L57",
+      "source_location": "L62",
       "_origin": "ast",
       "id": "tests_test_accounts_expired_acct",
       "community": 7,
@@ -2897,7 +2957,7 @@
       "label": "test_fetch_refreshes_expired_token()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L69",
+      "source_location": "L74",
       "_origin": "ast",
       "id": "tests_test_accounts_test_fetch_refreshes_expired_token",
       "community": 7,
@@ -2907,7 +2967,7 @@
       "label": "test_fetch_skips_refresh_when_token_fresh()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L85",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "tests_test_accounts_test_fetch_skips_refresh_when_token_fresh",
       "community": 7,
@@ -2917,7 +2977,7 @@
       "label": "test_refresh_failure_grays_account_not_others()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L99",
+      "source_location": "L104",
       "_origin": "ast",
       "id": "tests_test_accounts_test_refresh_failure_grays_account_not_others",
       "community": 7,
@@ -2927,7 +2987,7 @@
       "label": "test_stale_refresh_but_valid_access_token_still_fetches()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L124",
+      "source_location": "L129",
       "_origin": "ast",
       "id": "tests_test_accounts_test_stale_refresh_but_valid_access_token_still_fetches",
       "community": 7,
@@ -2937,7 +2997,7 @@
       "label": "test_rotated_tokens_persist_when_usage_fetch_fails()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L137",
+      "source_location": "L142",
       "_origin": "ast",
       "id": "tests_test_accounts_test_rotated_tokens_persist_when_usage_fetch_fails",
       "community": 7,
@@ -2947,7 +3007,7 @@
       "label": "test_malformed_usage_response_grays_account()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L154",
+      "source_location": "L159",
       "_origin": "ast",
       "id": "tests_test_accounts_test_malformed_usage_response_grays_account",
       "community": 7,
@@ -2957,7 +3017,7 @@
       "label": "test_color_ramp_boundaries()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L169",
+      "source_location": "L174",
       "_origin": "ast",
       "id": "tests_test_accounts_test_color_ramp_boundaries",
       "community": 7,
@@ -2967,7 +3027,7 @@
       "label": "test_days_until_renewal_same_month()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L178",
+      "source_location": "L183",
       "_origin": "ast",
       "id": "tests_test_accounts_test_days_until_renewal_same_month",
       "community": 7,
@@ -2977,7 +3037,7 @@
       "label": "test_days_until_renewal_today_is_zero()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L183",
+      "source_location": "L188",
       "_origin": "ast",
       "id": "tests_test_accounts_test_days_until_renewal_today_is_zero",
       "community": 7,
@@ -2987,7 +3047,7 @@
       "label": "test_days_until_renewal_rolls_to_next_month()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L188",
+      "source_location": "L193",
       "_origin": "ast",
       "id": "tests_test_accounts_test_days_until_renewal_rolls_to_next_month",
       "community": 7,
@@ -2997,7 +3057,7 @@
       "label": "test_days_until_renewal_clamps_short_month()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L193",
+      "source_location": "L198",
       "_origin": "ast",
       "id": "tests_test_accounts_test_days_until_renewal_clamps_short_month",
       "community": 7,
@@ -3007,7 +3067,7 @@
       "label": "test_public_view_strips_oauth()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L198",
+      "source_location": "L203",
       "_origin": "ast",
       "id": "tests_test_accounts_test_public_view_strips_oauth",
       "community": 7,
@@ -3017,7 +3077,7 @@
       "label": "test_public_view_remaining_is_int()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L213",
+      "source_location": "L218",
       "_origin": "ast",
       "id": "tests_test_accounts_test_public_view_remaining_is_int",
       "community": 7,
@@ -3027,7 +3087,7 @@
       "label": "test_401_on_fresh_token_forces_refresh_and_retries()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L226",
+      "source_location": "L231",
       "_origin": "ast",
       "id": "tests_test_accounts_test_401_on_fresh_token_forces_refresh_and_retries",
       "community": 7,
@@ -3037,7 +3097,7 @@
       "label": "_full_acct()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L255",
+      "source_location": "L260",
       "_origin": "ast",
       "id": "tests_test_accounts_full_acct",
       "community": 7,
@@ -3047,7 +3107,7 @@
       "label": "test_update_oauth_preserves_billing_history()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L270",
+      "source_location": "L275",
       "_origin": "ast",
       "id": "tests_test_accounts_test_update_oauth_preserves_billing_history",
       "community": 7,
@@ -3057,7 +3117,7 @@
       "label": "test_update_oauth_without_usage_keeps_prior_usage()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L286",
+      "source_location": "L291",
       "_origin": "ast",
       "id": "tests_test_accounts_test_update_oauth_without_usage_keeps_prior_usage",
       "community": 7,
@@ -3067,11 +3127,191 @@
       "label": "test_update_oauth_unknown_email_returns_false()",
       "file_type": "code",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L297",
+      "source_location": "L302",
       "_origin": "ast",
       "id": "tests_test_accounts_test_update_oauth_unknown_email_returns_false",
       "community": 7,
       "norm_label": "test_update_oauth_unknown_email_returns_false()"
+    },
+    {
+      "label": "TestUsageCooldowns",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L308",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns",
+      "community": 7,
+      "norm_label": "testusagecooldowns"
+    },
+    {
+      "label": ".setUp()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L311",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_setup",
+      "community": 7,
+      "norm_label": ".setup()"
+    },
+    {
+      "label": ".tearDown()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L316",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_teardown",
+      "community": 7,
+      "norm_label": ".teardown()"
+    },
+    {
+      "label": "._http_error()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L321",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_http_error",
+      "community": 7,
+      "norm_label": "._http_error()"
+    },
+    {
+      "label": "._cached_account()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L336",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_cached_account",
+      "community": 7,
+      "norm_label": "._cached_account()"
+    },
+    {
+      "label": "._fetch_with_usage()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L345",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_fetch_with_usage",
+      "community": 7,
+      "norm_label": "._fetch_with_usage()"
+    },
+    {
+      "label": ".assert_retry_delay()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L357",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_assert_retry_delay",
+      "community": 7,
+      "norm_label": ".assert_retry_delay()"
+    },
+    {
+      "label": ".test_429_honors_retry_after_and_preserves_windows()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L368",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_429_honors_retry_after_and_preserves_windows",
+      "community": 7,
+      "norm_label": ".test_429_honors_retry_after_and_preserves_windows()"
+    },
+    {
+      "label": ".test_chained_failures_preserve_original_success_time()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L385",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_chained_failures_preserve_original_success_time",
+      "community": 7,
+      "norm_label": ".test_chained_failures_preserve_original_success_time()"
+    },
+    {
+      "label": ".test_429_without_retry_after_uses_fallback()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L401",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_429_without_retry_after_uses_fallback",
+      "community": 7,
+      "norm_label": ".test_429_without_retry_after_uses_fallback()"
+    },
+    {
+      "label": ".test_future_cooldown_skips_all_account_http_and_preserves_usage()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L408",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_future_cooldown_skips_all_account_http_and_preserves_usage",
+      "community": 7,
+      "norm_label": ".test_future_cooldown_skips_all_account_http_and_preserves_usage()"
+    },
+    {
+      "label": ".test_expired_cooldown_fetches_again()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L435",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_expired_cooldown_fetches_again",
+      "community": 7,
+      "norm_label": ".test_expired_cooldown_fetches_again()"
+    },
+    {
+      "label": ".test_403_surfaces_api_message_and_does_not_refresh()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L452",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_403_surfaces_api_message_and_does_not_refresh",
+      "community": 7,
+      "norm_label": ".test_403_surfaces_api_message_and_does_not_refresh()"
+    },
+    {
+      "label": ".test_401_still_force_refreshes_once_and_retries()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L475",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_401_still_force_refreshes_once_and_retries",
+      "community": 7,
+      "norm_label": ".test_401_still_force_refreshes_once_and_retries()"
+    },
+    {
+      "label": ".test_keychain_403_does_not_fall_back_to_stored_credentials()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L497",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_keychain_403_does_not_fall_back_to_stored_credentials",
+      "community": 7,
+      "norm_label": ".test_keychain_403_does_not_fall_back_to_stored_credentials()"
+    },
+    {
+      "label": ".test_success_clears_prior_error_metadata()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L509",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_success_clears_prior_error_metadata",
+      "community": 7,
+      "norm_label": ".test_success_clears_prior_error_metadata()"
+    },
+    {
+      "label": ".test_transient_error_clears_prior_cooldown_metadata()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L528",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_transient_error_clears_prior_cooldown_metadata",
+      "community": 7,
+      "norm_label": ".test_transient_error_clears_prior_cooldown_metadata()"
+    },
+    {
+      "label": ".test_public_view_passes_error_kind_and_retry_until()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L552",
+      "_origin": "ast",
+      "id": "tests_test_accounts_testusagecooldowns_test_public_view_passes_error_kind_and_retry_until",
+      "community": 7,
+      "norm_label": ".test_public_view_passes_error_kind_and_retry_until()"
     },
     {
       "label": "Tests for accounts.py \u2014 store layer, token refresh, usage fetch, presentation.",
@@ -3087,9 +3327,9 @@
       "label": "Refresh AND usage fetch both fail -> that account grays; others fine.",
       "file_type": "rationale",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L100",
+      "source_location": "L105",
       "_origin": "ast",
-      "id": "tests_test_accounts_rationale_100",
+      "id": "tests_test_accounts_rationale_105",
       "community": 7,
       "norm_label": "refresh and usage fetch both fail -> that account grays; others fine."
     },
@@ -3097,9 +3337,9 @@
       "label": "Refresh endpoint failing (429/dead) must not gray an account whose     access to",
       "file_type": "rationale",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L125",
+      "source_location": "L130",
       "_origin": "ast",
-      "id": "tests_test_accounts_rationale_125",
+      "id": "tests_test_accounts_rationale_130",
       "community": 7,
       "norm_label": "refresh endpoint failing (429/dead) must not gray an account whose     access to"
     },
@@ -3107,9 +3347,9 @@
       "label": "Refresh succeeds (tokens rotated) but usage fetch fails \u2014 rotated     tokens MUS",
       "file_type": "rationale",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L138",
+      "source_location": "L143",
       "_origin": "ast",
-      "id": "tests_test_accounts_rationale_138",
+      "id": "tests_test_accounts_rationale_143",
       "community": 7,
       "norm_label": "refresh succeeds (tokens rotated) but usage fetch fails \u2014 rotated     tokens mus"
     },
@@ -3117,11 +3357,21 @@
       "label": "Access token invalidated before expires_at (rotated elsewhere) \u2014 one forced refr",
       "file_type": "rationale",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L227",
+      "source_location": "L232",
       "_origin": "ast",
-      "id": "tests_test_accounts_rationale_227",
+      "id": "tests_test_accounts_rationale_232",
       "community": 7,
       "norm_label": "access token invalidated before expires_at (rotated elsewhere) \u2014 one forced refr"
+    },
+    {
+      "label": "Regression coverage for server-directed usage API cooldowns.",
+      "file_type": "rationale",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L309",
+      "_origin": "ast",
+      "id": "tests_test_accounts_rationale_309",
+      "community": 7,
+      "norm_label": "regression coverage for server-directed usage api cooldowns."
     },
     {
       "label": "test_accounts_cost.py",
@@ -3137,7 +3387,7 @@
       "label": "_acct()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L13",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_acct",
       "community": 11,
@@ -3147,7 +3397,7 @@
       "label": "_entry()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L22",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_entry",
       "community": 11,
@@ -3157,7 +3407,7 @@
       "label": "test_open_interval_counts_through_today()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L41",
+      "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_open_interval_counts_through_today",
       "community": 11,
@@ -3167,7 +3417,7 @@
       "label": "test_closed_interval_uses_its_end()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L47",
+      "source_location": "L59",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_closed_interval_uses_its_end",
       "community": 11,
@@ -3177,7 +3427,7 @@
       "label": "test_gap_intervals_sum_only_active_days()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L52",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_gap_intervals_sum_only_active_days",
       "community": 11,
@@ -3187,7 +3437,7 @@
       "label": "test_future_start_and_inverted_contribute_nothing()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L60",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_future_start_and_inverted_contribute_nothing",
       "community": 11,
@@ -3197,7 +3447,7 @@
       "label": "test_open_end_capped_at_today_not_future()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L68",
+      "source_location": "L80",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_open_end_capped_at_today_not_future",
       "community": 11,
@@ -3207,7 +3457,7 @@
       "label": "test_empty_intervals_zero()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L74",
+      "source_location": "L86",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_empty_intervals_zero",
       "community": 11,
@@ -3217,7 +3467,7 @@
       "label": "test_lifetime_spend_is_cost_times_months()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L81",
+      "source_location": "L93",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_lifetime_spend_is_cost_times_months",
       "community": 11,
@@ -3227,7 +3477,7 @@
       "label": "test_is_active_true_for_open_interval()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L87",
+      "source_location": "L99",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_is_active_true_for_open_interval",
       "community": 11,
@@ -3237,7 +3487,7 @@
       "label": "test_is_active_false_when_cancelled()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L92",
+      "source_location": "L104",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_is_active_false_when_cancelled",
       "community": 11,
@@ -3247,7 +3497,7 @@
       "label": "test_current_monthly_cost_zero_when_inactive()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L97",
+      "source_location": "L109",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_current_monthly_cost_zero_when_inactive",
       "community": 11,
@@ -3257,7 +3507,7 @@
       "label": "test_current_monthly_cost_full_when_active()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L102",
+      "source_location": "L114",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_current_monthly_cost_full_when_active",
       "community": 11,
@@ -3267,7 +3517,7 @@
       "label": "test_unhealthy_entry_scores_zero()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L109",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_unhealthy_entry_scores_zero",
       "community": 11,
@@ -3277,7 +3527,7 @@
       "label": "test_main_account_gets_bonus_over_identical_secondary()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L114",
+      "source_location": "L126",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_main_account_gets_bonus_over_identical_secondary",
       "community": 11,
@@ -3287,7 +3537,7 @@
       "label": "test_throttled_5h_flagged_in_reasons()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L120",
+      "source_location": "L132",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_throttled_5h_flagged_in_reasons",
       "community": 11,
@@ -3297,7 +3547,7 @@
       "label": "test_soon_renewal_with_high_weekly_boosts_score()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L125",
+      "source_location": "L137",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_soon_renewal_with_high_weekly_boosts_score",
       "community": 11,
@@ -3307,7 +3557,7 @@
       "label": "test_main_wins_when_all_have_headroom()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L133",
+      "source_location": "L145",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_main_wins_when_all_have_headroom",
       "community": 11,
@@ -3317,7 +3567,7 @@
       "label": "test_secondary_wins_when_main_throttled()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L143",
+      "source_location": "L155",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_secondary_wins_when_main_throttled",
       "community": 11,
@@ -3327,17 +3577,87 @@
       "label": "test_all_unhealthy_falls_back_to_main()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L152",
+      "source_location": "L164",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_all_unhealthy_falls_back_to_main",
       "community": 11,
       "norm_label": "test_all_unhealthy_falls_back_to_main()"
     },
     {
+      "label": "TestChargeBasedActivityAndRecommendation",
+      "file_type": "code",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L173",
+      "_origin": "ast",
+      "id": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "community": 11,
+      "norm_label": "testchargebasedactivityandrecommendation"
+    },
+    {
+      "label": ".test_fresh_charge_is_active_even_when_interval_is_closed()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L174",
+      "_origin": "ast",
+      "id": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_fresh_charge_is_active_even_when_interval_is_closed",
+      "community": 11,
+      "norm_label": ".test_fresh_charge_is_active_even_when_interval_is_closed()"
+    },
+    {
+      "label": ".test_old_charge_is_inactive_even_when_interval_is_open()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L182",
+      "_origin": "ast",
+      "id": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_old_charge_is_inactive_even_when_interval_is_open",
+      "community": 11,
+      "norm_label": ".test_old_charge_is_inactive_even_when_interval_is_open()"
+    },
+    {
+      "label": ".test_charge_activity_boundary_is_paid_through_30_days()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L189",
+      "_origin": "ast",
+      "id": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_charge_activity_boundary_is_paid_through_30_days",
+      "community": 11,
+      "norm_label": ".test_charge_activity_boundary_is_paid_through_30_days()"
+    },
+    {
+      "label": ".test_empty_or_missing_charges_fall_back_to_intervals()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L197",
+      "_origin": "ast",
+      "id": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_empty_or_missing_charges_fall_back_to_intervals",
+      "community": 11,
+      "norm_label": ".test_empty_or_missing_charges_fall_back_to_intervals()"
+    },
+    {
+      "label": ".test_recommend_never_picks_inactive_when_active_entry_exists()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L209",
+      "_origin": "ast",
+      "id": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_recommend_never_picks_inactive_when_active_entry_exists",
+      "community": 11,
+      "norm_label": ".test_recommend_never_picks_inactive_when_active_entry_exists()"
+    },
+    {
+      "label": ".test_recommend_falls_back_to_main_when_nothing_is_active()",
+      "file_type": "code",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L217",
+      "_origin": "ast",
+      "id": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_recommend_falls_back_to_main_when_nothing_is_active",
+      "community": 11,
+      "norm_label": ".test_recommend_falls_back_to_main_when_nothing_is_active()"
+    },
+    {
       "label": "test_dashboard_payload_shape_and_totals()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L163",
+      "source_location": "L228",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_dashboard_payload_shape_and_totals",
       "community": 11,
@@ -3347,7 +3667,7 @@
       "label": "test_lifetime_prefers_charges_ledger_over_proration()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L203",
+      "source_location": "L268",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_lifetime_prefers_charges_ledger_over_proration",
       "community": 11,
@@ -3357,7 +3677,7 @@
       "label": "test_lifetime_falls_back_to_proration_without_charges()",
       "file_type": "code",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L213",
+      "source_location": "L278",
       "_origin": "ast",
       "id": "tests_test_accounts_cost_test_lifetime_falls_back_to_proration_without_charges",
       "community": 11,
@@ -3377,9 +3697,9 @@
       "label": "A public_view-shaped entry for score/recommend tests.",
       "file_type": "rationale",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L23",
+      "source_location": "L34",
       "_origin": "ast",
-      "id": "tests_test_accounts_cost_rationale_23",
+      "id": "tests_test_accounts_cost_rationale_34",
       "community": 11,
       "norm_label": "a public_view-shaped entry for score/recommend tests."
     },
@@ -3890,7 +4210,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_cli",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_cli.py"
     },
     {
@@ -4180,7 +4500,7 @@
       "source_location": "L159",
       "_origin": "ast",
       "id": "tests_test_cli_testfmt",
-      "community": 21,
+      "community": 22,
       "norm_label": "testfmt"
     },
     {
@@ -4190,7 +4510,7 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "tests_test_cli_testfmt_test_millions",
-      "community": 21,
+      "community": 22,
       "norm_label": ".test_millions()"
     },
     {
@@ -4200,7 +4520,7 @@
       "source_location": "L164",
       "_origin": "ast",
       "id": "tests_test_cli_testfmt_test_thousands",
-      "community": 21,
+      "community": 22,
       "norm_label": ".test_thousands()"
     },
     {
@@ -4210,7 +4530,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "tests_test_cli_testfmt_test_small_numbers",
-      "community": 21,
+      "community": 22,
       "norm_label": ".test_small_numbers()"
     },
     {
@@ -4220,7 +4540,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "tests_test_cli_testfmtcost",
-      "community": 19,
+      "community": 9,
       "norm_label": "testfmtcost"
     },
     {
@@ -4230,7 +4550,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "tests_test_cli_testfmtcost_test_formatting",
-      "community": 19,
+      "community": 9,
       "norm_label": ".test_formatting()"
     },
     {
@@ -4280,7 +4600,7 @@
       "source_location": "L202",
       "_origin": "ast",
       "id": "tests_test_cli_testdashboardnobrowser",
-      "community": 19,
+      "community": 9,
       "norm_label": "testdashboardnobrowser"
     },
     {
@@ -4290,7 +4610,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "tests_test_cli_testdashboardnobrowser_test_no_browser_suppresses_webbrowser",
-      "community": 19,
+      "community": 9,
       "norm_label": ".test_no_browser_suppresses_webbrowser()"
     },
     {
@@ -4300,7 +4620,7 @@
       "source_location": "L222",
       "_origin": "ast",
       "id": "tests_test_cli_test_parse_keychain_credentials",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_parse_keychain_credentials()"
     },
     {
@@ -4310,7 +4630,7 @@
       "source_location": "L233",
       "_origin": "ast",
       "id": "tests_test_cli_test_accounts_remove_without_email_prints_usage",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_accounts_remove_without_email_prints_usage()"
     },
     {
@@ -4320,7 +4640,7 @@
       "source_location": "L248",
       "_origin": "ast",
       "id": "tests_test_cli_test_quiet_existing_account_recaptures_not_upserts",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_quiet_existing_account_recaptures_not_upserts()"
     },
     {
@@ -4330,7 +4650,7 @@
       "source_location": "L263",
       "_origin": "ast",
       "id": "tests_test_cli_test_quiet_new_account_without_billing_exits",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_quiet_new_account_without_billing_exits()"
     },
     {
@@ -4340,7 +4660,7 @@
       "source_location": "L276",
       "_origin": "ast",
       "id": "tests_test_cli_test_quiet_new_account_with_billing_day_upserts",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_quiet_new_account_with_billing_day_upserts()"
     },
     {
@@ -4350,7 +4670,7 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "tests_test_cli_test_refresh_calls_fetch_all_and_reports",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_refresh_calls_fetch_all_and_reports()"
     },
     {
@@ -4360,7 +4680,7 @@
       "source_location": "L308",
       "_origin": "ast",
       "id": "tests_test_cli_test_freshness_tick_invokes_run_once",
-      "community": 19,
+      "community": 9,
       "norm_label": "test_freshness_tick_invokes_run_once()"
     },
     {
@@ -4370,7 +4690,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_cli_rationale_1",
-      "community": 19,
+      "community": 9,
       "norm_label": "tests for cli.py - pricing, formatting, and cost calculation."
     },
     {
@@ -4410,7 +4730,7 @@
       "source_location": "L203",
       "_origin": "ast",
       "id": "tests_test_cli_rationale_203",
-      "community": 19,
+      "community": 9,
       "norm_label": "the vs code extension passes --no-browser; cli users get a browser."
     },
     {
@@ -4420,7 +4740,7 @@
       "source_location": "L249",
       "_origin": "ast",
       "id": "tests_test_cli_rationale_249",
-      "community": 19,
+      "community": 9,
       "norm_label": "existing account -> update_oauth (preserve history), never upsert."
     },
     {
@@ -4430,7 +4750,7 @@
       "source_location": "L264",
       "_origin": "ast",
       "id": "tests_test_cli_rationale_264",
-      "community": 19,
+      "community": 9,
       "norm_label": "a brand-new account in --quiet mode can't prompt -> hard exit."
     },
     {
@@ -4440,7 +4760,7 @@
       "source_location": "L277",
       "_origin": "ast",
       "id": "tests_test_cli_rationale_277",
-      "community": 19,
+      "community": 9,
       "norm_label": "new account + --billing-day registers a full record non-interactively."
     },
     {
@@ -4450,7 +4770,7 @@
       "source_location": "L294",
       "_origin": "ast",
       "id": "tests_test_cli_rationale_294",
-      "community": 19,
+      "community": 9,
       "norm_label": "accounts refresh' rotates via fetch_all_usage (no http server)."
     },
     {
@@ -5030,7 +5350,7 @@
       "source_location": "L241",
       "_origin": "ast",
       "id": "tests_test_dashboard_testnonbillablemodelfallback",
-      "community": 16,
+      "community": 17,
       "norm_label": "testnonbillablemodelfallback"
     },
     {
@@ -5040,7 +5360,7 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "tests_test_dashboard_testnonbillablemodelfallback_test_readurlmodels_fallback_in_html_template",
-      "community": 16,
+      "community": 17,
       "norm_label": ".test_readurlmodels_fallback_in_html_template()"
     },
     {
@@ -5224,10 +5544,70 @@
       "norm_label": ".test_today_range_button_present()"
     },
     {
+      "label": ".test_stale_accounts_render_cached_orbs_with_stale_badge()",
+      "file_type": "code",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L382",
+      "_origin": "ast",
+      "id": "tests_test_dashboard_testhtmltemplate_test_stale_accounts_render_cached_orbs_with_stale_badge",
+      "community": 23,
+      "norm_label": ".test_stale_accounts_render_cached_orbs_with_stale_badge()"
+    },
+    {
+      "label": ".test_account_errors_render_kind_specific_advice()",
+      "file_type": "code",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L390",
+      "_origin": "ast",
+      "id": "tests_test_dashboard_testhtmltemplate_test_account_errors_render_kind_specific_advice",
+      "community": 23,
+      "norm_label": ".test_account_errors_render_kind_specific_advice()"
+    },
+    {
+      "label": ".test_errored_accounts_cannot_show_use_me_badge()",
+      "file_type": "code",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L401",
+      "_origin": "ast",
+      "id": "tests_test_dashboard_testhtmltemplate_test_errored_accounts_cannot_show_use_me_badge",
+      "community": 23,
+      "norm_label": ".test_errored_accounts_cannot_show_use_me_badge()"
+    },
+    {
+      "label": ".test_inactive_accounts_render_before_error_handling()",
+      "file_type": "code",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L404",
+      "_origin": "ast",
+      "id": "tests_test_dashboard_testhtmltemplate_test_inactive_accounts_render_before_error_handling",
+      "community": 23,
+      "norm_label": ".test_inactive_accounts_render_before_error_handling()"
+    },
+    {
+      "label": ".test_inactive_accounts_render_quiet_cards()",
+      "file_type": "code",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L409",
+      "_origin": "ast",
+      "id": "tests_test_dashboard_testhtmltemplate_test_inactive_accounts_render_quiet_cards",
+      "community": 23,
+      "norm_label": ".test_inactive_accounts_render_quiet_cards()"
+    },
+    {
+      "label": ".test_inactive_accounts_are_excluded_from_best_percentage()",
+      "file_type": "code",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L420",
+      "_origin": "ast",
+      "id": "tests_test_dashboard_testhtmltemplate_test_inactive_accounts_are_excluded_from_best_percentage",
+      "community": 23,
+      "norm_label": ".test_inactive_accounts_are_excluded_from_best_percentage()"
+    },
+    {
       "label": "TestPricingParity",
       "file_type": "code",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L383",
+      "source_location": "L427",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity",
       "community": 17,
@@ -5237,7 +5617,7 @@
       "label": "._extract_js_pricing()",
       "file_type": "code",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L386",
+      "source_location": "L430",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity_extract_js_pricing",
       "community": 17,
@@ -5247,7 +5627,7 @@
       "label": ".test_all_cli_models_in_dashboard()",
       "file_type": "code",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L398",
+      "source_location": "L442",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity_test_all_cli_models_in_dashboard",
       "community": 17,
@@ -5257,7 +5637,7 @@
       "label": ".test_prices_match()",
       "file_type": "code",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L404",
+      "source_location": "L448",
       "_origin": "ast",
       "id": "tests_test_dashboard_testpricingparity_test_prices_match",
       "community": 17,
@@ -5267,7 +5647,7 @@
       "label": "test_api_accounts_returns_cached_view_without_network()",
       "file_type": "code",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L418",
+      "source_location": "L462",
       "_origin": "ast",
       "id": "tests_test_dashboard_test_api_accounts_returns_cached_view_without_network",
       "community": 15,
@@ -5277,7 +5657,7 @@
       "label": "test_api_accounts_refresh_calls_live_fetch()",
       "file_type": "code",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L434",
+      "source_location": "L478",
       "_origin": "ast",
       "id": "tests_test_dashboard_test_api_accounts_refresh_calls_live_fetch",
       "community": 15,
@@ -5320,7 +5700,7 @@
       "source_location": "L242",
       "_origin": "ast",
       "id": "tests_test_dashboard_rationale_242",
-      "community": 16,
+      "community": 17,
       "norm_label": "regression: when the user has only non-billable models (e.g. gemma, glm,     loc"
     },
     {
@@ -5397,9 +5777,9 @@
       "label": "Verify CLI and dashboard pricing tables stay in sync.",
       "file_type": "rationale",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L384",
+      "source_location": "L428",
       "_origin": "ast",
-      "id": "tests_test_dashboard_rationale_384",
+      "id": "tests_test_dashboard_rationale_428",
       "community": 17,
       "norm_label": "verify cli and dashboard pricing tables stay in sync."
     },
@@ -5407,9 +5787,9 @@
       "label": "Extract pricing values from the dashboard JS PRICING object.",
       "file_type": "rationale",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L387",
+      "source_location": "L431",
       "_origin": "ast",
-      "id": "tests_test_dashboard_rationale_387",
+      "id": "tests_test_dashboard_rationale_431",
       "community": 17,
       "norm_label": "extract pricing values from the dashboard js pricing object."
     },
@@ -6210,7 +6590,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_receipts",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_receipts.py"
     },
     {
@@ -6220,7 +6600,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_is_total_paid_not_subtotal",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_amount_is_total_paid_not_subtotal()"
     },
     {
@@ -6230,7 +6610,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_prefers_amount_paid_over_total",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_amount_prefers_amount_paid_over_total()"
     },
     {
@@ -6240,7 +6620,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_handles_thousands_separator",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_amount_handles_thousands_separator()"
     },
     {
@@ -6250,7 +6630,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "tests_test_receipts_test_amount_none_when_absent",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_amount_none_when_absent()"
     },
     {
@@ -6260,7 +6640,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "tests_test_receipts_test_plan_extracts_max_20x",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_plan_extracts_max_20x()"
     },
     {
@@ -6270,7 +6650,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "tests_test_receipts_test_plan_extracts_pro",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_plan_extracts_pro()"
     },
     {
@@ -6280,7 +6660,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "tests_test_receipts_test_email_date_to_utc_iso",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_email_date_to_utc_iso()"
     },
     {
@@ -6290,7 +6670,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "tests_test_receipts_test_email_date_late_night_central_rolls_to_utc_day",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_email_date_late_night_central_rolls_to_utc_day()"
     },
     {
@@ -6300,7 +6680,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "tests_test_receipts_test_classify_kinds",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_classify_kinds()"
     },
     {
@@ -6310,7 +6690,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "tests_test_receipts_test_routes_direct_receipt_to_owner",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_routes_direct_receipt_to_owner()"
     },
     {
@@ -6320,7 +6700,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "tests_test_receipts_test_routes_forwarded_receipt_by_original_recipient",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_routes_forwarded_receipt_by_original_recipient()"
     },
     {
@@ -6330,7 +6710,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "tests_test_receipts_test_routes_unknown_to_owner",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_routes_unknown_to_owner()"
     },
     {
@@ -6340,7 +6720,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "tests_test_receipts_test_parse_receipt_charge_event",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_parse_receipt_charge_event()"
     },
     {
@@ -6350,7 +6730,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "tests_test_receipts_test_parse_receipt_ignores_marketing",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_parse_receipt_ignores_marketing()"
     },
     {
@@ -6360,7 +6740,7 @@
       "source_location": "L92",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_charge_appends_once_and_dedups",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_apply_charge_appends_once_and_dedups()"
     },
     {
@@ -6370,7 +6750,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_skips_api_paygo_charge_without_plan",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_apply_skips_api_paygo_charge_without_plan()"
     },
     {
@@ -6380,7 +6760,7 @@
       "source_location": "L111",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_charge_dedups_against_hand_seeded_ledger",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_apply_charge_dedups_against_hand_seeded_ledger()"
     },
     {
@@ -6390,7 +6770,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_start_opens_interval_when_uncovered",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_apply_start_opens_interval_when_uncovered()"
     },
     {
@@ -6400,7 +6780,7 @@
       "source_location": "L127",
       "_origin": "ast",
       "id": "tests_test_receipts_test_apply_cancel_closes_open_interval",
-      "community": 6,
+      "community": 16,
       "norm_label": "test_apply_cancel_closes_open_interval()"
     },
     {
@@ -6410,7 +6790,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tests_test_receipts_rationale_1",
-      "community": 6,
+      "community": 16,
       "norm_label": "tests for the anthropic receipt auto-ingest parser + idempotent ledger upsert."
     },
     {
@@ -7530,7 +7910,7 @@
       "source_location": "L183",
       "_origin": "ast",
       "id": "tests_test_views_testtablereport_capture",
-      "community": 10,
+      "community": 21,
       "norm_label": "._capture()"
     },
     {
@@ -7610,7 +7990,7 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "tests_test_views_testcardreport_capture",
-      "community": 10,
+      "community": 21,
       "norm_label": "._capture()"
     },
     {
@@ -7770,7 +8150,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "views_date_range",
-      "community": 25,
+      "community": 21,
       "norm_label": "_date_range()"
     },
     {
@@ -7850,7 +8230,7 @@
       "source_location": "L281",
       "_origin": "ast",
       "id": "views_spark_report",
-      "community": 27,
+      "community": 21,
       "norm_label": "spark_report()"
     },
     {
@@ -7870,7 +8250,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "views_rationale_18",
-      "community": 25,
+      "community": 21,
       "norm_label": "return (start_iso, end_iso) for a period string, or (none, none) for 'all'."
     },
     {
@@ -7940,7 +8320,7 @@
       "source_location": "L282",
       "_origin": "ast",
       "id": "views_rationale_282",
-      "community": 27,
+      "community": 21,
       "norm_label": "print a sparkline trend report. falls back to table for today/all."
     },
     {
@@ -9822,7 +10202,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "changelog",
-      "community": 49,
+      "community": 32,
       "norm_label": "changelog.md"
     },
     {
@@ -9836,10 +10216,40 @@
       "norm_label": "changelog"
     },
     {
-      "label": "Unreleased",
+      "label": "v1.3.1 \u2014 TBD",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
       "source_location": "L3",
+      "_origin": "ast",
+      "id": "changelog_v1_3_1_tbd",
+      "community": 51,
+      "norm_label": "v1.3.1 \u2014 tbd"
+    },
+    {
+      "label": "Dashboard",
+      "file_type": "document",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "changelog_dashboard",
+      "community": 51,
+      "norm_label": "dashboard"
+    },
+    {
+      "label": "Accounts",
+      "file_type": "document",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "changelog_accounts",
+      "community": 51,
+      "norm_label": "accounts"
+    },
+    {
+      "label": "Unreleased",
+      "file_type": "document",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "changelog_unreleased",
       "community": 14,
@@ -9849,7 +10259,7 @@
       "label": "Freshness + Claude 5",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L5",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "changelog_freshness_claude_5",
       "community": 14,
@@ -9859,7 +10269,7 @@
       "label": "Account orbs stay alive without manual re-login",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L13",
+      "source_location": "L25",
       "_origin": "ast",
       "id": "changelog_account_orbs_stay_alive_without_manual_re_login",
       "community": 14,
@@ -9869,7 +10279,7 @@
       "label": "v1.3.0 \u2014 2026-06-12",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L21",
+      "source_location": "L33",
       "_origin": "ast",
       "id": "changelog_v1_3_0_2026_06_12",
       "community": 30,
@@ -9879,7 +10289,7 @@
       "label": "Account limit orbs (multi-account)",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L23",
+      "source_location": "L35",
       "_origin": "ast",
       "id": "changelog_account_limit_orbs_multi_account",
       "community": 30,
@@ -9889,7 +10299,7 @@
       "label": "v1.2.4 \u2014 2026-05-30",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L34",
+      "source_location": "L46",
       "_origin": "ast",
       "id": "changelog_v1_2_4_2026_05_30",
       "community": 51,
@@ -9899,9 +10309,9 @@
       "label": "Dashboard",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L36",
+      "source_location": "L48",
       "_origin": "ast",
-      "id": "changelog_dashboard",
+      "id": "changelog_dashboard_48",
       "community": 51,
       "norm_label": "dashboard"
     },
@@ -9909,7 +10319,7 @@
       "label": "Extension",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L48",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "changelog_extension",
       "community": 51,
@@ -9919,7 +10329,7 @@
       "label": "v1.2.3 \u2014 2026-05-30",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L52",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "changelog_v1_2_3_2026_05_30",
       "community": 52,
@@ -9929,9 +10339,9 @@
       "label": "Extension",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L54",
+      "source_location": "L66",
       "_origin": "ast",
-      "id": "changelog_extension_54",
+      "id": "changelog_extension_66",
       "community": 52,
       "norm_label": "extension"
     },
@@ -9939,7 +10349,7 @@
       "label": "Scanner / CLI",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L60",
+      "source_location": "L72",
       "_origin": "ast",
       "id": "changelog_scanner_cli",
       "community": 52,
@@ -9949,7 +10359,7 @@
       "label": "v1.2.2 \u2014 2026-05-30",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L64",
+      "source_location": "L76",
       "_origin": "ast",
       "id": "changelog_v1_2_2_2026_05_30",
       "community": 30,
@@ -9959,9 +10369,9 @@
       "label": "Dashboard",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L66",
+      "source_location": "L78",
       "_origin": "ast",
-      "id": "changelog_dashboard_66",
+      "id": "changelog_dashboard_78",
       "community": 30,
       "norm_label": "dashboard"
     },
@@ -9969,7 +10379,7 @@
       "label": "v1.2.1 \u2014 2026-05-29",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L78",
+      "source_location": "L90",
       "_origin": "ast",
       "id": "changelog_v1_2_1_2026_05_29",
       "community": 30,
@@ -9979,9 +10389,9 @@
       "label": "Extension",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L80",
+      "source_location": "L92",
       "_origin": "ast",
-      "id": "changelog_extension_80",
+      "id": "changelog_extension_92",
       "community": 30,
       "norm_label": "extension"
     },
@@ -9989,37 +10399,37 @@
       "label": "v1.2.0 \u2014 2026-05-29",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L90",
+      "source_location": "L102",
       "_origin": "ast",
       "id": "changelog_v1_2_0_2026_05_29",
-      "community": 30,
+      "community": 40,
       "norm_label": "v1.2.0 \u2014 2026-05-29"
     },
     {
       "label": "Distribution",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L92",
+      "source_location": "L104",
       "_origin": "ast",
       "id": "changelog_distribution",
-      "community": 30,
+      "community": 40,
       "norm_label": "distribution"
     },
     {
       "label": "CI",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L97",
+      "source_location": "L109",
       "_origin": "ast",
       "id": "changelog_ci",
-      "community": 30,
+      "community": 40,
       "norm_label": "ci"
     },
     {
       "label": "v1.1.2 \u2014 2026-05-29",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L101",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "changelog_v1_1_2_2026_05_29",
       "community": 30,
@@ -10029,7 +10439,7 @@
       "label": "Project / docs",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L103",
+      "source_location": "L115",
       "_origin": "ast",
       "id": "changelog_project_docs",
       "community": 30,
@@ -10039,37 +10449,37 @@
       "label": "v1.1.1 \u2014 2026-05-28",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L108",
+      "source_location": "L120",
       "_origin": "ast",
       "id": "changelog_v1_1_1_2026_05_28",
-      "community": 53,
+      "community": 30,
       "norm_label": "v1.1.1 \u2014 2026-05-28"
     },
     {
       "label": "Packaging",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L110",
+      "source_location": "L122",
       "_origin": "ast",
       "id": "changelog_packaging",
-      "community": 53,
+      "community": 30,
       "norm_label": "packaging"
     },
     {
       "label": "Project / docs",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L114",
+      "source_location": "L126",
       "_origin": "ast",
-      "id": "changelog_project_docs_114",
-      "community": 53,
+      "id": "changelog_project_docs_126",
+      "community": 30,
       "norm_label": "project / docs"
     },
     {
       "label": "v1.1.0 \u2014 2026-05-28",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L119",
+      "source_location": "L131",
       "_origin": "ast",
       "id": "changelog_v1_1_0_2026_05_28",
       "community": 45,
@@ -10079,9 +10489,9 @@
       "label": "Dashboard",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L121",
+      "source_location": "L133",
       "_origin": "ast",
-      "id": "changelog_dashboard_121",
+      "id": "changelog_dashboard_133",
       "community": 45,
       "norm_label": "dashboard"
     },
@@ -10089,7 +10499,7 @@
       "label": "Scanner",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L130",
+      "source_location": "L142",
       "_origin": "ast",
       "id": "changelog_scanner",
       "community": 45,
@@ -10099,9 +10509,9 @@
       "label": "Project / docs",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L134",
+      "source_location": "L146",
       "_origin": "ast",
-      "id": "changelog_project_docs_134",
+      "id": "changelog_project_docs_146",
       "community": 45,
       "norm_label": "project / docs"
     },
@@ -10109,7 +10519,7 @@
       "label": "v1.0.0 \u2014 2026-04-09",
       "file_type": "document",
       "source_file": "CHANGELOG.md",
-      "source_location": "L140",
+      "source_location": "L152",
       "_origin": "ast",
       "id": "changelog_v1_0_0_2026_04_09",
       "community": 30,
@@ -10126,13 +10536,193 @@
       "norm_label": "claude.md"
     },
     {
+      "label": "PLAN-REVIEW-LOG.md",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "plan_review_log",
+      "community": 35,
+      "norm_label": "plan-review-log.md"
+    },
+    {
+      "label": "PLAN-REVIEW-LOG \u2014 Account-orb resilience (429/403 cooldowns + stale orbs)",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "plan_review_log_plan_review_log_account_orb_resilience_429_403_cooldowns_stale_orbs",
+      "community": 35,
+      "norm_label": "plan-review-log \u2014 account-orb resilience (429/403 cooldowns + stale orbs)"
+    },
+    {
+      "label": "Act 3 \u2014 Build (2026-07-12, /codex-build)",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "plan_review_log_act_3_build_2026_07_12_codex_build",
+      "community": 35,
+      "norm_label": "act 3 \u2014 build (2026-07-12, /codex-build)"
+    },
+    {
+      "label": "Root cause (verified before spec)",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "plan_review_log_root_cause_verified_before_spec",
+      "community": 35,
+      "norm_label": "root cause (verified before spec)"
+    },
+    {
+      "label": "Round 1 \u2014 Codex build",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "plan_review_log_round_1_codex_build",
+      "community": 35,
+      "norm_label": "round 1 \u2014 codex build"
+    },
+    {
+      "label": "Claude's verdict (round 1)",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "plan_review_log_claude_s_verdict_round_1",
+      "community": 35,
+      "norm_label": "claude's verdict (round 1)"
+    },
+    {
+      "label": "Round 2 \u2014 Codex fix (same thread)",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "plan_review_log_round_2_codex_fix_same_thread",
+      "community": 35,
+      "norm_label": "round 2 \u2014 codex fix (same thread)"
+    },
+    {
+      "label": "Claude's verdict (round 2) \u2014 APPROVED",
+      "file_type": "document",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L39",
+      "_origin": "ast",
+      "id": "plan_review_log_claude_s_verdict_round_2_approved",
+      "community": 35,
+      "norm_label": "claude's verdict (round 2) \u2014 approved"
+    },
+    {
+      "label": "PLAN.md",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "plan",
+      "community": 19,
+      "norm_label": "plan.md"
+    },
+    {
+      "label": "PLAN 2: Charge-based account activity + quiet inactive cards (both UIs)",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "plan_plan_2_charge_based_account_activity_quiet_inactive_cards_both_uis",
+      "community": 19,
+      "norm_label": "plan 2: charge-based account activity + quiet inactive cards (both uis)"
+    },
+    {
+      "label": "Verified facts (2026-07-12, do not re-derive)",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "plan_verified_facts_2026_07_12_do_not_re_derive",
+      "community": 19,
+      "norm_label": "verified facts (2026-07-12, do not re-derive)"
+    },
+    {
+      "label": "Changes",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "plan_changes",
+      "community": 19,
+      "norm_label": "changes"
+    },
+    {
+      "label": "A. `accounts.py` \u2014 charge-based `is_active`",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "plan_a_accounts_py_charge_based_is_active",
+      "community": 19,
+      "norm_label": "a. `accounts.py` \u2014 charge-based `is_active`"
+    },
+    {
+      "label": "B. `dashboard.py` (JS in HTML_TEMPLATE) \u2014 quiet inactive cards",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "plan_b_dashboard_py_js_in_html_template_quiet_inactive_cards",
+      "community": 19,
+      "norm_label": "b. `dashboard.py` (js in html_template) \u2014 quiet inactive cards"
+    },
+    {
+      "label": "C. Jimbo Usage tab \u2014 port the SAME rendering",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L63",
+      "_origin": "ast",
+      "id": "plan_c_jimbo_usage_tab_port_the_same_rendering",
+      "community": 19,
+      "norm_label": "c. jimbo usage tab \u2014 port the same rendering"
+    },
+    {
+      "label": "Expected outcome (acceptance)",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L86",
+      "_origin": "ast",
+      "id": "plan_expected_outcome_acceptance",
+      "community": 19,
+      "norm_label": "expected outcome (acceptance)"
+    },
+    {
+      "label": "Constraints",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L92",
+      "_origin": "ast",
+      "id": "plan_constraints",
+      "community": 19,
+      "norm_label": "constraints"
+    },
+    {
+      "label": "Proof",
+      "file_type": "document",
+      "source_file": "PLAN.md",
+      "source_location": "L99",
+      "_origin": "ast",
+      "id": "plan_proof",
+      "community": 19,
+      "norm_label": "proof"
+    },
+    {
       "label": "README.md",
       "file_type": "document",
       "source_file": "README.md",
       "source_location": "L1",
       "_origin": "ast",
       "id": "readme",
-      "community": 49,
+      "community": 32,
       "norm_label": "readme.md"
     },
     {
@@ -10172,7 +10762,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "readme_quick_start",
-      "community": 46,
+      "community": 39,
       "norm_label": "quick start"
     },
     {
@@ -10182,7 +10772,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "readme_macos_linux_homebrew",
-      "community": 46,
+      "community": 39,
       "norm_label": "macos / linux (homebrew)"
     },
     {
@@ -10192,7 +10782,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "readme_macos_linux_clone",
-      "community": 46,
+      "community": 39,
       "norm_label": "macos / linux (clone)"
     },
     {
@@ -10202,7 +10792,7 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "readme_windows",
-      "community": 46,
+      "community": 39,
       "norm_label": "windows"
     },
     {
@@ -10262,7 +10852,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "vscode_extension_readme",
-      "community": 49,
+      "community": 32,
       "norm_label": "readme.md"
     },
     {
@@ -10322,7 +10912,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "vscode_extension_readme_usage",
-      "community": 32,
+      "community": 42,
       "norm_label": "usage"
     },
     {
@@ -10332,7 +10922,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "vscode_extension_readme_commands",
-      "community": 32,
+      "community": 42,
       "norm_label": "commands"
     },
     {
@@ -10342,7 +10932,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "vscode_extension_readme_settings",
-      "community": 32,
+      "community": 42,
       "norm_label": "settings"
     },
     {
@@ -10531,6 +11121,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
+      "source_location": "L183",
+      "weight": 1.0,
+      "source": "accounts",
+      "target": "accounts_http_error_detail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
       "source_location": "L388",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -10631,6 +11231,16 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
+      "source_location": "L292",
+      "weight": 1.0,
+      "source": "accounts",
+      "target": "accounts_record_usage_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
       "source_location": "L187",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -10696,6 +11306,17 @@
       "confidence_score": 1.0,
       "source": "accounts",
       "target": "accounts_upsert_account"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "accounts",
+      "target": "datetime",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -10777,11 +11398,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L42",
+      "source_location": "L44",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_42",
-      "target": "accounts_store_lock"
+      "source": "accounts_rationale_44",
+      "target": "accounts_store_lock",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -10908,11 +11529,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L77",
+      "source_location": "L79",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_77",
-      "target": "accounts_load_store"
+      "source": "accounts_rationale_79",
+      "target": "accounts_load_store",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -10962,11 +11583,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L85",
+      "source_location": "L87",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_85",
-      "target": "accounts_save_store"
+      "source": "accounts_rationale_87",
+      "target": "accounts_save_store",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11005,31 +11626,31 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L96",
+      "source_location": "L98",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_96",
-      "target": "accounts_upsert_account"
+      "source": "accounts_rationale_98",
+      "target": "accounts_upsert_account",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L107",
+      "source_location": "L109",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_107",
-      "target": "accounts_update_oauth"
+      "source": "accounts_rationale_109",
+      "target": "accounts_update_oauth",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L128",
+      "source_location": "L135",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_128",
-      "target": "accounts_set_keychain_owner"
+      "source": "accounts_rationale_135",
+      "target": "accounts_set_keychain_owner",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11046,11 +11667,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L138",
+      "source_location": "L145",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_138",
-      "target": "accounts_keychain_oauth"
+      "source": "accounts_rationale_145",
+      "target": "accounts_keychain_oauth",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11086,6 +11707,49 @@
       "target": "accounts_post_json"
     },
     {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L183",
+      "weight": 1.0,
+      "source": "accounts_http_error_detail",
+      "target": "httperror",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L184",
+      "weight": 1.0,
+      "source": "accounts_rationale_184",
+      "target": "accounts_http_error_detail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L296",
+      "weight": 1.0,
+      "source": "accounts_record_usage_http_error",
+      "target": "accounts_http_error_detail",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L292",
+      "weight": 1.0,
+      "source": "accounts_record_usage_http_error",
+      "target": "httperror",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -11100,11 +11764,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L179",
+      "source_location": "L212",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_179",
-      "target": "accounts_is_expired"
+      "source": "accounts_rationale_212",
+      "target": "accounts_is_expired",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11121,11 +11785,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L188",
+      "source_location": "L221",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_188",
-      "target": "accounts_refresh"
+      "source": "accounts_rationale_221",
+      "target": "accounts_refresh",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11153,11 +11817,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L203",
+      "source_location": "L236",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_203",
-      "target": "accounts_parse_usage"
+      "source": "accounts_rationale_236",
+      "target": "accounts_parse_usage",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11174,11 +11838,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L230",
+      "source_location": "L263",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_230",
-      "target": "accounts_fetch_profile_email"
+      "source": "accounts_rationale_263",
+      "target": "accounts_fetch_profile_email",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11195,11 +11859,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L239",
+      "source_location": "L272",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_239",
-      "target": "accounts_fetch_usage"
+      "source": "accounts_rationale_272",
+      "target": "accounts_fetch_usage",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11216,11 +11880,164 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L254",
+      "source_location": "L287",
       "weight": 1.0,
+      "source": "accounts_rationale_287",
+      "target": "accounts_fetch_all_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L367",
+      "weight": 1.0,
+      "source": "accounts_fetch_all_usage_locked",
+      "target": "accounts_record_usage_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L295",
+      "weight": 1.0,
+      "source": "accounts_rationale_295",
+      "target": "accounts_record_usage_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L292",
+      "weight": 1.0,
+      "source": "accounts_record_usage_http_error",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "classify.py",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "classify",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "cli.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "cli",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "codex_limits.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "codex_limits",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "dashboard.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "dashboard",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "promptgen.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "promptgen",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "receipts.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "receipts",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scanner.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "scanner",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "tests_test_accounts",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost",
+      "target": "datetime",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source": "accounts_rationale_254",
-      "target": "accounts_fetch_all_usage"
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L392",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_chained_failures_preserve_original_success_time",
+      "target": "datetime"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "views.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "views",
+      "target": "datetime",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11237,11 +12054,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L310",
+      "source_location": "L424",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_310",
-      "target": "accounts_remaining_color"
+      "source": "accounts_rationale_424",
+      "target": "accounts_remaining_color",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -11269,11 +12086,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L318",
+      "source_location": "L432",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_318",
-      "target": "accounts_days_until_renewal"
+      "source": "accounts_rationale_432",
+      "target": "accounts_days_until_renewal",
+      "confidence_score": 1.0
     },
     {
       "relation": "references",
@@ -11356,11 +12173,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L330",
+      "source_location": "L444",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_330",
-      "target": "accounts_public_view"
+      "source": "accounts_rationale_444",
+      "target": "accounts_public_view",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11399,11 +12216,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L370",
+      "source_location": "L487",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_370",
-      "target": "accounts_months_active"
+      "source": "accounts_rationale_487",
+      "target": "accounts_months_active",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11431,11 +12248,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L389",
+      "source_location": "L506",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_389",
-      "target": "accounts_is_active"
+      "source": "accounts_rationale_506",
+      "target": "accounts_is_active",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11452,11 +12269,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L400",
+      "source_location": "L522",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_400",
-      "target": "accounts_current_monthly_cost"
+      "source": "accounts_rationale_522",
+      "target": "accounts_current_monthly_cost",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11473,11 +12290,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L405",
+      "source_location": "L527",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_405",
-      "target": "accounts_lifetime_spend"
+      "source": "accounts_rationale_527",
+      "target": "accounts_lifetime_spend",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11494,21 +12311,21 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L430",
+      "source_location": "L552",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_430",
-      "target": "accounts_healthy"
+      "source": "accounts_rationale_552",
+      "target": "accounts_healthy",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L436",
+      "source_location": "L558",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_436",
-      "target": "accounts_account_score"
+      "source": "accounts_rationale_558",
+      "target": "accounts_account_score",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -11536,11 +12353,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "accounts.py",
-      "source_location": "L465",
+      "source_location": "L587",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "accounts_rationale_465",
-      "target": "accounts_recommend"
+      "source": "accounts_rationale_587",
+      "target": "accounts_recommend",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
@@ -11551,6 +12368,16 @@
       "confidence_score": 1.0,
       "source": "accounts_rationale_487",
       "target": "accounts_dashboard_payload"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "accounts.py",
+      "source_location": "L611",
+      "weight": 1.0,
+      "source": "accounts_rationale_611",
+      "target": "accounts_dashboard_payload",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -14088,9 +14915,9 @@
       "source_file": "codex_limits.py",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "codex_limits_rationale_149",
-      "target": "codex_limits_codex_orb_data",
-      "confidence_score": 1.0
+      "target": "codex_limits_codex_orb_data"
     },
     {
       "relation": "rationale_for",
@@ -14593,11 +15420,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "dashboard.py",
-      "source_location": "L1654",
+      "source_location": "L1684",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dashboard_rationale_1654",
-      "target": "dashboard_get_accounts_data"
+      "source": "dashboard_rationale_1684",
+      "target": "dashboard_get_accounts_data",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -14614,11 +15441,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "dashboard.py",
-      "source_location": "L1664",
+      "source_location": "L1694",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "dashboard_rationale_1664",
-      "target": "dashboard_find_icon_file"
+      "source": "dashboard_rationale_1694",
+      "target": "dashboard_find_icon_file",
+      "confidence_score": 1.0
     },
     {
       "relation": "inherits",
@@ -17698,6 +18525,16 @@
       "target": "tests_test_accounts_test_upsert_replaces_by_email"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L308",
+      "weight": 1.0,
+      "source": "tests_test_accounts",
+      "target": "tests_test_accounts_testusagecooldowns",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts.py",
@@ -17811,6 +18648,50 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts.py",
+      "source_location": "L337",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_cached_account",
+      "target": "tests_test_accounts_acct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L482",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_401_still_force_refreshes_once_and_retries",
+      "target": "tests_test_accounts_acct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L403",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_without_retry_after_uses_fallback",
+      "target": "tests_test_accounts_acct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L499",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_keychain_403_does_not_fall_back_to_stored_credentials",
+      "target": "tests_test_accounts_acct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
       "source_location": "L71",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -17854,41 +18735,41 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L100",
+      "source_location": "L105",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_accounts_rationale_100",
-      "target": "tests_test_accounts_test_refresh_failure_grays_account_not_others"
+      "source": "tests_test_accounts_rationale_105",
+      "target": "tests_test_accounts_test_refresh_failure_grays_account_not_others",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L125",
+      "source_location": "L130",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_accounts_rationale_125",
-      "target": "tests_test_accounts_test_stale_refresh_but_valid_access_token_still_fetches"
+      "source": "tests_test_accounts_rationale_130",
+      "target": "tests_test_accounts_test_stale_refresh_but_valid_access_token_still_fetches",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L138",
+      "source_location": "L143",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_accounts_rationale_138",
-      "target": "tests_test_accounts_test_rotated_tokens_persist_when_usage_fetch_fails"
+      "source": "tests_test_accounts_rationale_143",
+      "target": "tests_test_accounts_test_rotated_tokens_persist_when_usage_fetch_fails",
+      "confidence_score": 1.0
     },
     {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts.py",
-      "source_location": "L227",
+      "source_location": "L232",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_accounts_rationale_227",
-      "target": "tests_test_accounts_test_401_on_fresh_token_forces_refresh_and_retries"
+      "source": "tests_test_accounts_rationale_232",
+      "target": "tests_test_accounts_test_401_on_fresh_token_forces_refresh_and_retries",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -17922,6 +18803,417 @@
       "confidence_score": 1.0,
       "source": "tests_test_accounts_test_update_oauth_without_usage_keeps_prior_usage",
       "target": "tests_test_accounts_full_acct"
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L309",
+      "weight": 1.0,
+      "source": "tests_test_accounts_rationale_309",
+      "target": "tests_test_accounts_testusagecooldowns",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L357",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_assert_retry_delay",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L336",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L345",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_fetch_with_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L321",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L311",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_setup",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L316",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_teardown",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L475",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_401_still_force_refreshes_once_and_retries",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L452",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_403_surfaces_api_message_and_does_not_refresh",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L368",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_429_honors_retry_after_and_preserves_windows",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L401",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_429_without_retry_after_uses_fallback",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L385",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_chained_failures_preserve_original_success_time",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L435",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_expired_cooldown_fetches_again",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L408",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_future_cooldown_skips_all_account_http_and_preserves_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L497",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_keychain_403_does_not_fall_back_to_stored_credentials",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L552",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_public_view_passes_error_kind_and_retry_until",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L509",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_success_clears_prior_error_metadata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L528",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns",
+      "target": "tests_test_accounts_testusagecooldowns_test_transient_error_clears_prior_cooldown_metadata",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L476",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_401_still_force_refreshes_once_and_retries",
+      "target": "tests_test_accounts_testusagecooldowns_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L454",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_403_surfaces_api_message_and_does_not_refresh",
+      "target": "tests_test_accounts_testusagecooldowns_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L370",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_honors_retry_after_and_preserves_windows",
+      "target": "tests_test_accounts_testusagecooldowns_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L402",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_without_retry_after_uses_fallback",
+      "target": "tests_test_accounts_testusagecooldowns_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L388",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_chained_failures_preserve_original_success_time",
+      "target": "tests_test_accounts_testusagecooldowns_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L498",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_keychain_403_does_not_fall_back_to_stored_credentials",
+      "target": "tests_test_accounts_testusagecooldowns_http_error",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L461",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_403_surfaces_api_message_and_does_not_refresh",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L369",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_honors_retry_after_and_preserves_windows",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L386",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_chained_failures_preserve_original_success_time",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L436",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_expired_cooldown_fetches_again",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L409",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_future_cooldown_skips_all_account_http_and_preserves_usage",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L553",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_public_view_passes_error_kind_and_retry_until",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L510",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_success_clears_prior_error_metadata",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L529",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_transient_error_clears_prior_cooldown_metadata",
+      "target": "tests_test_accounts_testusagecooldowns_cached_account",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L375",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_honors_retry_after_and_preserves_windows",
+      "target": "tests_test_accounts_testusagecooldowns_fetch_with_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L403",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_without_retry_after_uses_fallback",
+      "target": "tests_test_accounts_testusagecooldowns_fetch_with_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L518",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_success_clears_prior_error_metadata",
+      "target": "tests_test_accounts_testusagecooldowns_fetch_with_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L539",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_transient_error_clears_prior_cooldown_metadata",
+      "target": "tests_test_accounts_testusagecooldowns_fetch_with_usage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L473",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_403_surfaces_api_message_and_does_not_refresh",
+      "target": "tests_test_accounts_testusagecooldowns_assert_retry_delay",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L383",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_honors_retry_after_and_preserves_windows",
+      "target": "tests_test_accounts_testusagecooldowns_assert_retry_delay",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts.py",
+      "source_location": "L406",
+      "weight": 1.0,
+      "source": "tests_test_accounts_testusagecooldowns_test_429_without_retry_after_uses_fallback",
+      "target": "tests_test_accounts_testusagecooldowns_assert_retry_delay",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -18154,6 +19446,16 @@
       "target": "tests_test_accounts_cost_test_unhealthy_entry_scores_zero"
     },
     {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L173",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost",
+      "target": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts_cost.py",
@@ -18241,14 +19543,58 @@
       "target": "tests_test_accounts_cost_acct"
     },
     {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L190",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_charge_activity_boundary_is_paid_through_30_days",
+      "target": "tests_test_accounts_cost_acct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_empty_or_missing_charges_fall_back_to_intervals",
+      "target": "tests_test_accounts_cost_acct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L175",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_fresh_charge_is_active_even_when_interval_is_closed",
+      "target": "tests_test_accounts_cost_acct",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L183",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_old_charge_is_inactive_even_when_interval_is_open",
+      "target": "tests_test_accounts_cost_acct",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_accounts_cost.py",
-      "source_location": "L23",
+      "source_location": "L34",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_accounts_cost_rationale_23",
-      "target": "tests_test_accounts_cost_entry"
+      "source": "tests_test_accounts_cost_rationale_34",
+      "target": "tests_test_accounts_cost_entry",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -18326,6 +19672,88 @@
       "confidence_score": 1.0,
       "source": "tests_test_accounts_cost_test_unhealthy_entry_scores_zero",
       "target": "tests_test_accounts_cost_entry"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L219",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_recommend_falls_back_to_main_when_nothing_is_active",
+      "target": "tests_test_accounts_cost_entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L211",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_recommend_never_picks_inactive_when_active_entry_exists",
+      "target": "tests_test_accounts_cost_entry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L189",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "target": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_charge_activity_boundary_is_paid_through_30_days",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L197",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "target": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_empty_or_missing_charges_fall_back_to_intervals",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L174",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "target": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_fresh_charge_is_active_even_when_interval_is_closed",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L182",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "target": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_old_charge_is_inactive_even_when_interval_is_open",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L217",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "target": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_recommend_falls_back_to_main_when_nothing_is_active",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_accounts_cost.py",
+      "source_location": "L209",
+      "weight": 1.0,
+      "source": "tests_test_accounts_cost_testchargebasedactivityandrecommendation",
+      "target": "tests_test_accounts_cost_testchargebasedactivityandrecommendation_test_recommend_never_picks_inactive_when_active_entry_exists",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -20650,6 +22078,26 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_dashboard.py",
+      "source_location": "L390",
+      "weight": 1.0,
+      "source": "tests_test_dashboard_testhtmltemplate",
+      "target": "tests_test_dashboard_testhtmltemplate_test_account_errors_render_kind_specific_advice",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L401",
+      "weight": 1.0,
+      "source": "tests_test_dashboard_testhtmltemplate",
+      "target": "tests_test_dashboard_testhtmltemplate_test_errored_accounts_cannot_show_use_me_badge",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_dashboard.py",
       "source_location": "L362",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -20665,6 +22113,46 @@
       "confidence_score": 1.0,
       "source": "tests_test_dashboard_testhtmltemplate",
       "target": "tests_test_dashboard_testhtmltemplate_test_hourly_peak_hour_constants"
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L420",
+      "weight": 1.0,
+      "source": "tests_test_dashboard_testhtmltemplate",
+      "target": "tests_test_dashboard_testhtmltemplate_test_inactive_accounts_are_excluded_from_best_percentage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L404",
+      "weight": 1.0,
+      "source": "tests_test_dashboard_testhtmltemplate",
+      "target": "tests_test_dashboard_testhtmltemplate_test_inactive_accounts_render_before_error_handling",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L409",
+      "weight": 1.0,
+      "source": "tests_test_dashboard_testhtmltemplate",
+      "target": "tests_test_dashboard_testhtmltemplate_test_inactive_accounts_render_quiet_cards",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_dashboard.py",
+      "source_location": "L382",
+      "weight": 1.0,
+      "source": "tests_test_dashboard_testhtmltemplate",
+      "target": "tests_test_dashboard_testhtmltemplate_test_stale_accounts_render_cached_orbs_with_stale_badge",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -20790,11 +22278,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L384",
+      "source_location": "L428",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_dashboard_rationale_384",
-      "target": "tests_test_dashboard_testpricingparity"
+      "source": "tests_test_dashboard_rationale_428",
+      "target": "tests_test_dashboard_testpricingparity",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -20830,11 +22318,11 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "tests/test_dashboard.py",
-      "source_location": "L387",
+      "source_location": "L431",
       "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "tests_test_dashboard_rationale_387",
-      "target": "tests_test_dashboard_testpricingparity_extract_js_pricing"
+      "source": "tests_test_dashboard_rationale_431",
+      "target": "tests_test_dashboard_testpricingparity_extract_js_pricing",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -27566,6 +29054,46 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "changelog_changelog",
+      "target": "changelog_v1_3_1_tbd",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "changelog_v1_3_1_tbd",
+      "target": "changelog_accounts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "changelog_v1_3_1_tbd",
+      "target": "changelog_dashboard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
+      "source_location": "L28",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "changelog_v1_2_4_2026_05_30",
+      "target": "changelog_dashboard"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CHANGELOG.md",
       "source_location": "L5",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -27596,11 +29124,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
-      "source_location": "L28",
+      "source_location": "L48",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "changelog_v1_2_4_2026_05_30",
-      "target": "changelog_dashboard"
+      "target": "changelog_dashboard_48",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -27616,11 +29144,11 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
-      "source_location": "L54",
+      "source_location": "L66",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "changelog_v1_2_3_2026_05_30",
-      "target": "changelog_extension_54"
+      "target": "changelog_extension_66",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -27636,21 +29164,21 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
-      "source_location": "L66",
+      "source_location": "L78",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "changelog_v1_2_2_2026_05_30",
-      "target": "changelog_dashboard_66"
+      "target": "changelog_dashboard_78",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
-      "source_location": "L80",
+      "source_location": "L92",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "changelog_v1_2_1_2026_05_29",
-      "target": "changelog_extension_80"
+      "target": "changelog_extension_92",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -27696,31 +29224,31 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
-      "source_location": "L114",
+      "source_location": "L126",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "changelog_v1_1_1_2026_05_28",
-      "target": "changelog_project_docs_114"
+      "target": "changelog_project_docs_126",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
-      "source_location": "L121",
+      "source_location": "L133",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "changelog_v1_1_0_2026_05_28",
-      "target": "changelog_dashboard_121"
+      "target": "changelog_dashboard_133",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CHANGELOG.md",
-      "source_location": "L134",
+      "source_location": "L146",
       "weight": 1.0,
-      "confidence_score": 1.0,
       "source": "changelog_v1_1_0_2026_05_28",
-      "target": "changelog_project_docs_134"
+      "target": "changelog_project_docs_146",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -27731,6 +29259,166 @@
       "confidence_score": 1.0,
       "source": "changelog_v1_1_0_2026_05_28",
       "target": "changelog_scanner"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "plan_review_log",
+      "target": "plan_review_log_plan_review_log_account_orb_resilience_429_403_cooldowns_stale_orbs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "plan_review_log_plan_review_log_account_orb_resilience_429_403_cooldowns_stale_orbs",
+      "target": "plan_review_log_act_3_build_2026_07_12_codex_build",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "plan_review_log_act_3_build_2026_07_12_codex_build",
+      "target": "plan_review_log_claude_s_verdict_round_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "plan_review_log_act_3_build_2026_07_12_codex_build",
+      "target": "plan_review_log_claude_s_verdict_round_2_approved",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "plan_review_log_act_3_build_2026_07_12_codex_build",
+      "target": "plan_review_log_root_cause_verified_before_spec",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "plan_review_log_act_3_build_2026_07_12_codex_build",
+      "target": "plan_review_log_round_1_codex_build",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN-REVIEW-LOG.md",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "plan_review_log_act_3_build_2026_07_12_codex_build",
+      "target": "plan_review_log_round_2_codex_fix_same_thread",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "plan",
+      "target": "plan_plan_2_charge_based_account_activity_quiet_inactive_cards_both_uis",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "plan_plan_2_charge_based_account_activity_quiet_inactive_cards_both_uis",
+      "target": "plan_changes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "plan_plan_2_charge_based_account_activity_quiet_inactive_cards_both_uis",
+      "target": "plan_constraints",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L86",
+      "weight": 1.0,
+      "source": "plan_plan_2_charge_based_account_activity_quiet_inactive_cards_both_uis",
+      "target": "plan_expected_outcome_acceptance",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L99",
+      "weight": 1.0,
+      "source": "plan_plan_2_charge_based_account_activity_quiet_inactive_cards_both_uis",
+      "target": "plan_proof",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "plan_plan_2_charge_based_account_activity_quiet_inactive_cards_both_uis",
+      "target": "plan_verified_facts_2026_07_12_do_not_re_derive",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "plan_changes",
+      "target": "plan_a_accounts_py_charge_based_is_active",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "plan_changes",
+      "target": "plan_b_dashboard_py_js_in_html_template_quiet_inactive_cards",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "PLAN.md",
+      "source_location": "L63",
+      "weight": 1.0,
+      "source": "plan_changes",
+      "target": "plan_c_jimbo_usage_tab_port_the_same_rendering",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -27984,5 +29672,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "977a897bec78083c66b429633f9abbb3d6cb9fed"
+  "built_at_commit": "b3178a8ebb518c114c0e99d82f1ce71af63af880"
 }
