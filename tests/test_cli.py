@@ -310,3 +310,23 @@ def test_freshness_tick_invokes_run_once():
     with mock.patch.object(freshness_watch, "run_once") as ro:
         cli.cmd_freshness_tick()
     ro.assert_called_once_with()
+
+
+def test_daemons_report_handles_zero_count_buckets(capsys):
+    """A clean bucket can be absent from Counter-derived JSON without crashing."""
+    report = {
+        "counts": {"HEALTHY": 5, "WASTE": 2},
+        "registry_path": "/tmp/daemons.json",
+        "daemons": [],
+        "rogues": [],
+    }
+    with mock.patch("classify.build_report", return_value=report):
+        cli.cmd_daemons()
+
+    out = capsys.readouterr().out
+    assert "HEALTHY=5" in out
+    assert "WASTE=2" in out
+    assert "BROKEN=0" in out
+    assert "DISABLED-DRIFT=0" in out
+    assert "UNDECLARED=0" in out
+    assert "ROGUE=0" in out
