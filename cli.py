@@ -395,7 +395,8 @@ def cmd_daemons(prompt=False, labels=None, out=None):
             wanted = set(labels)
             selected = [d for d in report_daemons if d["label"] in wanted]
         else:
-            selected = [d for d in report_daemons if d["bucket"] in ("WASTE", "UNKNOWN")]
+            selected = [d for d in report_daemons
+                        if d["bucket"] in (*classify.ALERT_BUCKETS, "UNDECLARED")]
             selected += report["rogues"]
         text = promptgen.build_prompt(selected)
         if out:
@@ -409,26 +410,31 @@ def cmd_daemons(prompt=False, labels=None, out=None):
     hr("=")
     print("  Daemon Health + Waste")
     hr("=")
-    print(f"  HEALTHY={c['HEALTHY']}  WASTE={c['WASTE']}  "
-          f"UNKNOWN={c['UNKNOWN']}  ROGUE={c['ROGUE']}")
+    print(f"  HEALTHY={c.get('HEALTHY', 0)}  BROKEN={c.get('BROKEN', 0)}  "
+          f"DISABLED-DRIFT={c.get('DISABLED-DRIFT', 0)}  WASTE={c.get('WASTE', 0)}")
+    print(f"  UNDECLARED={c.get('UNDECLARED', 0)}  "
+          f"VENDOR-IGNORE={c.get('VENDOR-IGNORE', 0)}  ROGUE={c.get('ROGUE', 0)}")
     print(f"  Registry: {report['registry_path']}")
     hr()
 
-    flagged = [d for d in report["daemons"] if d["bucket"] in ("WASTE",)]
-    if flagged:
-        print("  WASTE:")
+    for bucket in (*classify.ALERT_BUCKETS, "UNDECLARED"):
+        flagged = [d for d in report["daemons"] if d["bucket"] == bucket]
+        if not flagged:
+            continue
+        print(f"  {bucket}:")
         for d in flagged:
             print(f"    {d['label']}")
             print(f"      why: {'; '.join(d['reasons'])}")
-            print(f"      fix: {d['remediation']}")
+            if d["remediation"]:
+                print(f"      fix: {d['remediation']}")
     if report["rogues"]:
         print("  ROGUE processes:")
         for r in report["rogues"]:
             print(f"    pid {r['pid']}: {'; '.join(r['reasons'])}")
             print(f"      fix: {r['remediation']}")
-    unknown = sum(1 for d in report["daemons"] if d["bucket"] == "UNKNOWN")
-    if unknown:
-        print(f"  {unknown} UNKNOWN daemons need annotation in the registry "
+    undeclared = sum(1 for d in report["daemons"] if d["bucket"] == "UNDECLARED")
+    if undeclared:
+        print(f"  {undeclared} UNDECLARED daemons need annotation in the registry "
               f"(run seed_manifest.py, then edit daemons.json).")
     hr("=")
     print()
