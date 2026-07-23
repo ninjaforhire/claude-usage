@@ -4,6 +4,8 @@ import json
 
 import codex_limits
 
+_FUTURE_RESET = 4_102_444_800  # 2100-01-01; stable as wall time advances
+
 
 def _rollout(path, snapshots):
     """Write a rollout JSONL with rate_limits records (+ noise lines)."""
@@ -16,8 +18,8 @@ def _rollout(path, snapshots):
 def _snap(primary_used, secondary_used):
     return {
         "limit_id": "codex", "plan_type": "prolite",
-        "primary": {"used_percent": primary_used, "window_minutes": 300, "resets_at": 1781508257},
-        "secondary": {"used_percent": secondary_used, "window_minutes": 10080, "resets_at": 1781763453},
+        "primary": {"used_percent": primary_used, "window_minutes": 300, "resets_at": _FUTURE_RESET},
+        "secondary": {"used_percent": secondary_used, "window_minutes": 10080, "resets_at": _FUTURE_RESET + 604800},
     }
 
 
@@ -30,7 +32,7 @@ def test_maps_primary_to_5h_and_secondary_to_weekly(tmp_path):
     assert out["plan_type"] == "prolite"
     assert out["windows"]["five_hour"]["remaining_pct"] == 95
     assert out["windows"]["seven_day"]["remaining_pct"] == 89
-    assert out["windows"]["five_hour"]["resets_at"].startswith("2026-")
+    assert out["windows"]["five_hour"]["resets_at"].startswith("2100-")
 
 
 def test_last_snapshot_in_file_wins(tmp_path):
