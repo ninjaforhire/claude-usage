@@ -477,6 +477,9 @@ def public_view(accts: list[dict]) -> list[dict]:
 # (Andrew doesn't keep all 3 Max accounts running continuously).
 
 _AVG_MONTH_DAYS = 30.4375  # 365.25 / 12 — prorate partial months for lifetime spend
+CURRENT_PLAN_MONTHLY_USD = {
+    "max_20x": 200.0,
+}
 
 
 def _as_date(s) -> _dt.date:
@@ -503,24 +506,34 @@ def months_active(intervals: list[dict] | None, today: _dt.date | None = None) -
 
 
 def is_active(account: dict, today: _dt.date | None = None) -> bool:
-    """True when the latest charge still covers today, with interval fallback."""
+    """True when a current interval or recent charge covers today.
+
+    A current open interval wins over an old receipt: receipt capture can lag a
+    subscription renewal, while the interval is explicitly maintained as the
+    current billing state.
+    """
     today = today or _dt.date.today()
+    for iv in account.get("subscription_intervals") or []:
+        start = _as_date(iv["start"])
+        end = _as_date(iv["end"]) if iv.get("end") else None
+        if start <= today and (end is None or today <= end):
+            return True
     charges = account.get("charges") or []
     if charges:
         last_charge = _as_date(max(charge["date"] for charge in charges))
         return today < last_charge + _dt.timedelta(days=31)
-
-    for iv in account.get("subscription_intervals") or []:
-        start = _as_date(iv["start"])
-        end = _as_date(iv["end"]) if iv.get("end") else today
-        if start <= today <= end:
-            return True
     return False
+
+
+def current_plan_monthly_cost(account: dict) -> float:
+    """Return the current public plan rate, preserving receipts for lifetime totals."""
+    plan = str(account.get("plan", "")).lower()
+    return CURRENT_PLAN_MONTHLY_USD.get(plan, float(account.get("monthly_cost", 0)))
 
 
 def current_monthly_cost(account: dict, today: _dt.date | None = None) -> float:
     """The monthly_cost if the account is currently subscribed, else 0."""
-    return float(account.get("monthly_cost", 0)) if is_active(account, today) else 0.0
+    return current_plan_monthly_cost(account) if is_active(account, today) else 0.0
 
 
 def lifetime_spend(account: dict, today: _dt.date | None = None) -> float:
@@ -618,7 +631,7 @@ def dashboard_payload(accts: list[dict], today: _dt.date | None = None) -> dict:
     for e in entries:
         a = by_email[e["email"]]
         e["is_main"] = bool(a.get("is_main", False))
-        e["monthly_cost"] = float(a.get("monthly_cost", 0))
+        e["monthly_cost"] = current_plan_monthly_cost(a)
         e["subscription_intervals"] = a.get("subscription_intervals", [])
         e["active"] = is_active(a, today)
         e["current_monthly_cost"] = current_monthly_cost(a, today)

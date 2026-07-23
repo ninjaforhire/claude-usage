@@ -15,6 +15,7 @@ def _acct(email, *, is_main=False, cost=200, intervals=None):
     return {
         "email": email,
         "is_main": is_main,
+        "plan": "max_20x",
         "monthly_cost": cost,
         "subscription_intervals": intervals if intervals is not None else [],
     }
@@ -179,16 +180,23 @@ class TestChargeBasedActivityAndRecommendation(unittest.TestCase):
         account["charges"] = [{"date": TODAY.isoformat(), "amount": 213.20}]
         self.assertTrue(accounts.is_active(account, today=TODAY))
 
-    def test_old_charge_is_inactive_even_when_interval_is_open(self):
+    def test_open_interval_is_active_when_receipt_capture_is_stale(self):
         account = _acct(
             "a@b.com", intervals=[{"start": "2026-04-09", "end": None}]
         )
         account["charges"] = [{"date": "2026-05-15", "amount": 213.20}]
-        self.assertFalse(accounts.is_active(account, today=TODAY))
+        self.assertTrue(accounts.is_active(account, today=TODAY))
+
+    def test_max_20x_uses_current_public_monthly_rate(self):
+        account = _acct(
+            "a@b.com", cost=213.20,
+            intervals=[{"start": "2026-04-09", "end": None}],
+        )
+        self.assertEqual(accounts.current_monthly_cost(account, today=TODAY), 200.0)
 
     def test_charge_activity_boundary_is_paid_through_30_days(self):
         account = _acct(
-            "a@b.com", intervals=[{"start": "2026-04-09", "end": None}]
+            "a@b.com", intervals=[{"start": "2026-04-09", "end": "2026-05-14"}]
         )
         account["charges"] = [{"date": "2026-05-15", "amount": 213.20}]
         self.assertTrue(accounts.is_active(account, today=dt.date(2026, 6, 14)))
