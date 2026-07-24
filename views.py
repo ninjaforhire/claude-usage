@@ -8,6 +8,7 @@ Public API:
     spark_report(conn, period)
 """
 
+import re
 import sqlite3
 from datetime import date, timedelta
 
@@ -193,26 +194,21 @@ def table_report(conn: sqlite3.Connection, period: str) -> None:
     print()
 
 
+# Family + version, e.g. "opus-5" or "sonnet-4-6". The trailing (?!\d) keeps a
+# date suffix ("claude-3-5-haiku-20241022") from being read as a version.
+_MODEL_VER_RE = re.compile(r"(fable|mythos|opus|sonnet|haiku)-(\d{1,2}(?:-\d{1,2})?)(?!\d)")
+
+
 def _model_short(model: str) -> str:
     """Return a short display label for a model string."""
     m = model.lower()
-    if "fable" in m:   return "Fable 5"
-    if "mythos" in m:  return "Mythos 5"
-    if "opus" in m:
-        for v in ("4-8", "4-7", "4-6", "4-5"):
-            if m.endswith(f"-{v}") or f"-{v}-" in m:
-                return f"Opus {v.replace('-', '.')}"
-        return "Opus"
-    if "sonnet" in m:
-        for v in ("4-7", "4-6", "4-5"):
-            if m.endswith(f"-{v}") or f"-{v}-" in m:
-                return f"Sonnet {v.replace('-', '.')}"
-        return "Sonnet"
-    if "haiku" in m:
-        for v in ("4-7", "4-6", "4-5"):
-            if m.endswith(f"-{v}") or f"-{v}-" in m:
-                return f"Haiku {v.replace('-', '.')}"
-        return "Haiku"
+    match = _MODEL_VER_RE.search(m)
+    if match:
+        family, version = match.groups()
+        return f"{family.capitalize()} {version.replace('-', '.')}"
+    for family in ("fable", "mythos", "opus", "sonnet", "haiku"):
+        if family in m:
+            return family.capitalize()
     return model[:12]
 
 

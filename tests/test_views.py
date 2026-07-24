@@ -280,3 +280,26 @@ class TestSparkReport(unittest.TestCase):
         out = self._capture("month")
         spark_chars = set("▁▂▃▄▅▆▇█")
         self.assertTrue(any(c in spark_chars for c in out))
+
+
+class TestModelShort(unittest.TestCase):
+    """Display labels must survive new major versions (Opus 5, Sonnet 5, ...)."""
+
+    def test_single_digit_major_version(self):
+        from views import _model_short
+        self.assertEqual(_model_short("claude-opus-5"), "Opus 5")
+        self.assertEqual(_model_short("claude-sonnet-5"), "Sonnet 5")
+
+    def test_dotted_version(self):
+        from views import _model_short
+        self.assertEqual(_model_short("claude-opus-4-8"), "Opus 4.8")
+        self.assertEqual(_model_short("claude-haiku-4-5-20251001"), "Haiku 4.5")
+
+    def test_legacy_name_with_leading_version(self):
+        from views import _model_short
+        self.assertEqual(_model_short("claude-3-5-haiku-20241022"), "Haiku")
+
+    def test_premium_families(self):
+        from views import _model_short
+        self.assertEqual(_model_short("claude-fable-5"), "Fable 5")
+        self.assertEqual(_model_short("claude-mythos-5"), "Mythos 5")

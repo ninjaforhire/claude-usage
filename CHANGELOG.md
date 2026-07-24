@@ -6,6 +6,10 @@
 
 - Added explicit `claude-opus-5` pricing ($5.00/$25.00 per MTok, $0.50 cache read, $6.25 cache write) to the CLI and dashboard tables, and pointed the `opus` substring fallback at Opus 5 so future Opus IDs price correctly.
 
+### CLI
+
+- Fixed model labels in the card report so single-digit major versions render correctly (`claude-opus-5` was showing as a bare "Opus", indistinguishable from Opus 4.x rows). Version parsing now reads the family plus a one- or two-digit version and no longer mistakes a date suffix for a version, so legacy IDs like `claude-3-5-haiku-20241022` still label as "Haiku".
+
 ### Dashboard
 
 - Rendered cached account-limit orbs as STALE during API errors, surfaced the real error message with error-specific advice, and prevented stale accounts from displaying the USE ME badge.
