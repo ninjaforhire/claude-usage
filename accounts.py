@@ -233,7 +233,8 @@ def _refresh(oauth: dict) -> dict:
 
 
 def _parse_usage(raw: dict) -> dict:
-    """Extract five_hour and seven_day windows from the raw API response.
+    """Extract five_hour, seven_day, and per-model (fable) windows from the raw
+    API response.
 
     Tolerates extra top-level keys and microsecond/offset timestamp formats.
     """
@@ -243,8 +244,25 @@ def _parse_usage(raw: dict) -> dict:
         raise ValueError(f"unexpected usage response shape: {list(raw)}") from e
 
 
+def _extract_fable_limit(raw: dict) -> dict | None:
+    """Pull the real per-model Fable weekly limit out of raw["limits"].
+
+    The API reports a `weekly_scoped` entry per model (`scope.model.display_name`)
+    alongside the overall `weekly_all` figure — this is the account's ACTUAL
+    Fable-5 usage, not an estimate. Returns None if the account's response has
+    no such entry (older API shape, or the model isn't in this plan).
+    """
+    for limit in raw.get("limits") or []:
+        if limit.get("kind") != "weekly_scoped":
+            continue
+        model = (limit.get("scope") or {}).get("model") or {}
+        if (model.get("display_name") or "").lower() == "fable":
+            return {"utilization": limit["percent"], "resets_at": limit["resets_at"]}
+    return None
+
+
 def _extract_windows(raw: dict) -> dict:
-    return {
+    windows = {
         "five_hour": {
             "utilization": raw["five_hour"]["utilization"],
             "resets_at": raw["five_hour"]["resets_at"],
@@ -254,6 +272,10 @@ def _extract_windows(raw: dict) -> dict:
             "resets_at": raw["seven_day"]["resets_at"],
         },
     }
+    fable = _extract_fable_limit(raw)
+    if fable is not None:
+        windows["fable"] = fable
+    return windows
 
 
 PROFILE_URL = "https://api.anthropic.com/api/oauth/profile"
@@ -308,7 +330,7 @@ def _record_usage_http_error(
     )
     windows = {
         key: previous[key]
-        for key in ("five_hour", "seven_day")
+        for key in ("five_hour", "seven_day", "fable")
         if key in previous
     }
     acct["last_usage"] = {
@@ -456,7 +478,7 @@ def public_view(accts: list[dict]) -> list[dict]:
             "retry_until": u.get("retry_until"),
             "windows": {},
         }
-        for key in ("five_hour", "seven_day"):
+        for key in ("five_hour", "seven_day", "fable"):
             if key in u:
                 remaining = round(min(100, max(0, 100 - u[key]["utilization"])))
                 hi, lo = remaining_color(remaining)
