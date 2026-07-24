@@ -36,7 +36,8 @@ def test_discount_bad_input_falls_back():
 
 
 def _entry(weekly_free, h5, *, resets_at="2026-07-08T10:00:00Z",
-           active=True, error=None, is_main=False):
+           active=True, error=None, is_main=False, fable_remaining_pct=None,
+           fable_resets_at=None):
     """Build a dashboard-payload-shaped entry for the ranker."""
     windows = {}
     if error is None:
@@ -44,6 +45,11 @@ def _entry(weekly_free, h5, *, resets_at="2026-07-08T10:00:00Z",
             "five_hour": {"remaining_pct": h5, "resets_at": "2026-07-02T03:00:00Z"},
             "seven_day": {"remaining_pct": weekly_free, "resets_at": resets_at},
         }
+        if fable_remaining_pct is not None:
+            windows["fable"] = {
+                "remaining_pct": fable_remaining_pct,
+                "resets_at": fable_resets_at or resets_at,
+            }
     return {
         "email": "x@y.com",
         "active": active,
@@ -52,6 +58,21 @@ def _entry(weekly_free, h5, *, resets_at="2026-07-08T10:00:00Z",
         "renews_in_days": 8,
         "windows": windows,
     }
+
+
+def test_real_fable_window_overrides_estimate():
+    # weekly_free=41 -> old estimate would be 0 (past the 50% line), but the
+    # real per-model API field says 27% room is actually left. Real data wins.
+    r = _fable_rank(_entry(weekly_free=41, h5=100, fable_remaining_pct=27))
+    assert r["fable_room"] == 27
+    assert r["score"] > 0
+
+
+def test_real_fable_window_can_be_lower_than_estimate():
+    # weekly_free=86 -> old estimate would be 36, but the real per-model field
+    # says only 25% is actually left (other models ate more of the budget).
+    r = _fable_rank(_entry(weekly_free=86, h5=100, fable_remaining_pct=25))
+    assert r["fable_room"] == 25
 
 
 def test_fable_room_is_weekly_free_minus_cap():
