@@ -2,6 +2,10 @@
 
 ## v1.3.1 — TBD
 
+### Pricing
+
+- Added explicit `claude-opus-5` pricing ($5.00/$25.00 per MTok, $0.50 cache read, $6.25 cache write) to the CLI and dashboard tables, and pointed the `opus` substring fallback at Opus 5 so future Opus IDs price correctly.
+
 ### Dashboard
 
 - Rendered cached account-limit orbs as STALE during API errors, surfaced the real error message with error-specific advice, and prevented stale accounts from displaying the USE ME badge.

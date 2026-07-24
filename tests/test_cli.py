@@ -24,6 +24,20 @@ class TestGetPricing(unittest.TestCase):
             self.assertGreater(p["input"], 0, f"Missing input price for {model}")
             self.assertGreater(p["output"], 0, f"Missing output price for {model}")
 
+    def test_opus_5_has_explicit_entry(self):
+        """Opus 5 must be priced explicitly, not via the opus substring fallback."""
+        self.assertIn("claude-opus-5", PRICING)
+        p = get_pricing("claude-opus-5")
+        self.assertEqual(p["input"], 5.00)
+        self.assertEqual(p["output"], 25.00)
+        self.assertEqual(p["cache_read"], 0.50)
+        self.assertEqual(p["cache_write"], 6.25)
+
+    def test_opus_5_with_date_suffix(self):
+        p = get_pricing("claude-opus-5-20260301")
+        self.assertEqual(p["input"], 5.00)
+        self.assertEqual(p["output"], 25.00)
+
     def test_opus_4_7_has_explicit_entry(self):
         """Regression guard for issue #61 — Opus 4.7 must be present."""
         p = get_pricing("claude-opus-4-7")
