@@ -616,14 +616,18 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
 
 
 # ── Fable-5 account routing ───────────────────────────────────────────────────
-# Fable 5 usage is capped at 50% of an account's weekly allowance. The usage API
-# reports only OVERALL weekly utilization (no per-model split), so guaranteed
-# Fable headroom = max(0, weekly_remaining - 50): worst case every prior token
-# this window was Fable, so only capacity above the 50% line is provably still
-# open to Fable. Rank active accounts by that headroom, preferring a running
-# weekly window (use-it-or-lose-it) over an idle reserve.
+# The usage API reports a real per-model weekly limit for Fable 5 (a
+# `weekly_scoped` entry in raw["limits"] with scope.model.display_name ==
+# "Fable" — see accounts._extract_fable_limit), so fable_room is read directly
+# off the account, not estimated. Rank active accounts by that headroom,
+# preferring a running weekly window (use-it-or-lose-it) over an idle reserve.
+#
+# Older/degraded API responses (or an account whose cache predates this field)
+# may lack the "fable" window — fall back to the old worst-case estimate
+# (weekly_remaining - 50%) in that case so routing degrades gracefully instead
+# of crashing.
 
-FABLE_CAP_PCT = 50        # Fable 5 may consume at most 50% of the weekly window
+FABLE_CAP_PCT = 50        # fallback cap when the real per-model window is unavailable
 DRAIN_BOOST = 100.0       # running-window bonus: burn a ticking clock before a reserve
 
 
@@ -652,7 +656,10 @@ def _fable_rank(entry: dict) -> dict:
 
     weekly_free = w["seven_day"]["remaining_pct"]
     h5 = w["five_hour"]["remaining_pct"]
-    fable_room = max(0, weekly_free - FABLE_CAP_PCT)
+    if "fable" in w:
+        fable_room = w["fable"]["remaining_pct"]
+    else:
+        fable_room = max(0, weekly_free - FABLE_CAP_PCT)
     running = bool(w["seven_day"]["resets_at"])
     throttled = h5 < 15
 
@@ -779,10 +786,12 @@ def cmd_fable_cost(pattern: str | None = None, discount: str | None = None) -> N
 def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
     """Recommend which account to use for Fable-5 work right now.
 
-    Ranks active accounts by guaranteed Fable headroom (weekly_remaining - 50%),
-    favoring a running weekly window over an idle reserve, and prints the exact
-    login switch when the pick isn't the current keychain owner. With switch=True,
-    first snapshots the live keychain (run after /login into the target account).
+    Ranks active accounts by real per-model Fable headroom (from the API's
+    weekly_scoped Fable limit; falls back to weekly_remaining - 50% estimate
+    only if that field is missing), favoring a running weekly window over an
+    idle reserve, and prints the exact login switch when the pick isn't the
+    current keychain owner. With switch=True, first snapshots the live
+    keychain (run after /login into the target account).
     """
     import accounts as _accts  # local import — only needed for this subcommand
 
@@ -815,7 +824,7 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
     print("  FABLE-NEXT — which account for Fable 5 work")
     hr("=")
     print(f"  Keychain now: {owner or 'unknown'}")
-    print(f"  Fable cap: {FABLE_CAP_PCT}% of each account's weekly window")
+    print("  FABLE = real per-model weekly usage from the API")
     hr()
     print(f"  {'#':<3}{'ACCOUNT':<34}{'FABLE':<8}{'WEEK':<7}{'5H':<7}{'WKLY RESET':<14}")
     pick = None
@@ -823,7 +832,8 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
         w = e.get("windows") or {}
         week = f"{w['seven_day']['remaining_pct']}%" if "seven_day" in w else "--"
         h5 = f"{w['five_hour']['remaining_pct']}%" if "five_hour" in w else "--"
-        reset = _fmt_reset_local(w.get("seven_day", {}).get("resets_at")) if "seven_day" in w else "--"
+        reset_src = w.get("fable") or w.get("seven_day") or {}
+        reset = _fmt_reset_local(reset_src.get("resets_at")) if reset_src else "--"
         fable = f"{r['fable_room']}%" if r["score"] is not None else "n/a"
         usable = r["score"] is not None and r["score"] > 0
         if pick is None and usable:
@@ -881,7 +891,8 @@ Usage:
                                                  (runs standalone, independent of the :8080 dashboard)
   python cli.py fable-next [--refresh] [--switch]
                                                  Recommend which account to use for Fable 5
-                                                 work now (weekly_remaining - 50% cap);
+                                                 work now (real per-model Fable usage from
+                                                 the API, not an estimate);
                                                  --refresh fetches live usage first;
                                                  --switch snapshots the live keychain as the
                                                  new owner (run after logging into the target)
