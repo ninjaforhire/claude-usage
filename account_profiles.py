@@ -360,3 +360,187 @@ def record_snapshot(
         profile["inactive"] = False
         return
     raise ValueError(f"Unknown local account profile: {profile_id}")
+
+
+def _parse_timestamp(value: Any) -> float:
+    """Return an ISO timestamp's epoch, putting missing/invalid values last."""
+    if not isinstance(value, str):
+        return float("inf")
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return float("inf")
+
+
+def fable_headroom(subscription: dict[str, Any]) -> Optional[dict[str, Any]]:
+    """Calculate the guaranteed Fable 5 headroom from a shared weekly limit.
+
+    Fable can use at most half of the weekly plan limit. When only the total
+    weekly remaining percentage is available, the amount guaranteed to remain
+    usable by Fable is ``max(0, weekly_remaining - 50)``.
+    """
+    weekly = subscription.get("windows", {}).get("seven_day")
+    if not isinstance(weekly, dict):
+        return None
+    remaining = weekly.get("remaining_percent")
+    if not isinstance(remaining, (int, float)) or isinstance(remaining, bool):
+        return None
+    weekly_remaining = max(0.0, min(100.0, float(remaining)))
+    return {
+        "guaranteed_percent": max(0.0, weekly_remaining - 50.0),
+        "weekly_remaining_percent": weekly_remaining,
+        "resets_at": weekly.get("resets_at"),
+    }
+
+
+def _is_fable_eligible(profile: dict[str, Any], subscription: dict[str, Any]) -> bool:
+    """Return whether the locally declared plan can include Fable 5 usage."""
+    account = subscription.get("account", {})
+    account_plan = account.get("plan") if isinstance(account, dict) else None
+    configured = profile.get("providers", {}).get("claude", {}).get("plan_label")
+    plans = (account_plan, configured)
+    return any(
+        isinstance(plan, str)
+        and ("max" in plan.casefold() or "premium" in plan.casefold())
+        for plan in plans
+    )
+
+
+def _snapshot_for(profile: dict[str, Any], provider: str) -> dict[str, Any]:
+    """Get a provider snapshot or a stable unavailable placeholder."""
+    snapshot = profile.get("snapshots", {}).get(provider)
+    if isinstance(snapshot, dict):
+        return snapshot
+    return {
+        "provider": provider,
+        "available": False,
+        "source": "local-account-profile",
+        "account": {},
+        "windows": {},
+        "error": "No local snapshot yet",
+    }
+
+
+def rank_fable_profiles(registry: dict[str, Any]) -> list[dict[str, Any]]:
+    """Rank Claude profiles by safe Fable headroom and weekly reset urgency."""
+    ranked: list[dict[str, Any]] = []
+    for profile in registry.get("profiles", []):
+        if "claude" not in profile.get("providers", {}):
+            continue
+        snapshot = _snapshot_for(profile, "claude")
+        headroom = (
+            fable_headroom(snapshot) if _is_fable_eligible(profile, snapshot) else None
+        )
+        guaranteed = headroom["guaranteed_percent"] if headroom else -1.0
+        reset_epoch = _parse_timestamp(headroom.get("resets_at") if headroom else None)
+        rank_group = (
+            0
+            if guaranteed > 0 and not profile.get("inactive")
+            else (
+                1
+                if headroom is not None and not profile.get("inactive")
+                else 2 if not profile.get("inactive") else 3
+            )
+        )
+        ranked.append(
+            {
+                "id": profile["id"],
+                "label": profile["label"],
+                "inactive": bool(profile.get("inactive")),
+                "subscription": snapshot,
+                "fable": headroom,
+                "_sort": (
+                    rank_group,
+                    reset_epoch,
+                    -guaranteed,
+                    profile["label"].casefold(),
+                ),
+            }
+        )
+    ranked.sort(key=lambda profile: profile.pop("_sort"))
+    return ranked
+
+
+def rank_codex_profiles(registry: dict[str, Any]) -> list[dict[str, Any]]:
+    """Rank Codex profiles without consuming any earned reset credits."""
+    ranked: list[dict[str, Any]] = []
+    for profile in registry.get("profiles", []):
+        if "codex" not in profile.get("providers", {}):
+            continue
+        snapshot = _snapshot_for(profile, "codex")
+        windows = snapshot.get("windows", {})
+        five_hour = windows.get("five_hour", {}) if isinstance(windows, dict) else {}
+        seven_day = windows.get("seven_day", {}) if isinstance(windows, dict) else {}
+        five_remaining = five_hour.get("remaining_percent")
+        weekly_remaining = seven_day.get("remaining_percent")
+        direct_ready = (
+            isinstance(five_remaining, (int, float))
+            and not isinstance(five_remaining, bool)
+            and five_remaining >= 15
+            and isinstance(weekly_remaining, (int, float))
+            and not isinstance(weekly_remaining, bool)
+            and weekly_remaining > 0
+        )
+        reset_credits = snapshot.get("reset_credits", {})
+        count = (
+            reset_credits.get("available_count", 0)
+            if isinstance(reset_credits, dict)
+            else 0
+        )
+        if not isinstance(count, int) or isinstance(count, bool):
+            count = 0
+        expires_at = (
+            reset_credits.get("expires_at") if isinstance(reset_credits, dict) else None
+        )
+        ranked.append(
+            {
+                "id": profile["id"],
+                "label": profile["label"],
+                "inactive": bool(profile.get("inactive")),
+                "subscription": snapshot,
+                "five_hour_remaining_percent": five_remaining,
+                "weekly_remaining_percent": weekly_remaining,
+                "direct_ready": direct_ready,
+                "reset_credits": {
+                    "available_count": max(0, count),
+                    "expires_at": expires_at,
+                },
+                "_sort": (
+                    (
+                        0
+                        if direct_ready and not profile.get("inactive")
+                        else 1 if count > 0 else 2
+                    ),
+                    _parse_timestamp(seven_day.get("resets_at")),
+                    _parse_timestamp(expires_at),
+                    -max(0, count),
+                    profile["label"].casefold(),
+                ),
+            }
+        )
+    ranked.sort(key=lambda profile: profile.pop("_sort"))
+    return ranked
+
+
+def profile_provider_cards(registry: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return profile/provider cards with no historical activity attribution."""
+    cards: list[dict[str, Any]] = []
+    for profile in registry.get("profiles", []):
+        for provider in sorted(profile.get("providers", {})):
+            snapshot = _snapshot_for(profile, provider)
+            cards.append(
+                {
+                    "profile_id": profile["id"],
+                    "profile_label": profile["label"],
+                    "inactive": bool(profile.get("inactive")),
+                    "provider": provider,
+                    "subscription": snapshot,
+                    "fable": (
+                        fable_headroom(snapshot)
+                        if provider == "claude"
+                        and _is_fable_eligible(profile, snapshot)
+                        else None
+                    ),
+                }
+            )
+    return cards
