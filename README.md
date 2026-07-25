@@ -1,154 +1,289 @@
-# Claude Code Usage Dashboard
+# [HotFix Ops](https://hotfixops.com/) Usage Dashboard
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![claude-code](https://img.shields.io/badge/claude--code-black?style=flat-square)](https://claude.ai/code)
+A local, source-only [HotFix Ops](https://hotfixops.com/) dashboard for Claude
+Code and OpenAI Codex usage.
 
-**Pro and Max subscribers get a progress bar. This gives you the full picture.**
+It has three views:
 
-Claude Code writes detailed usage logs locally — token counts, models, sessions, projects — regardless of your plan. This dashboard reads those logs and turns them into charts and cost estimates. Works on API, Pro, and Max plans.
+- **Overview**: provider-separated account orbs and combined local totals
+- **Claude**: Claude Code models, tokens, sessions, projects, and API-equivalent estimates
+- **Codex**: Codex models, tokens, sessions, and projects
 
-![Claude Usage Dashboard](docs/screenshot.png)
+The dashboard uses your existing official CLI logins. It does not ask for,
+copy, store, or send passwords, browser cookies, API keys, or OAuth tokens.
 
-**Created by:** [The Product Compass Newsletter](https://www.productcompass.pm)
+The interface uses the [HotFix Ops](https://hotfixops.com/) visual system and
+local [HotFix Ops](https://hotfixops.com/) icon. It is a distinct local-first
+product; the original project's MIT notices remain in this source distribution.
 
----
+> This is an independent community project. It is not affiliated with,
+> endorsed by, or supported by Anthropic or OpenAI.
 
-## What this tracks
+## Fastest setup
 
-Works on **API, Pro, and Max plans** — Claude Code writes local usage logs regardless of subscription type. This tool reads those logs and gives you visibility that Anthropic's UI doesn't provide.
+**Recommended:** give [INSTALL_WITH_AGENT.md](INSTALL_WITH_AGENT.md) to a local
+coding agent. It contains one copy-and-paste prompt that verifies the files,
+tests the safe connectors, and starts the dashboard.
 
-Captures usage from:
-- **Claude Code CLI** (`claude` command in terminal)
-- **VS Code extension** (Claude Code sidebar)
-- **Dispatched Code sessions** (sessions routed through Claude Code)
+Manual setup:
 
-**Not captured:**
-- **Cowork sessions** — these run server-side and do not write local JSONL transcripts
+macOS/Linux:
 
----
-
-## Requirements
-
-- Python 3.8+
-- No third-party packages — uses only the standard library (`sqlite3`, `http.server`, `json`, `pathlib`)
-
-> Anyone running Claude Code already has Python installed.
-
-## Quick Start
-
-No `pip install`, no virtual environment, no build step.
-
-### macOS / Linux (Homebrew)
-```
-brew install --formula https://raw.githubusercontent.com/phuryn/claude-usage/main/Formula/claude-usage.rb
-claude-usage dashboard
-```
-
-After install, the `claude-usage` command is on your `PATH` and accepts the same subcommands as `python cli.py` (`scan`, `today`, `stats`, `dashboard`).
-
-### macOS / Linux (clone)
-```
-git clone https://github.com/phuryn/claude-usage
-cd claude-usage
+```bash
+git clone <this-repository-url>
+cd <this-repository-folder>
+python3 -m unittest discover -s tests
 python3 cli.py dashboard
 ```
 
-### Windows
-```
-git clone https://github.com/phuryn/claude-usage
-cd claude-usage
+Windows PowerShell:
+
+```powershell
+git clone <this-repository-url>
+cd <this-repository-folder>
+python -m unittest discover -s tests
 python cli.py dashboard
 ```
 
+Open <http://localhost:8080> if the browser does not open automatically.
 
----
+## Requirements
 
-## Usage
+- Python 3.9+
+- Claude Code for Claude history/account detection
+- Codex CLI or Codex app for Codex history/account detection
+- No third-party Python packages
+- Internet access only for normal provider CLI operations; Chart.js is vendored
+  locally for privacy and offline dashboard rendering
 
-> On macOS/Linux, use `python3` instead of `python` in all commands below. If you installed via Homebrew, replace `python cli.py` with `claude-usage`.
+Authenticate with the providers' official tools before starting:
 
-```
-# Scan JSONL files and populate the database (~/.claude/usage.db)
-python cli.py scan
-
-# Show today's usage summary by model (in terminal)
-python cli.py today
-
-# Show the last 7 days (per-day breakdown + by-model totals)
-python cli.py week
-
-# Show all-time statistics (in terminal)
-python cli.py stats
-
-# Scan + open browser dashboard at http://localhost:8080
-python cli.py dashboard
-
-# Custom host and port via environment variables
-HOST=0.0.0.0 PORT=9000 python cli.py dashboard
-
-# Scan a custom projects directory
-python cli.py scan --projects-dir /path/to/transcripts
+```bash
+claude
+codex login
 ```
 
-The scanner is incremental — it tracks each file's path and modification time, so re-running `scan` is fast and only processes new or changed files.
+Complete provider login interactively. Do not give credentials to this project
+or to an installation agent.
 
-By default, the scanner checks both `~/.claude/projects/` and the Xcode Claude integration directory (`~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/projects/`), skipping any that don't exist. Use `--projects-dir` to scan a custom location instead.
+## What it reads
 
----
+| Source | Purpose | Stored by this project |
+|---|---|---|
+| `~/.claude/projects/**/*.jsonl` | Claude Code local token/session history | Aggregated rows in `~/.claude/usage.db` |
+| `~/.codex/sessions/**/*.jsonl` | Codex local token/session history | Aggregated rows in `~/.claude-codex-usage/codex.db` |
+| `claude auth status --json` | Sanitized Claude account/plan status | Nothing |
+| `codex app-server --stdio` | Sanitized Codex plan/rate-limit windows | Nothing |
 
-## How it works
+The browser API receives aggregates and sanitized account fields only. It does
+not receive prompts, message bodies, raw rollouts, credential paths, or tokens.
 
-Claude Code writes one JSONL file per session to `~/.claude/projects/`. Each line is a JSON record; `assistant`-type records contain:
-- `message.usage.input_tokens` — raw prompt tokens
-- `message.usage.output_tokens` — generated tokens
-- `message.usage.cache_creation_input_tokens` — tokens written to prompt cache
-- `message.usage.cache_read_input_tokens` — tokens served from prompt cache
-- `message.model` — the model used (e.g. `claude-sonnet-4-6`)
+## Your data, not the publisher's
 
-`scanner.py` parses those files and stores the data in a SQLite database at `~/.claude/usage.db`.
+A fresh clone contains **no usage database, account snapshot, transcript, or
+project history**. On first launch, the dashboard reads only the signed-in
+user's local Claude/Codex files under their own home directory and creates their
+own derived databases there. Their project names, branches, sessions, and costs
+therefore belong to them, not to the person who shared the repository.
 
-`dashboard.py` serves a single-page dashboard on `localhost:8080` with Chart.js charts (loaded from CDN). It auto-refreshes every 30 seconds and supports model filtering with bookmarkable URLs. The bind address and port can be overridden with `HOST` and `PORT` environment variables (defaults: `localhost`, `8080`).
+## App and browser coverage
 
----
+This project tracks **local coding sessions that write the supported Claude Code
+or Codex rollout formats**. That includes CLI/editor activity and can include
+desktop Codex activity when it uses the same local Codex session store.
 
-## Cost estimates
+It does **not** claim to reconstruct general chats from claude.ai, ChatGPT,
+Claude Desktop, ChatGPT Desktop, mobile apps, or cloud-only coding sessions.
+Those services do not expose all consumer-subscription history through the local
+transcript formats this project reads.
 
-Costs are calculated using **Anthropic API pricing as of April 2026** ([claude.com/pricing#api](https://claude.com/pricing#api)).
+The account orbs are live provider status, not screenshots:
 
-**Only models whose name contains `opus`, `sonnet`, or `haiku` are included in cost calculations.** Local models, unknown models, and any other model names are excluded (shown as `n/a`).
+- Claude: supported account identity/plan from `claude auth status --json`
+- Codex: supported rate-limit windows from the authenticated local Codex app server
 
-| Model | Input | Output | Cache Write | Cache Read |
-|-------|-------|--------|------------|-----------|
-| claude-opus-4-7 | $5.00/MTok | $25.00/MTok | $6.25/MTok | $0.50/MTok |
-| claude-opus-4-6 | $5.00/MTok | $25.00/MTok | $6.25/MTok | $0.50/MTok |
-| claude-sonnet-4-6 | $3.00/MTok | $15.00/MTok | $3.75/MTok | $0.30/MTok |
-| claude-haiku-4-5 | $1.00/MTok | $5.00/MTok | $1.25/MTok | $0.10/MTok |
+## Subscription connectors
 
-> **Note:** These are API prices. If you use Claude Code via a Max or Pro subscription, your actual cost structure is different (subscription-based, not per-token).
+The optional connectors are deliberately separate:
 
----
+| File | Behavior |
+|---|---|
+| `connectors/claude_subscription.py` | Reads safe Claude CLI status. Supported Claude subscription usage windows are unavailable by default. |
+| `connectors/codex_subscription.py` | Reads supported Codex subscription windows through `codex app-server --stdio`. |
 
-## VS Code extension
+Run them independently:
 
-If you'd rather see the dashboard inside your editor, the same UI is available as a VS Code extension. Same data, same charts, embedded as an activity-bar sidebar.
+macOS/Linux:
 
-[**Install from the VS Code Marketplace →**](https://marketplace.visualstudio.com/items?itemName=PawelHuryn.claude-usage-phuryn)
+```bash
+python3 connectors/claude_subscription.py
+python3 connectors/codex_subscription.py
+```
 
-![VS Code extension — daily usage](docs/usage1.png)
-![VS Code extension — hourly + projects](docs/usage2.png)
+On Windows, replace `python3` with `python`.
 
-The Python sources are bundled inside the `.vsix`, so the only end-user requirement is **Python 3.8+ on your `PATH`**. After install, click the gauge icon in the activity bar — the server spawns automatically and the dashboard renders in the sidebar.
+### Claude subscription limitation
 
-See [vscode-extension/README.md](vscode-extension/README.md) for settings, commands, discovery order, and local-install instructions.
+Claude Code currently provides supported CLI account status, but not a supported
+non-interactive command for consumer subscription usage windows. The connector
+therefore shows the account and plan while marking the limits unavailable.
 
----
+Advanced users may pass an explicitly trusted local helper to
+`read_subscription(helper=...)`. The helper must output only this normalized
+shape:
+
+```json
+{
+  "windows": {
+    "five_hour": {
+      "used_percent": 25,
+      "remaining_percent": 75,
+      "resets_at": "2026-07-24T20:00:00Z"
+    },
+    "seven_day": {
+      "used_percent": 40,
+      "remaining_percent": 60,
+      "resets_at": "2026-07-30T20:00:00Z"
+    }
+  }
+}
+```
+
+This repository intentionally does not include token extraction, keychain
+reading, browser scraping, or private Anthropic endpoints.
+
+The helper is executable code. Use only a helper you wrote or audited yourself;
+the dashboard never downloads or enables one automatically.
+
+## Refresh behavior
+
+Opening the dashboard triggers one incremental scan of both local histories.
+The **Refresh** button repeats the scan and reloads both supported account
+connectors. Existing derived data is preserved if a provider is unavailable.
+
+## Local-only accounts and first-run testing
+
+Configured accounts are stored outside the checkout at
+`~/.hotfix-ops-usage/accounts.json` with owner-only permissions. They contain
+only labels, expected account emails, and sanitized plan/rate-limit snapshots,
+never credentials, raw provider responses, transcripts, or project history.
+
+Add an account profile from the currently signed-in official CLI:
+
+```bash
+python3 cli.py accounts setup --label "Work Max"
+```
+
+The guided command reads only safe account status, uses that identity to prevent
+a later account mismatch, and never asks for credentials. If a provider is
+signed out, it tells the user the official login command and saves nothing until
+they return. For advanced/manual setup:
+
+```bash
+python3 cli.py accounts add --id max-one --label "Max account one" \
+  --claude-email you@example.com --codex-email you@example.com --tier "Max 20x"
+python3 cli.py accounts snapshot --profile max-one --provider all
+python3 cli.py accounts list
+```
+
+Profiles are quota snapshots only. Claude and Codex local history stores do not
+reliably tag rows with the signed-in account, so the dashboard never assigns
+projects, branches, sessions, or local tokens to an account profile unless the user
+has independently separated those source directories.
+
+For an eligible Max/premium Claude profile with a live weekly snapshot, the UI
+shows **guaranteed Fable headroom** as `max(0, weekly remaining − 50)`. It is a
+conservative shared-limit calculation, not an invented per-model meter.
+
+Codex snapshots also retain the number of available earned reset credits and an
+optional earliest expiry. The dashboard and bundled skill only display them;
+they never redeem a reset credit.
+
+### Repeatable first-run preview
+
+Use the isolated test mode to rehearse a brand-new-user experience without
+reading your real histories, account connector data, or normal account profiles:
+
+```bash
+python3 cli.py dashboard --test-mode --port 8081
+```
+
+It uses only `~/.hotfix-ops-usage/testing/accounts.json`. The orange **TEST
+MODE** banner includes **Load sample accounts** for a fake multi-account
+overview and **Reset preview**, which clears that testing registry and returns
+the dashboard to its blank first-run screen. The equivalent terminal commands
+are deliberately explicit:
+
+```bash
+python3 cli.py accounts --testing samples
+python3 cli.py accounts --testing reset --yes
+```
+
+Normal profiles at `~/.hotfix-ops-usage/accounts.json` are never read or
+changed in test mode. To evaluate the multi-account layout with disposable
+labels, add profiles only to the isolated registry:
+
+```bash
+python3 cli.py accounts --testing add --id studio --label "Studio Max" \
+  --claude-email studio@example.com --codex-email studio@example.com
+```
+
+## Bundled account-selection skills
+
+| Skill | Command | Behavior |
+|---|---|---|
+| [`skills/fable-next/SKILL.md`](skills/fable-next/SKILL.md) | `python3 cli.py fable-next` | Ranks Claude Max profiles by conservative Fable 5 headroom. |
+| [`skills/codex-next/SKILL.md`](skills/codex-next/SKILL.md) | `python3 cli.py codex-next` | Ranks Codex profiles by live 5-hour/weekly room and flags reset credits without consuming them. |
+
+Copy the skill directory into the appropriate local agent skill location, or
+give the file to an agent that knows that environment. The skills require the
+local-only account registry above; no account data is included in this project.
+
+The older Claude-only terminal commands remain available:
+
+```bash
+python3 cli.py scan
+python3 cli.py today
+python3 cli.py week
+python3 cli.py stats
+```
+
+For privacy, the server refuses non-loopback bind addresses. It can be opened
+only through `localhost`, `127.0.0.1`, or `::1`. The Claude database path is
+retained from the upstream project, so another `phuryn/claude-usage` checkout
+may share `~/.claude/usage.db`.
+
+## Estimates
+
+Claude cost values are **Anthropic API-equivalent estimates**, not the amount a
+Pro or Max subscriber was charged. Codex rows currently show usage tokens rather
+than invented subscription or API costs; cost cells remain `n/a`. Codex
+reasoning tokens are displayed separately for visibility but are already
+included in output-token totals and are not added again in Overview. Provider
+rate-limit percentages remain separate and are never added into a fake combined
+percentage.
+
+## Project lineage
+
+This fork is based on Paweł Huryn's MIT-licensed
+[`phuryn/claude-usage`](https://github.com/phuryn/claude-usage), created by
+[The Product Compass Newsletter](https://www.productcompass.pm). The original
+Claude scanner, dashboard charts, and attribution are retained under the
+[MIT License](LICENSE).
 
 ## Files
 
 | File | Purpose |
-|------|---------|
-| `scanner.py` | Parses JSONL transcripts, writes to `~/.claude/usage.db` |
-| `dashboard.py` | HTTP server + single-page HTML/JS dashboard |
-| `cli.py` | `scan`, `today`, `stats`, `dashboard` commands |
-| `Formula/claude-usage.rb` | Homebrew formula — install with `brew install --formula <raw-url>` |
-| `vscode-extension/` | VS Code extension — embeds the dashboard inside VS Code |
+|---|---|
+| `scanner.py` | Claude Code local-history scanner |
+| `codex_scanner.py` | Codex local-history scanner |
+| `connectors/claude_subscription.py` | Optional Claude status connector |
+| `connectors/codex_subscription.py` | Optional Codex subscription connector |
+| `dashboard.py` | Local HTTP server and three-view dashboard |
+| `cli.py` | Terminal commands and dashboard launcher |
+| `INSTALL_WITH_AGENT.md` | Copy-and-paste installation prompt |
+| `assets/hfo-icon.png` | Local [HotFix Ops](https://hotfixops.com/) dashboard icon |
+| `account_profiles.py` | Local-only test-profile registry and safe account ranking |
+| `skills/fable-next/SKILL.md` | Portable Fable profile-selection skill |
+| `skills/codex-next/SKILL.md` | Portable Codex profile-selection skill |
+| `vendor/chart.umd.min.js` | Vendored Chart.js 4.4.0 (MIT) for local/offline charts |
