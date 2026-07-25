@@ -1,11 +1,14 @@
 """Tests for cli.py - pricing, formatting, and cost calculation."""
 
 import io
+import tempfile
 import unittest
 from contextlib import redirect_stdout
+from pathlib import Path
 from unittest import mock
 import cli
-from cli import get_pricing, calc_cost, fmt, fmt_cost, PRICING
+from account_profiles import load_registry
+from cli import get_pricing, calc_cost, fmt, fmt_cost
 
 
 class TestGetPricing(unittest.TestCase):
@@ -179,6 +182,71 @@ class TestDashboardNoBrowser(unittest.TestCase):
             cli.cmd_dashboard(host="127.0.0.1", port=9999, no_browser=True)
             mock_open.assert_not_called()
             mock_serve.assert_called_once()
+
+    def test_test_mode_skips_scans_and_starts_isolated_server(self):
+        with mock.patch.object(cli, "cmd_scan") as mock_scan, \
+             mock.patch("dashboard.serve") as mock_serve, \
+             redirect_stdout(io.StringIO()):
+            cli.cmd_dashboard(
+                host="127.0.0.1", port=9999, no_browser=True, test_mode=True
+            )
+            mock_scan.assert_not_called()
+            mock_serve.assert_called_once_with(
+                host="127.0.0.1", port=9999, test_mode=True
+            )
+
+
+class TestLocalAccountSetup(unittest.TestCase):
+    def test_setup_parser_accepts_guided_account_arguments(self):
+        args = cli._account_parser().parse_args(
+            ["setup", "--label", "Studio Max", "--providers", "codex"]
+        )
+        self.assertEqual(args.action, "setup")
+        self.assertEqual(args.label, "Studio Max")
+        self.assertEqual(args.providers, "codex")
+
+    def test_profile_id_is_safe_and_deduplicated(self):
+        registry = {"profiles": [{"id": "studio-max"}]}
+        self.assertEqual(cli._profile_id_for_label("Studio Max!", registry), "studio-max-2")
+
+    def test_setup_saves_only_sanitized_connected_account_snapshots(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = Path(directory) / "accounts.json"
+            claude_snapshot = {
+                "available": True,
+                "source": "claude-cli",
+                "account": {
+                    "email": "studio@example.com",
+                    "plan": "max",
+                    "accessToken": "must-not-leak",
+                },
+                "windows": {},
+            }
+            codex_snapshot = {
+                "available": True,
+                "source": "codex-app-server",
+                "account": {"email": "studio@example.com", "plan": "max"},
+                "windows": {},
+                "reset_credits": {"available_count": 2, "credit_id": "must-not-leak"},
+            }
+            with mock.patch(
+                "connectors.claude_subscription.read_subscription",
+                return_value=claude_snapshot,
+            ), mock.patch(
+                "connectors.codex_subscription.read_subscription",
+                return_value=codex_snapshot,
+            ), redirect_stdout(io.StringIO()):
+                cli.cmd_accounts(
+                    ["--store", str(store), "setup", "--label", "Studio Max"]
+                )
+
+            registry = load_registry(store)
+            profile = registry["profiles"][0]
+            self.assertEqual(profile["label"], "Studio Max")
+            self.assertEqual(set(profile["providers"]), {"claude", "codex"})
+            serialized = store.read_text(encoding="utf-8")
+            self.assertNotIn("accessToken", serialized)
+            self.assertNotIn("must-not-leak", serialized)
 
 
 if __name__ == "__main__":
