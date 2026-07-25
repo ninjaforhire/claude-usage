@@ -446,7 +446,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
   .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
   .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-  .stat-card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat-card .label { color: var(--muted); font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
   .stat-card .value { font-size: 22px; font-weight: 700; }
   .stat-card .sub { color: var(--muted); font-size: 11px; margin-top: 4px; }
 
@@ -457,7 +457,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
      canvas. (Expanding already works — 1fr columns grow freely.) */
   .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; min-width: 0; }
   .chart-card.wide { grid-column: 1 / -1; }
-  .chart-card h2 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+  .chart-card h2 { font-family: 'Space Grotesk', 'Avenir Next', -apple-system, sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
   .chart-wrap { position: relative; height: 240px; }
   .chart-wrap.tall { height: 300px; }
   .chart-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
@@ -483,9 +483,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   .model-tag { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 11px; background: rgba(72,160,199,0.15); color: var(--blue); }
   .cost { color: var(--green); font-family: monospace; }
   .cost-na { color: var(--muted); font-family: monospace; font-size: 11px; }
-  .num { font-family: monospace; }
+  .num { font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; }
   .muted { color: var(--muted); }
-  .section-title { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; }
+  .section-title { font-family: 'Space Grotesk', 'Avenir Next', -apple-system, sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
   .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
   .section-header .section-title { margin-bottom: 0; }
   .export-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 3px 10px; border-radius: 5px; cursor: pointer; font-size: 11px; }
@@ -501,23 +501,59 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   footer { border-top: 1px solid var(--border); padding: 20px 24px; margin-top: 8px; }
   .footer-content { max-width: 1400px; margin: 0 auto; }
   .footer-content p { color: var(--muted); font-size: 12px; line-height: 1.7; margin-bottom: 4px; }
+  .footer-content .footer-brand { color: var(--accent); font-family: 'Space Grotesk', 'Avenir Next', -apple-system, sans-serif; font-weight: 700; letter-spacing: .08em; }
+  .footer-link { color: inherit; text-decoration: none; }
+  .footer-link:hover .footer-brand { color: #ff8a4c; }
   .footer-content p:last-child { margin-bottom: 0; }
   .footer-content a { color: var(--blue); text-decoration: none; }
   .footer-content a:hover { text-decoration: underline; }
 
-  @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } .chart-card.wide { grid-column: 1; } }
+  @media (max-width: 768px) {
+    .charts-grid, .overview-grid { grid-template-columns: 1fr; }
+    .chart-card.wide { grid-column: 1; }
+    .overview-totals { grid-template-columns: 1fr; }
+    .provider-card { align-items: flex-start; flex-direction: column; }
+    .testing-mode-banner { align-items: flex-start; flex-direction: column; }
+  }
 </style>
 </head>
 <body>
 <header>
   <div class="header-title">
-    <span class="header-icon" role="img" aria-label="Claude Usage"></span>
-    <h1>Claude Code Usage</h1>
+    <a class="brand-link" href="https://hotfixops.com/" target="_blank" rel="noopener noreferrer" aria-label="Visit HotFix Ops">
+      <img class="header-icon" src="/assets/hfo-icon.png" alt="HotFix Ops">
+      <div class="header-brand">
+        <span class="header-kicker">HotFix Ops</span>
+        <h1 id="page-title">Usage Dashboard</h1>
+      </div>
+    </a>
   </div>
   <div class="meta" id="meta">Loading...</div>
-  <button id="rescan-btn" onclick="triggerRescan()" title="Rebuild the database from scratch by re-scanning all JSONL files. Use if data looks stale or costs seem wrong.">&#x21bb; Rescan</button>
+  <button id="rescan-btn" onclick="triggerRefresh()" title="Scan local Claude and Codex history and refresh supported account limits.">&#x21bb; Refresh</button>
 </header>
 
+<nav id="provider-nav" aria-label="Usage provider">
+  <button class="provider-tab active" data-provider="overview" onclick="setProvider('overview')">Overview</button>
+  <button class="provider-tab" data-provider="claude" onclick="setProvider('claude')">Claude</button>
+  <button class="provider-tab" data-provider="codex" onclick="setProvider('codex')">Codex</button>
+</nav>
+
+<section id="testing-mode-banner" class="testing-mode-banner hidden" aria-live="polite">
+  <span><strong>Test mode</strong> · isolated first-run preview · no normal history or account data is read</span>
+  <span>
+    <button id="seed-testing-mode" type="button" onclick="seedTestingMode()">Load sample accounts</button>
+    <button id="reset-testing-mode" type="button" onclick="resetTestingMode()">Reset preview</button>
+  </span>
+</section>
+
+<main id="overview-view" class="container">
+  <div class="overview-grid" id="overview-grid"></div>
+  <div class="overview-totals" id="overview-totals"></div>
+  <p class="overview-note" id="overview-note">Subscription windows stay provider-specific. Claude and Codex percentages are never combined into a misleading universal limit.</p>
+</main>
+
+<div id="details-view" class="hidden">
+<div id="detail-provider-summary" class="container"></div>
 <div id="filter-bar">
   <div class="filter-label">Models</div>
   <div id="model-checkboxes"></div>
@@ -548,7 +584,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <div class="chart-header">
         <h2 id="hourly-chart-title">Average Hourly Distribution</h2>
         <div class="chart-header-right">
-          <span class="peak-legend" title="Mon–Fri 05:00–11:00 PT — Anthropic peak-hour throttling window"><span class="peak-swatch"></span>Peak hours (PT)</span>
+          <span class="peak-legend" id="peak-legend" title="Mon–Fri 05:00–11:00 PT — Anthropic peak-hour throttling window"><span class="peak-swatch"></span>Peak hours (PT)</span>
           <span class="chart-day-count" id="hourly-day-count"></span>
           <div class="tz-group">
             <button class="tz-btn" data-tz="local" onclick="setHourlyTZ('local')">Local</button>
@@ -568,7 +604,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     </div>
   </div>
   <div class="table-card">
-    <div class="section-title">Cost by Model</div>
+    <div class="section-title" id="model-table-title">Cost by Model</div>
     <table>
       <thead><tr>
         <th>Model</th>
@@ -576,7 +612,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <th class="sortable" onclick="setModelSort('input')">Input <span class="sort-icon" id="msort-input"></span></th>
         <th class="sortable" onclick="setModelSort('output')">Output <span class="sort-icon" id="msort-output"></span></th>
         <th class="sortable" onclick="setModelSort('cache_read')">Cache Read <span class="sort-icon" id="msort-cache_read"></span></th>
-        <th class="sortable" onclick="setModelSort('cache_creation')">Cache Creation <span class="sort-icon" id="msort-cache_creation"></span></th>
+        <th id="cache-creation-head" class="sortable" onclick="setModelSort('cache_creation')">Cache Creation <span class="sort-icon" id="msort-cache_creation"></span></th>
         <th class="sortable" onclick="setModelSort('cost')">Est. Cost <span class="sort-icon" id="msort-cost"></span></th>
       </tr></thead>
       <tbody id="model-cost-body"></tbody>
@@ -602,7 +638,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div class="table-foot" id="sessions-foot"></div>
   </div>
   <div class="table-card">
-    <div class="section-header"><div class="section-title">Cost by Project</div><button class="export-btn" onclick="exportProjectsCSV()" title="Export all projects to CSV">&#x2913; CSV</button></div>
+    <div class="section-header"><div class="section-title" id="project-table-title">Cost by Project</div><button class="export-btn" onclick="exportProjectsCSV()" title="Export all projects to CSV">&#x2913; CSV</button></div>
     <table>
       <thead><tr>
         <th>Project</th>
@@ -617,7 +653,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div class="table-foot" id="project-cost-foot"></div>
   </div>
   <div class="table-card">
-    <div class="section-header"><div class="section-title">Cost by Project &amp; Branch</div><button class="export-btn" onclick="exportProjectBranchCSV()" title="Export project+branch breakdown to CSV">&#x2913; CSV</button></div>
+    <div class="section-header"><div class="section-title" id="branch-table-title">Cost by Project &amp; Branch</div><button class="export-btn" onclick="exportProjectBranchCSV()" title="Export project+branch breakdown to CSV">&#x2913; CSV</button></div>
     <table>
       <thead><tr>
         <th>Project</th>
@@ -633,17 +669,12 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
     <div class="table-foot" id="project-branch-cost-foot"></div>
   </div>
 </div>
+</div>
 
 <footer>
   <div class="footer-content">
-    <p>Cost estimates based on Anthropic API pricing (<a href="https://claude.com/pricing#api" target="_blank">claude.com/pricing#api</a>) as of May 2026. Only models containing <em>opus</em>, <em>sonnet</em>, or <em>haiku</em> in the name are included in cost calculations. Actual costs for Max/Pro subscribers differ from API pricing.</p>
-    <p>
-      GitHub: <a href="https://github.com/phuryn/claude-usage" target="_blank">https://github.com/phuryn/claude-usage</a>
-      &nbsp;&middot;&nbsp;
-      Created by: <a href="https://www.productcompass.pm" target="_blank">The Product Compass Newsletter</a>
-      &nbsp;&middot;&nbsp;
-      License: MIT
-    </p>
+    <p>Any displayed cost is an API-equivalent estimate, not a subscription charge. Claude subscription limits are shown only when a user-supplied connector provides them; unsupported fields remain unavailable.</p>
+    <p><a class="footer-link" href="https://hotfixops.com/" target="_blank" rel="noopener noreferrer"><span class="footer-brand">HOTFIX OPS</span></a> &nbsp;&middot;&nbsp; Local-first usage telemetry &nbsp;&middot;&nbsp; Your data stays on your device</p>
   </div>
 </footer>
 
@@ -656,6 +687,8 @@ function esc(s) {
 }
 
 // ── State ──────────────────────────────────────────────────────────────────
+let dashboardPayload = null;
+let activeProvider = 'overview';
 let rawData = null;
 let selectedModels = new Set();
 let selectedRange = '30d';
@@ -692,6 +725,183 @@ let sessionsLimit = TABLE_STEPS[0];
 let projectLimit = TABLE_STEPS[0];
 let branchLimit = TABLE_STEPS[0];
 let hourlyTZ = 'local';  // 'local' or 'utc'
+
+function providerLabel(provider) {
+  return provider === 'claude' ? 'Claude' : 'Codex';
+}
+
+function setProvider(provider) {
+  if (!['overview', 'claude', 'codex'].includes(provider)) return;
+  const previousProvider = activeProvider;
+  const providerChanged = previousProvider !== provider;
+  const previousModelValues = Array.from(
+    document.querySelectorAll('#model-checkboxes input')
+  ).map(input => input.value);
+  const previousSelectionWasAll = !providerChanged
+    && previousModelValues.length > 0
+    && previousModelValues.every(model => selectedModels.has(model));
+  activeProvider = provider;
+  document.querySelectorAll('.provider-tab').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.provider === provider)
+  );
+  const overview = provider === 'overview';
+  document.getElementById('overview-view').classList.toggle('hidden', !overview);
+  document.getElementById('details-view').classList.toggle('hidden', overview);
+  document.getElementById('page-title').textContent = overview
+    ? 'Usage Dashboard'
+    : providerLabel(provider) + ' Usage';
+  if (!overview && dashboardPayload) {
+    rawData = dashboardPayload.providers[provider].history;
+    const isCodex = provider === 'codex';
+    document.getElementById('cache-creation-head').childNodes[0].textContent =
+      isCodex ? 'Reasoning ' : 'Cache Creation ';
+    document.getElementById('model-table-title').textContent =
+      isCodex ? 'Usage by Model' : 'Cost by Model';
+    document.getElementById('project-table-title').textContent =
+      isCodex ? 'Usage by Project' : 'Cost by Project';
+    document.getElementById('branch-table-title').textContent =
+      isCodex ? 'Usage by Project & Branch' : 'Cost by Project & Branch';
+    document.getElementById('peak-legend').classList.toggle('hidden', isCodex);
+    document.getElementById('detail-provider-summary').innerHTML = renderProviderAccountGroup(
+      provider,
+      providerCards(dashboardPayload, provider)
+    );
+    buildFilterUI(
+      rawData.all_models,
+      providerChanged && previousProvider === 'overview',
+      providerChanged ? null : selectedModels,
+      previousSelectionWasAll
+    );
+    updateSortIcons();
+    updateModelSortIcons();
+    updateProjectSortIcons();
+    updateProjectBranchSortIcons();
+    applyFilter();
+  }
+}
+
+function subscriptionSummary(subscription) {
+  const account = subscription.account || {};
+  const label = account.email || account.label || (subscription.available ? 'Connected account' : 'Not connected');
+  const plan = account.plan ? account.plan.charAt(0).toUpperCase() + account.plan.slice(1) : 'Plan unavailable';
+  return { label, plan };
+}
+
+function orbWindow(subscription) {
+  const windows = subscription.windows || {};
+  return windows.seven_day || windows.five_hour || null;
+}
+
+function renderProviderCard(key, provider) {
+  const subscription = provider.subscription || {};
+  const account = subscriptionSummary(subscription);
+  const accountName = provider.profile_label || account.label;
+  const windowData = orbWindow(subscription);
+  const totals = provider.totals || { tokens: 0, sessions: 0 };
+  const used = windowData ? Math.round(windowData.used_percent) : 0;
+  const value = windowData ? used + '%' : (subscription.available ? '\u2713' : '\u2014');
+  const orbLabel = windowData ? 'used' : (subscription.available ? 'connected' : 'offline');
+  const color = key === 'claude' ? '#e8611b' : '#72b9d6';
+  const status = subscription.error
+    ? subscription.error
+    : (windowData ? (100 - used) + '% remains in the displayed window' : 'Live limits unavailable');
+  const accountStatus = provider.inactive
+    ? '<p class="account-status">Inactive account</p>'
+    : provider.profile_label
+    ? '<p class="account-status">Configured account</p>'
+    : '';
+  const fable = key === 'claude' ? (provider.fable || fableHeadroom(subscription)) : null;
+  const fableStatus = fable
+    ? `<p class="fable-headroom">Fable 5 · <strong>${fmtPercent(fable.guaranteed_percent)} guaranteed weekly headroom</strong> · ${fmtPercent(fable.weekly_remaining_percent)} total week remains</p>`
+    : '';
+  const resetCredits = key === 'codex' ? subscription.reset_credits : null;
+  const resetStatus = resetCredits && Number.isInteger(resetCredits.available_count)
+    ? `<p class="reset-credit-status">Codex reset credits · <strong>${esc(resetCredits.available_count)} available</strong>${resetCredits.expires_at ? ' · expires ' + esc(resetCredits.expires_at) : ''}</p>`
+    : '';
+  const historySummary = provider.profile_label
+    ? '<p>Sanitized local quota snapshot · history is not attributed to this profile.</p>'
+    : `<p>${fmt(totals.tokens)} locally recorded tokens \u00b7 ${fmt(totals.sessions)} sessions</p>`;
+  return `<article class="provider-card">
+    <div class="provider-orb" style="--fill:${used};--orb:${color}">
+      <div class="orb-liquid" aria-hidden="true"></div>
+      <div class="orb-copy"><div class="orb-value">${esc(value)}</div><div class="orb-label">${esc(orbLabel)}</div></div>
+    </div>
+    <div class="provider-copy">
+      <h2>${esc(providerLabel(key))}</h2>
+      <p class="account-name"><strong>${esc(accountName)}</strong></p>
+      ${accountStatus}
+      <p>${esc(account.plan)} \u00b7 ${esc(status)}</p>
+      ${fableStatus}
+      ${resetStatus}
+      ${historySummary}
+    </div>
+  </article>`;
+}
+
+function configuredProfileCards(payload) {
+  return Array.isArray(payload.test_profile_cards) ? payload.test_profile_cards : [];
+}
+
+function providerCards(payload, provider) {
+  const cards = configuredProfileCards(payload).filter(card => card.provider === provider);
+  return cards.length ? cards : [payload.providers[provider]];
+}
+
+function renderProviderAccountGroup(provider, cards) {
+  return `<section class="provider-account-group" aria-label="${esc(providerLabel(provider))} accounts">
+    <h2 class="provider-account-group-title">${esc(providerLabel(provider))} accounts</h2>
+    <div class="provider-card-stack">
+      ${cards.map(card => renderProviderCard(provider, card)).join('')}
+    </div>
+  </section>`;
+}
+
+function renderTestingMode(testMode) {
+  document.getElementById('testing-mode-banner').classList.toggle('hidden', !testMode);
+}
+
+function fmtPercent(value) {
+  return Number.isFinite(value) ? Math.round(value) + '%' : '\u2014';
+}
+
+function fableHeadroom(subscription) {
+  const plan = String((subscription.account || {}).plan || '').toLowerCase();
+  if (!plan.includes('max') && !plan.includes('premium')) return null;
+  const weekly = (subscription.windows || {}).seven_day;
+  const remaining = weekly && Number(weekly.remaining_percent);
+  if (!Number.isFinite(remaining)) return null;
+  return {
+    guaranteed_percent: Math.max(0, Math.min(50, remaining - 50)),
+    weekly_remaining_percent: Math.max(0, Math.min(100, remaining)),
+  };
+}
+
+function renderOverview(payload) {
+  const profileCards = configuredProfileCards(payload);
+  document.getElementById('overview-grid').innerHTML = payload.test_mode && !profileCards.length
+    ? `<section class="first-run-preview">
+        <h2>Connect your accounts</h2>
+        <p>This is the blank first-run view. It reads no normal usage or account data.</p>
+        <ol>
+          <li>Run <code>python3 cli.py accounts setup --label "Work Max"</code> to add a Claude or Codex account.</li>
+          <li>Return here to confirm its account card and mana orb.</li>
+          <li>Use <strong>Reset preview</strong> above to return to this exact state.</li>
+        </ol>
+      </section>`
+    : ['claude', 'codex']
+      .map(provider => renderProviderAccountGroup(provider, providerCards(payload, provider)))
+      .join('');
+  document.getElementById('overview-note').textContent = profileCards.length
+    ? 'Account cards are sanitized local quota snapshots. Historical tokens, projects, branches, and sessions remain unassigned unless their local source stores are separated by account.'
+    : 'Subscription windows stay provider-specific. Claude and Codex percentages are never combined into a misleading universal limit.';
+  document.getElementById('overview-totals').innerHTML = [
+    ['All recorded tokens', payload.overview.tokens],
+    ['All turns', payload.overview.turns],
+    ['All sessions', payload.overview.sessions],
+  ].map(([label, value]) =>
+    `<div class="overview-total"><span>${esc(label)}</span><strong>${fmt(value)}</strong></div>`
+  ).join('');
+}
 
 // ── Peak-hour config ───────────────────────────────────────────────────────
 // Anthropic throttles Mon–Fri 05:00–11:00 PT. We approximate as fixed UTC hours
@@ -788,41 +998,40 @@ function fmtCost(c)    { return '$' + c.toLocaleString(undefined, { minimumFract
 function fmtCostBig(c) { return '$' + c.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
 // ── Chart colors ───────────────────────────────────────────────────────────
-// Warm/neutral palette kept in sync with the CSS :root variables so charts match
-// the Claude Code interface (less blue). Chart legends/axes use C.axis (a touch
-// lighter than --muted so small labels stay legible on the dark card); grid uses
-// C.border.
+// HotFix Ops palette kept in sync with the CSS :root variables. Chart
+// legends/axes use C.axis (a touch lighter than --muted for dense telemetry);
+// grid uses C.border.
 const C = {
-  text:   '#BFBFBF',
-  muted:  '#4F4F50',
-  axis:   '#6F6F70',
-  border: '#2C2D2E',
-  card:   '#1E1F20',
-  blue:   '#48A0C7',
-  green:  '#74C991',
-  red:    '#C74E39',
-  accent: '#d97757',
-  amber:  '#D9A84E',
-  purple: '#9B7EC7',
-  teal:   '#5BB8A3',
-  mauve:  '#C77E9B',
+  text:   '#F5F5F7',
+  muted:  '#9AA8B6',
+  axis:   '#B6C2CE',
+  border: '#3A4755',
+  card:   '#18212B',
+  blue:   '#72B9D6',
+  green:  '#8CD2B3',
+  red:    '#FF7D67',
+  accent: '#E8611B',
+  amber:  '#F0B45B',
+  purple: '#B69ADD',
+  teal:   '#66C6B6',
+  mauve:  '#D98EA4',
 };
 const TOKEN_COLORS = {
-  input:          'rgba(72,160,199,0.85)',   // blue
-  output:         'rgba(217,119,87,0.85)',    // accent / coral
-  cache_read:     'rgba(116,201,145,0.75)',   // green
-  cache_creation: 'rgba(217,168,78,0.75)',    // amber
+  input:          'rgba(114,185,214,0.85)',  // telemetry blue
+  output:         'rgba(232,97,27,0.85)',    // Come In Hot
+  cache_read:     'rgba(140,210,179,0.75)',  // clear green
+  cache_creation: 'rgba(240,180,91,0.75)',   // amber
 };
 // Hover lifts on a dark theme: bars/series go to full opacity (a touch brighter).
 const TOKEN_HOVER = {
-  input:          'rgba(72,160,199,1)',
-  output:         'rgba(217,119,87,1)',
-  cache_read:     'rgba(116,201,145,1)',
-  cache_creation: 'rgba(217,168,78,1)',
+  input:          'rgba(114,185,214,1)',
+  output:         'rgba(232,97,27,1)',
+  cache_read:     'rgba(140,210,179,1)',
+  cache_creation: 'rgba(240,180,91,1)',
 };
 // Donut / categorical palette — warm, Anthropic-leaning (clay, tan, sage, dusty
 // blue, mauve, ochre, taupe, terracotta) rather than a saturated rainbow.
-const MODEL_COLORS = ['#D97757','#C9A26B','#7FA98C','#6E97A8','#B98AA0','#D9A84E','#A88B6A','#C2705A'];
+const MODEL_COLORS = ['#E8611B','#72B9D6','#8CD2B3','#F0B45B','#B69ADD','#66C6B6','#D98EA4','#6B7B8D'];
 
 // Tooltip color swatches: solid fill, no border (Chart.js's default draws a
 // bordered box that looked offset/inconsistent). Lines use their solid stroke
@@ -950,12 +1159,21 @@ function isDefaultModelSelection(allModels) {
   return expected.every(m => selectedModels.has(m));
 }
 
-function buildFilterUI(allModels) {
+function buildFilterUI(
+  allModels,
+  restoreURL = true,
+  preservedModels = null,
+  selectEveryModel = false
+) {
   const sorted = [...allModels].sort((a, b) => {
     const pa = modelPriority(a), pb = modelPriority(b);
     return pa !== pb ? pa - pb : a.localeCompare(b);
   });
-  selectedModels = readURLModels(allModels);
+  selectedModels = selectEveryModel
+    ? new Set(allModels)
+    : (preservedModels
+      ? new Set(allModels.filter(model => preservedModels.has(model)))
+      : (restoreURL ? readURLModels(allModels) : new Set(allModels)));
   const container = document.getElementById('model-checkboxes');
   container.innerHTML = sorted.map(m => {
     const checked = selectedModels.has(m);
@@ -1152,15 +1370,19 @@ function applyFilter() {
 // ── Renderers ──────────────────────────────────────────────────────────────
 function renderStats(t) {
   const rangeLabel = RANGE_LABELS[selectedRange].toLowerCase();
+  const cacheCreationLabel = activeProvider === 'codex' ? 'Reasoning' : 'Cache Creation';
+  const cacheCreationSub = activeProvider === 'codex' ? 'included in output' : 'writes to prompt cache';
   const stats = [
     { label: 'Sessions',       value: t.sessions.toLocaleString(), sub: rangeLabel },
     { label: 'Turns',          value: fmt(t.turns),                sub: rangeLabel },
     { label: 'Input Tokens',   value: fmt(t.input),                sub: rangeLabel },
     { label: 'Output Tokens',  value: fmt(t.output),               sub: rangeLabel },
     { label: 'Cache Read',     value: fmt(t.cache_read),           sub: 'from prompt cache' },
-    { label: 'Cache Creation', value: fmt(t.cache_creation),       sub: 'writes to prompt cache' },
-    { label: 'Est. Cost',      value: fmtCostBig(t.cost),          sub: 'API pricing, May 2026', color: C.green },
+    { label: cacheCreationLabel, value: fmt(t.cache_creation),     sub: cacheCreationSub },
   ];
+  if (activeProvider === 'claude') {
+    stats.push({ label: 'Est. Cost', value: fmtCostBig(t.cost), sub: 'API-equivalent estimate', color: C.green });
+  }
   document.getElementById('stats-row').innerHTML = stats.map(s => `
     <div class="stat-card">
       <div class="label">${s.label}</div>
@@ -1290,7 +1512,7 @@ function renderDailyChart(daily) {
         { label: 'Input',          hidden: hiddenSeries.daily.has('Input'),          data: daily.map(d => d.input),          backgroundColor: TOKEN_COLORS.input,          hoverBackgroundColor: TOKEN_HOVER.input,          stack: 'io',    yAxisID: 'y1' },
         { label: 'Output',         hidden: hiddenSeries.daily.has('Output'),         data: daily.map(d => d.output),         backgroundColor: TOKEN_COLORS.output,         hoverBackgroundColor: TOKEN_HOVER.output,         stack: 'io',    yAxisID: 'y1' },
         { label: 'Cache Read',     hidden: hiddenSeries.daily.has('Cache Read'),     data: daily.map(d => d.cache_read),     backgroundColor: TOKEN_COLORS.cache_read,     hoverBackgroundColor: TOKEN_HOVER.cache_read,     stack: 'cache', yAxisID: 'y' },
-        { label: 'Cache Creation', hidden: hiddenSeries.daily.has('Cache Creation'), data: daily.map(d => d.cache_creation), backgroundColor: TOKEN_COLORS.cache_creation, hoverBackgroundColor: TOKEN_HOVER.cache_creation, stack: 'cache', yAxisID: 'y' },
+        { label: activeProvider === 'codex' ? 'Reasoning' : 'Cache Creation', hidden: hiddenSeries.daily.has(activeProvider === 'codex' ? 'Reasoning' : 'Cache Creation'), data: daily.map(d => d.cache_creation), backgroundColor: TOKEN_COLORS.cache_creation, hoverBackgroundColor: TOKEN_HOVER.cache_creation, stack: 'cache', yAxisID: 'y' },
       ]
     },
     options: {
@@ -1298,7 +1520,7 @@ function renderDailyChart(daily) {
       plugins: { legend: { onClick: legendToggle('daily'), labels: { color: C.axis, boxWidth: 12 } } },
       scales: {
         x: { ticks: { color: C.axis, maxTicksLimit: RANGE_TICKS[selectedRange] }, grid: { color: C.border } },
-        y:  { position: 'left',  ticks: { color: C.green, callback: v => fmt(v) }, grid: { color: C.border }, title: { display: true, text: 'Cache', color: C.green } },
+        y:  { position: 'left',  ticks: { color: C.green, callback: v => fmt(v) }, grid: { color: C.border }, title: { display: true, text: activeProvider === 'codex' ? 'Cache / Reasoning' : 'Cache', color: C.green } },
         y1: { position: 'right', ticks: { color: C.blue, callback: v => fmt(v) }, grid: { drawOnChartArea: false },    title: { display: true, text: 'Input / Output', color: C.blue } },
       }
     }
@@ -1639,57 +1861,91 @@ function exportProjectBranchCSV() {
   downloadCSV('projects_by_branch', header, rows);
 }
 
-// ── Rescan ────────────────────────────────────────────────────────────────
-async function triggerRescan() {
+// ── Refresh ───────────────────────────────────────────────────────────────
+async function triggerRefresh(initial = false) {
   const btn = document.getElementById('rescan-btn');
   btn.disabled = true;
-  btn.textContent = '\u21bb Scanning...';
+  btn.textContent = '\u21bb Refreshing...';
   try {
-    const resp = await fetch('/api/rescan', { method: 'POST' });
+    const resp = await fetch('/api/refresh', { method: 'POST' });
+    if (!resp.ok) throw new Error('Refresh failed');
     const d = await resp.json();
-    btn.textContent = '\u21bb Rescan (' + d.new + ' new, ' + d.updated + ' updated)';
+    const added = (d.claude?.turns || 0) + (d.codex?.turns || 0);
+    btn.textContent = '\u21bb Refreshed (' + added + ' turns)';
     await loadData();
   } catch(e) {
-    btn.textContent = '\u21bb Rescan (error)';
+    btn.textContent = '\u21bb Refresh error';
     console.error(e);
+    if (initial) await loadData();
   }
-  setTimeout(() => { btn.textContent = '\u21bb Rescan'; btn.disabled = false; }, 3000);
+  setTimeout(() => { btn.textContent = '\u21bb Refresh'; btn.disabled = false; }, 3000);
+}
+
+async function resetTestingMode() {
+  if (!window.confirm('Reset the isolated first-run preview? This clears only test-mode profiles.')) return;
+  const button = document.getElementById('reset-testing-mode');
+  button.disabled = true;
+  button.textContent = 'Resetting...';
+  try {
+    const resp = await fetch('/api/testing/reset', { method: 'POST' });
+    if (!resp.ok) throw new Error('Testing reset failed');
+    await loadData();
+  } catch(e) {
+    console.error(e);
+    button.textContent = 'Reset failed';
+  } finally {
+    setTimeout(() => {
+      button.textContent = 'Reset preview';
+      button.disabled = false;
+    }, 800);
+  }
+}
+
+async function seedTestingMode() {
+  if (!window.confirm('Replace isolated test-mode profiles with fake sample accounts?')) return;
+  const button = document.getElementById('seed-testing-mode');
+  button.disabled = true;
+  button.textContent = 'Loading...';
+  try {
+    const resp = await fetch('/api/testing/seed', { method: 'POST' });
+    if (!resp.ok) throw new Error('Testing sample load failed');
+    await loadData();
+  } catch(e) {
+    console.error(e);
+    button.textContent = 'Load failed';
+  } finally {
+    setTimeout(() => {
+      button.textContent = 'Load sample accounts';
+      button.disabled = false;
+    }, 800);
+  }
 }
 
 // ── Data loading ───────────────────────────────────────────────────────────
 async function loadData() {
   try {
-    const resp = await fetch('/api/data');
+    const resp = await fetch('/api/overview');
     const d = await resp.json();
     if (d.error) {
-      document.body.innerHTML = '<div style="padding:40px;color:#C74E39">' + esc(d.error) + '</div>';
+      document.body.innerHTML = '<div style="padding:40px;color:#FF7D67">' + esc(d.error) + '</div>';
       return;
     }
     const refreshNote = rangeIncludesToday(selectedRange) ? '<br>Auto-refresh in 30s' : '';
     document.getElementById('meta').innerHTML = 'Updated: ' + esc(d.generated_at) + refreshNote;
-
-    const isFirstLoad = rawData === null;
-    rawData = d;
-
-    if (isFirstLoad) {
-      // Restore range from URL, mark active button
+    const firstLoad = dashboardPayload === null;
+    dashboardPayload = d;
+    renderTestingMode(Boolean(d.test_mode));
+    renderOverview(d);
+    if (firstLoad) {
       selectedRange = readURLRange();
       document.querySelectorAll('.range-btn').forEach(btn =>
         btn.classList.toggle('active', btn.dataset.range === selectedRange)
       );
-      // Mark default TZ button active
       document.querySelectorAll('.tz-btn').forEach(btn =>
         btn.classList.toggle('active', btn.dataset.tz === hourlyTZ)
       );
-      // Build model filter (reads URL for model selection too)
-      buildFilterUI(d.all_models);
-      updateSortIcons();
-      updateModelSortIcons();
-      updateProjectSortIcons();
-      updateProjectBranchSortIcons();
     }
-
-    applyFilter();
+    if (activeProvider !== 'overview') setProvider(activeProvider);
   } catch(e) {
     console.error(e);
   }
@@ -1703,52 +1959,65 @@ function scheduleAutoRefresh() {
   }
 }
 
-loadData();
-scheduleAutoRefresh();
+async function initializeDashboard() {
+  await triggerRefresh(true);
+  scheduleAutoRefresh();
+}
+
+initializeDashboard();
 </script>
 </body>
 </html>
 """
 
 
-def find_icon_file():
-    """Locate the extension's icon.svg across both run contexts.
-
-    - Bundled in the .vsix: this file lives at ``python/dashboard.py`` and the
-      icon is a sibling-of-parent at ``../resources/icon.svg``.
-    - Standalone repo (``python cli.py dashboard``): this file is the repo-root
-      ``dashboard.py`` and the icon is at ``vscode-extension/resources/icon.svg``.
-
-    Returns the first existing path, or ``None`` so the /icon.svg route can 404
-    gracefully (the header ``<img>`` then just renders empty alt text).
-    """
-    here = Path(__file__).resolve().parent
-    for candidate in (
-        here.parent / "resources" / "icon.svg",
-        here / "vscode-extension" / "resources" / "icon.svg",
-    ):
-        if candidate.is_file():
-            return candidate
-    return None
-
-
 class DashboardHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
+
+    def _testing_mode(self) -> bool:
+        """Return whether this server is the isolated first-run preview."""
+        return bool(getattr(self.server, "testing_mode", False))
+
+    def _public_dashboard_data(self) -> dict[str, Any]:
+        """Return normal data or isolated first-run preview data."""
+        if self._testing_mode():
+            return get_public_dashboard_data(
+                include_subscriptions=False,
+                include_history=False,
+                profile_store_path=TESTING_STORE_PATH,
+                test_mode=True,
+            )
+        return get_public_dashboard_data()
 
     def do_GET(self):
         # self.path includes the query string, but every URL the UI emits has
         # one (e.g. "/?range=all"); compare the bare path so bookmarkable
         # URLs don't fall through to 404.
         path = urlparse(self.path).path
+        if path.startswith("/api/") and not _request_is_local(self):
+            self.send_response(403)
+            self.end_headers()
+            return
         if path in ("/", "/index.html"):
+            body = HTML_TEMPLATE.encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header(
+                "Content-Security-Policy",
+                "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                "connect-src 'self'; object-src 'none'; base-uri 'none'; "
+                "frame-ancestors 'none'",
+            )
+            self.send_header("Referrer-Policy", "no-referrer")
+            self.send_header("X-Content-Type-Options", "nosniff")
             self.end_headers()
-            self.wfile.write(HTML_TEMPLATE.encode("utf-8"))
+            self.wfile.write(body)
 
         elif path == "/api/data":
-            data = get_dashboard_data()
+            data = _empty_history() if self._testing_mode() else get_dashboard_data()
             body = json.dumps(data).encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
