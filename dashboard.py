@@ -3,14 +3,35 @@ dashboard.py - Local web dashboard served on localhost:8080.
 """
 
 import json
+import ipaddress
 import os
 import sqlite3
+import threading
+import time
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
+from typing import Any, Optional
+
+from connectors.claude_subscription import read_subscription as read_claude_subscription
+from connectors.codex_subscription import read_subscription as read_codex_subscription
+from account_profiles import (
+    TESTING_STORE_PATH,
+    load_registry,
+    profile_provider_cards,
+    reset_testing_registry,
+    seed_testing_registry,
+)
 
 DB_PATH = Path.home() / ".claude" / "usage.db"
+CODEX_DB_PATH = Path.home() / ".claude-codex-usage" / "codex.db"
+CHART_JS_PATH = Path(__file__).resolve().parent / "vendor" / "chart.umd.min.js"
+HFO_ICON_PATH = Path(__file__).resolve().parent / "assets" / "hfo-icon.png"
+SUBSCRIPTION_CACHE_TTL_SECONDS = 30.0
+_SUBSCRIPTION_CACHE = None
+_SUBSCRIPTION_CACHE_TIME = 0.0
+_SUBSCRIPTION_CACHE_LOCK = threading.Lock()
 
 
 def get_dashboard_data(db_path=DB_PATH):
@@ -124,58 +145,287 @@ def get_dashboard_data(db_path=DB_PATH):
     }
 
 
+def _empty_history(error: Optional[str] = None) -> dict[str, Any]:
+    return {
+        "all_models": [],
+        "daily_by_model": [],
+        "hourly_by_model": [],
+        "sessions_all": [],
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        **({"error": error} if error else {}),
+    }
+
+
+def _provider_history(db_path: Path) -> dict[str, Any]:
+    data = get_dashboard_data(db_path=db_path)
+    if "error" in data:
+        return _empty_history(data["error"])
+    return data
+
+
+def _history_totals(
+    history: dict[str, Any], include_cache_creation: bool = True
+) -> dict[str, int]:
+    totals = {
+        "input": 0,
+        "output": 0,
+        "cache_read": 0,
+        "cache_creation": 0,
+        "turns": 0,
+        "sessions": len(history["sessions_all"]),
+    }
+    for row in history["daily_by_model"]:
+        for key in ("input", "output", "cache_read", "cache_creation", "turns"):
+            totals[key] += row.get(key, 0) or 0
+    totals["tokens"] = (
+        totals["input"]
+        + totals["output"]
+        + totals["cache_read"]
+        + (totals["cache_creation"] if include_cache_creation else 0)
+    )
+    return totals
+
+
+def _unavailable_subscription(provider: str) -> dict[str, Any]:
+    return {
+        "provider": provider,
+        "available": False,
+        "account": {},
+        "windows": {},
+    }
+
+
+def get_subscription_data(force: bool = False) -> dict[str, Any]:
+    """Read connectors through a bounded, single-flight in-memory cache."""
+    global _SUBSCRIPTION_CACHE, _SUBSCRIPTION_CACHE_TIME
+    with _SUBSCRIPTION_CACHE_LOCK:
+        age = time.monotonic() - _SUBSCRIPTION_CACHE_TIME
+        if (
+            not force
+            and _SUBSCRIPTION_CACHE is not None
+            and age < SUBSCRIPTION_CACHE_TTL_SECONDS
+        ):
+            return _SUBSCRIPTION_CACHE
+        _SUBSCRIPTION_CACHE = {
+            "claude": read_claude_subscription(),
+            "codex": read_codex_subscription(),
+        }
+        _SUBSCRIPTION_CACHE_TIME = time.monotonic()
+        return _SUBSCRIPTION_CACHE
+
+
+def get_public_dashboard_data(
+    claude_db_path: Path = DB_PATH,
+    codex_db_path: Path = CODEX_DB_PATH,
+    include_subscriptions: bool = True,
+    force_subscriptions: bool = False,
+    profile_store_path: Optional[Path] = None,
+    include_history: bool = True,
+    test_mode: bool = False,
+) -> dict[str, Any]:
+    """Return provider-separated history plus safe account summaries."""
+    claude_history = (
+        _provider_history(Path(claude_db_path)) if include_history else _empty_history()
+    )
+    codex_history = (
+        _provider_history(Path(codex_db_path)) if include_history else _empty_history()
+    )
+    subscriptions = (
+        get_subscription_data(force=force_subscriptions)
+        if include_subscriptions
+        else {
+            "claude": _unavailable_subscription("anthropic"),
+            "codex": _unavailable_subscription("openai"),
+        }
+    )
+    claude_totals = _history_totals(claude_history)
+    codex_totals = _history_totals(codex_history, include_cache_creation=False)
+    try:
+        registry = (
+            load_registry(profile_store_path, mode="testing")
+            if profile_store_path is not None
+            else load_registry()
+        )
+        test_profile_cards = profile_provider_cards(registry)
+    except ValueError:
+        # A malformed private test file must not make the public dashboard fail.
+        test_profile_cards = []
+    return {
+        "providers": {
+            "claude": {
+                "history": claude_history,
+                "subscription": subscriptions["claude"],
+                "totals": claude_totals,
+            },
+            "codex": {
+                "history": codex_history,
+                "subscription": subscriptions["codex"],
+                "totals": codex_totals,
+            },
+        },
+        "overview": {
+            "tokens": claude_totals["tokens"] + codex_totals["tokens"],
+            "turns": claude_totals["turns"] + codex_totals["turns"],
+            "sessions": claude_totals["sessions"] + codex_totals["sessions"],
+        },
+        "test_profile_cards": test_profile_cards,
+        "test_mode": test_mode,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def refresh_local_histories() -> dict[str, Any]:
+    """Run both incremental scanners without deleting a usable database."""
+    import codex_scanner
+    import scanner
+
+    results = {}
+    try:
+        results["claude"] = scanner.scan(
+            db_path=DB_PATH,
+            projects_dirs=scanner.DEFAULT_PROJECTS_DIRS,
+            verbose=False,
+        )
+    except (OSError, sqlite3.Error, ValueError) as exc:
+        results["claude"] = {"error": f"Claude scan failed: {exc}"}
+    try:
+        results["codex"] = codex_scanner.scan(
+            db_path=CODEX_DB_PATH,
+            session_dirs=codex_scanner.DEFAULT_SESSION_DIRS,
+            verbose=False,
+        )
+    except (OSError, sqlite3.Error, ValueError) as exc:
+        results["codex"] = {"error": f"Codex scan failed: {exc}"}
+    subscriptions = get_subscription_data(force=True)
+    results["subscriptions"] = {
+        provider: {
+            "available": value.get("available", False),
+            "error": value.get("error"),
+        }
+        for provider, value in subscriptions.items()
+    }
+    return results
+
+
+def _is_loopback_host(value: Optional[str]) -> bool:
+    if not value:
+        return False
+    hostname = value.strip().lower()
+    if hostname.startswith("["):
+        hostname = hostname[1:].split("]", 1)[0]
+    elif hostname.count(":") == 1:
+        hostname = hostname.rsplit(":", 1)[0]
+    if hostname == "localhost":
+        return True
+    try:
+        return ipaddress.ip_address(hostname).is_loopback
+    except ValueError:
+        return False
+
+
+def _request_is_local(handler: BaseHTTPRequestHandler) -> bool:
+    if not _is_loopback_host(handler.headers.get("Host")):
+        return False
+    fetch_site = handler.headers.get("Sec-Fetch-Site", "").lower()
+    if fetch_site and fetch_site not in {"same-origin", "none"}:
+        return False
+    origin = handler.headers.get("Origin")
+    if origin:
+        parsed = urlparse(origin)
+        request_host = handler.headers.get("Host", "").lower()
+        if (
+            parsed.scheme != "http"
+            or not _is_loopback_host(parsed.netloc)
+            or parsed.netloc.lower() != request_host
+        ):
+            return False
+    return True
+
+
 HTML_TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude Code Usage Dashboard</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<title>HotFix Ops Usage Dashboard</title>
+<script src="/vendor/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #161617;      /* page base */
-    --card: #1E1F20;    /* raised one step above the page */
-    --border: #2C2D2E;
-    --text: #BFBFBF;
-    --muted: #4F4F50;
-    --accent: #d97757;
-    --blue: #48A0C7;
-    --green: #74C991;
-    --red: #C74E39;
-    --raised: #2E2F31;  /* hover / raised surfaces — top of the elevation ladder */
-    --selected: #262626;  /* selected chips / tabs (neutral, not accent) */
+    --bg: #10161d;       /* deep operations surface */
+    --card: #18212b;     /* Midnight Ops raised surface */
+    --border: #3a4755;
+    --text: #f5f5f7;     /* Clean Slate */
+    --muted: #9aa8b6;
+    --accent: #e8611b;   /* Come In Hot */
+    --blue: #72b9d6;
+    --green: #8cd2b3;
+    --red: #ff7d67;
+    --raised: #24313e;
+    --selected: #2d3640; /* Midnight Ops */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; }
 
-  /* VS Code-style scrollbars. The dashboard renders inside a webview iframe,
-     which doesn't inherit VS Code's --vscode-* theme variables, so we set the
-     scrollbar here: no arrows, grey thumb (#28292B, #8B8B8D on hover) over a
-     #121314 track, in a 21px gutter. Also fits the dark UI standalone. */
-  * { scrollbar-width: auto; scrollbar-color: #28292B #121314; }
+  /* Deliberate operations-console scrollbars: no arrows, steel thumb, deep
+     surface track, and enough gutter for dense telemetry tables. */
+  * { scrollbar-width: auto; scrollbar-color: #3a4755 #10161d; }
   ::-webkit-scrollbar { width: 21px; height: 21px; }
-  ::-webkit-scrollbar-track { background: #121314; }
-  ::-webkit-scrollbar-thumb { background-color: #28292B; border: 3px solid transparent; background-clip: padding-box; }
-  ::-webkit-scrollbar-thumb:hover { background-color: #8B8B8D; }
-  ::-webkit-scrollbar-thumb:active { background-color: #8B8B8D; }
-  ::-webkit-scrollbar-corner { background: #121314; }
+  ::-webkit-scrollbar-track { background: #10161d; }
+  ::-webkit-scrollbar-thumb { background-color: #3a4755; border: 3px solid transparent; background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background-color: #6b7b8d; }
+  ::-webkit-scrollbar-thumb:active { background-color: #6b7b8d; }
+  ::-webkit-scrollbar-corner { background: #10161d; }
 
-  header { background: var(--card); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
-  header h1 { font-size: 18px; font-weight: 600; color: var(--text); }
-  header .header-title { display: flex; align-items: center; gap: 10px; }
-  /* The icon is a monochrome silhouette (white shape on transparent). We paint
-     it with the title color via a CSS mask + background-color, so it matches
-     `header h1` — the lightest text color. */
-  header .header-icon {
-    width: 26px; height: 26px; flex-shrink: 0; display: block;
-    background-color: var(--text);
-    -webkit-mask: url("icon.svg") no-repeat center / contain;
-    mask: url("icon.svg") no-repeat center / contain;
-  }
+  header { background: linear-gradient(115deg, #18212b, #2d3640); border-bottom: 1px solid var(--border); padding: 15px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: inset 0 -1px rgba(232,97,27,.16); }
+  header h1 { font-family: 'Space Grotesk', 'Avenir Next', -apple-system, sans-serif; font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: .1em; line-height: 1.15; text-transform: uppercase; }
+  header .header-title { display: flex; align-items: center; gap: 12px; }
+  .brand-link { align-items: center; color: inherit; display: flex; gap: 12px; text-decoration: none; }
+  .brand-link:hover .header-kicker, .brand-link:focus-visible .header-kicker { color: #ff8a4c; }
+  .brand-link:focus-visible, .footer-link:focus-visible { border-radius: 4px; outline: 2px solid var(--accent); outline-offset: 4px; }
+  .header-brand { display: grid; gap: 3px; }
+  .header-kicker { color: var(--accent); font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+  header .header-icon { width: 38px; height: 38px; flex-shrink: 0; display: block; filter: drop-shadow(0 0 10px rgba(232,97,27,.24)); }
   header .meta { color: var(--muted); font-size: 12px; text-align: right; line-height: 1.5; margin-right: 20px; }
   #rescan-btn { background: var(--card); border: 1px solid var(--border); color: var(--muted); padding: 4px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-top: 4px; }
   #rescan-btn:hover { color: var(--text); border-color: var(--accent); }
   #rescan-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  #provider-nav { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; gap: 4px; }
+  .provider-tab { border: 0; border-bottom: 2px solid transparent; color: var(--muted); background: transparent; padding: 12px 16px; cursor: pointer; font-weight: 600; }
+  .provider-tab:hover { color: var(--text); }
+  .provider-tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .overview-grid { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 18px; margin-bottom: 20px; }
+  .provider-account-group { min-width: 0; }
+  .provider-account-group-title { color: var(--muted); font-family: 'Space Grotesk', 'Avenir Next', -apple-system, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .1em; margin: 0 0 10px; text-transform: uppercase; }
+  .provider-card-stack { display: grid; gap: 18px; }
+  .provider-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; display: flex; align-items: center; gap: 22px; }
+  #detail-provider-summary { padding-top: 20px; padding-bottom: 0; }
+  .provider-orb { --fill: 0; --orb: var(--accent); position: relative; isolation: isolate; overflow: hidden; width: 124px; height: 124px; flex: 0 0 124px; border: 1px solid color-mix(in srgb, var(--orb) 60%, var(--border)); border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 40% 28%, #3A3B3D 0%, #252628 48%, #111214 100%); box-shadow: inset 0 0 22px #090909, 0 0 34px color-mix(in srgb, var(--orb) 22%, transparent); }
+  .provider-orb::before { content: ""; position: absolute; z-index: 1; inset: 7px 16px 56px 20px; border-radius: 50%; background: linear-gradient(145deg, rgba(255,255,255,.2), transparent 58%); pointer-events: none; }
+  .orb-liquid { position: absolute; z-index: 0; left: -4%; right: -4%; bottom: -2%; height: calc(var(--fill) * 1% + 3%); min-height: 0; background: linear-gradient(180deg, color-mix(in srgb, var(--orb) 78%, white) 0%, var(--orb) 38%, color-mix(in srgb, var(--orb) 68%, #081118) 100%); box-shadow: 0 -3px 15px color-mix(in srgb, var(--orb) 65%, transparent), inset 0 12px 18px rgba(255,255,255,.12); transition: height .5s ease; }
+  .orb-liquid::before { content: ""; position: absolute; left: -8%; top: -9px; width: 116%; height: 18px; border-radius: 50%; background: color-mix(in srgb, var(--orb) 82%, white); box-shadow: 0 -2px 10px color-mix(in srgb, var(--orb) 70%, transparent); }
+  .orb-copy { position: relative; z-index: 2; text-align: center; }
+  .orb-value { color: white; font-size: 24px; font-weight: 700; }
+  .orb-label { color: var(--muted); font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+  .provider-copy h2 { color: var(--text); font-family: 'Space Grotesk', 'Avenir Next', -apple-system, sans-serif; letter-spacing: .03em; margin-bottom: 5px; }
+  .provider-copy p { color: var(--muted); line-height: 1.55; }
+  .provider-copy .account-name { color: var(--text); font-size: 16px; margin-bottom: 6px; overflow-wrap: anywhere; }
+  .provider-copy .account-name strong { font-weight: 700; }
+  .provider-copy .account-status { color: var(--muted); font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; font-size: 10px; font-weight: 700; letter-spacing: .08em; margin-bottom: 5px; text-transform: uppercase; }
+  .provider-copy .fable-headroom, .provider-copy .reset-credit-status { color: var(--text); font-size: 12px; margin-top: 8px; }
+  .provider-copy .fable-headroom strong, .provider-copy .reset-credit-status strong { color: var(--accent); }
+  .overview-totals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .overview-total { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .overview-total strong { display: block; color: var(--text); font-size: 25px; margin-top: 4px; }
+  .overview-note { color: var(--muted); margin-top: 16px; line-height: 1.6; }
+  .testing-mode-banner { align-items: center; background: rgba(232,97,27,.12); border-bottom: 1px solid rgba(232,97,27,.42); color: var(--text); display: flex; font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace; font-size: 11px; font-weight: 700; gap: 12px; justify-content: space-between; letter-spacing: .05em; padding: 10px 24px; text-transform: uppercase; }
+  .testing-mode-banner strong { color: var(--accent); }
+  .testing-mode-banner button { background: transparent; border: 1px solid var(--accent); border-radius: 5px; color: var(--accent); cursor: pointer; font: inherit; padding: 5px 9px; }
+  .testing-mode-banner button:hover { background: var(--accent); color: #10161d; }
+  .first-run-preview { background: var(--card); border: 1px dashed var(--accent); border-radius: 12px; color: var(--muted); grid-column: 1 / -1; padding: 28px; }
+  .first-run-preview h2 { color: var(--text); font-family: 'Space Grotesk', 'Avenir Next', -apple-system, sans-serif; margin-bottom: 10px; }
+  .first-run-preview ol { margin: 14px 0 0 20px; }
+  .first-run-preview li { margin-bottom: 7px; }
+  .hidden { display: none !important; }
 
   #filter-bar { background: var(--card); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .filter-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); white-space: nowrap; }
@@ -1506,17 +1756,40 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
 
-        elif path == "/icon.svg":
-            icon = find_icon_file()
-            if icon is None:
+        elif path == "/api/overview":
+            data = self._public_dashboard_data()
+            body = json.dumps(data).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
+        elif path == "/assets/hfo-icon.png":
+            if not HFO_ICON_PATH.is_file():
                 self.send_response(404)
                 self.end_headers()
                 return
-            body = icon.read_bytes()
+            body = HFO_ICON_PATH.read_bytes()
             self.send_response(200)
-            self.send_header("Content-Type", "image/svg+xml")
+            self.send_header("Content-Type", "image/png")
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "max-age=86400")
+            self.end_headers()
+            self.wfile.write(body)
+
+        elif path == "/vendor/chart.umd.min.js":
+            if not CHART_JS_PATH.is_file():
+                self.send_response(404)
+                self.end_headers()
+                return
+            body = CHART_JS_PATH.read_bytes()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/javascript; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "max-age=86400")
+            self.send_header("X-Content-Type-Options", "nosniff")
             self.end_headers()
             self.wfile.write(body)
 
@@ -1526,7 +1799,51 @@ class DashboardHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlparse(self.path).path
-        if path == "/api/rescan":
+        if not _request_is_local(self):
+            self.send_response(403)
+            self.end_headers()
+            return
+        if path == "/api/refresh":
+            result = (
+                {"testing_mode": True, "claude": {"turns": 0}, "codex": {"turns": 0}}
+                if self._testing_mode()
+                else refresh_local_histories()
+            )
+            body = json.dumps(result).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif path == "/api/testing/reset":
+            if not self._testing_mode():
+                self.send_response(404)
+                self.end_headers()
+                return
+            reset_testing_registry()
+            body = json.dumps({"testing_mode": True, "reset": True}).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif path == "/api/testing/seed":
+            if not self._testing_mode():
+                self.send_response(404)
+                self.end_headers()
+                return
+            seed_testing_registry()
+            body = json.dumps({"testing_mode": True, "seeded": True}).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        elif path == "/api/rescan":
+            if self._testing_mode():
+                self.send_response(404)
+                self.end_headers()
+                return
             # Full rebuild: delete DB and rescan from scratch.
             # Pass DB_PATH / DEFAULT_PROJECTS_DIRS explicitly so tests that
             # patch the module globals are honored (scan's defaults are
@@ -1551,11 +1868,19 @@ class DashboardHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
 
-def serve(host=None, port=None):
+def serve(host=None, port=None, test_mode=False):
     host = host or os.environ.get("HOST", "localhost")
     port = port or int(os.environ.get("PORT", "8080"))
+    if not _is_loopback_host(host):
+        raise ValueError(
+            "For account privacy, the dashboard only binds to localhost or a "
+            "loopback IP address"
+        )
     server = ThreadingHTTPServer((host, port), DashboardHandler)
+    server.testing_mode = bool(test_mode)
     print(f"Dashboard running at http://{host}:{port}")
+    if test_mode:
+        print("Isolated first-run preview is active. Normal data is not read.")
     print("Press Ctrl+C to stop.")
     try:
         server.serve_forever()
