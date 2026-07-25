@@ -2,15 +2,21 @@
 
 import json
 import os
-import sqlite3
 import tempfile
 import threading
 import unittest
 import urllib.request
 from pathlib import Path
+from unittest.mock import patch
 
 from scanner import get_db, init_db, upsert_sessions, insert_turns
-from dashboard import get_dashboard_data, DashboardHandler, HTML_TEMPLATE
+from dashboard import (
+    get_dashboard_data,
+    get_public_dashboard_data,
+    get_subscription_data,
+    DashboardHandler,
+    HTML_TEMPLATE,
+)
 
 try:
     from http.server import HTTPServer
@@ -122,6 +128,98 @@ class TestGetDashboardData(unittest.TestCase):
         self.assertTrue(all("day" in r and "model" in r for r in rows))
         self.assertTrue(all(r["model"] == "claude-sonnet-4-6" for r in rows))
         self.assertTrue(all(r["day"] == "2026-04-08" for r in rows))
+
+    def test_public_payload_preserves_provider_boundaries(self):
+        data = get_public_dashboard_data(
+            claude_db_path=self.db_path,
+            codex_db_path=Path("/nonexistent/codex-usage.db"),
+            include_subscriptions=False,
+        )
+        self.assertEqual(set(data["providers"]), {"claude", "codex"})
+        self.assertEqual(data["providers"]["claude"]["totals"]["sessions"], 1)
+        self.assertEqual(data["providers"]["codex"]["totals"]["sessions"], 0)
+        self.assertNotIn("used_percent", data["overview"])
+
+    @patch("dashboard.profile_provider_cards")
+    @patch("dashboard.load_registry")
+    def test_public_payload_includes_only_sanitized_test_profile_cards(
+        self, load_registry, profile_provider_cards
+    ):
+        load_registry.return_value = {"profiles": []}
+        profile_provider_cards.return_value = [
+            {
+                "profile_id": "max-one",
+                "profile_label": "Max account one",
+                "provider": "codex",
+                "subscription": {"available": True, "windows": {}},
+                "fable": None,
+            }
+        ]
+        data = get_public_dashboard_data(
+            claude_db_path=self.db_path,
+            codex_db_path=Path("/nonexistent/codex-usage.db"),
+            include_subscriptions=False,
+        )
+        self.assertEqual(data["test_profile_cards"][0]["profile_id"], "max-one")
+        self.assertNotIn("history", data["test_profile_cards"][0])
+
+    def test_codex_reasoning_is_not_added_twice(self):
+        codex_file = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        codex_file.close()
+        codex_path = Path(codex_file.name)
+        connection = get_db(codex_path)
+        init_db(connection)
+        insert_turns(
+            connection,
+            [
+                {
+                    "session_id": "codex-1",
+                    "timestamp": "2026-07-24T10:00:00Z",
+                    "model": "gpt-5.6-sol",
+                    "input_tokens": 60,
+                    "output_tokens": 20,
+                    "cache_read_tokens": 40,
+                    "cache_creation_tokens": 5,
+                    "tool_name": None,
+                    "cwd": "/tmp",
+                }
+            ],
+        )
+        connection.commit()
+        connection.close()
+        try:
+            data = get_public_dashboard_data(
+                claude_db_path=Path("/nonexistent/claude-usage.db"),
+                codex_db_path=codex_path,
+                include_subscriptions=False,
+            )
+            self.assertEqual(data["providers"]["codex"]["totals"]["tokens"], 120)
+            self.assertEqual(data["overview"]["tokens"], 120)
+        finally:
+            os.unlink(codex_path)
+
+
+class TestSubscriptionCache(unittest.TestCase):
+    @patch("dashboard.read_codex_subscription")
+    @patch("dashboard.read_claude_subscription")
+    def test_reuses_connector_results_within_ttl(self, read_claude, read_codex):
+        import dashboard
+
+        read_claude.return_value = {"available": True}
+        read_codex.return_value = {"available": True}
+        old_cache = dashboard._SUBSCRIPTION_CACHE
+        old_time = dashboard._SUBSCRIPTION_CACHE_TIME
+        dashboard._SUBSCRIPTION_CACHE = None
+        dashboard._SUBSCRIPTION_CACHE_TIME = 0
+        try:
+            first = get_subscription_data()
+            second = get_subscription_data()
+            self.assertIs(first, second)
+            read_claude.assert_called_once_with()
+            read_codex.assert_called_once_with()
+        finally:
+            dashboard._SUBSCRIPTION_CACHE = old_cache
+            dashboard._SUBSCRIPTION_CACHE_TIME = old_time
 
 
 class TestEmptyStringModelNormalization(unittest.TestCase):
@@ -281,6 +379,7 @@ class TestDashboardHTTP(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         cls.server.shutdown()
+        cls.server.server_close()
         for (mod, name), (orig, _new) in cls._patches.items():
             setattr(mod, name, orig)
         cls._tmpdir.cleanup()
@@ -290,6 +389,22 @@ class TestDashboardHTTP(unittest.TestCase):
         with urllib.request.urlopen(url) as resp:
             self.assertEqual(resp.status, 200)
             self.assertIn("text/html", resp.headers["Content-Type"])
+            self.assertIn("connect-src 'self'", resp.headers["Content-Security-Policy"])
+            resp.read()
+
+    def test_vendored_chart_js_returns_javascript(self):
+        url = f"http://127.0.0.1:{self.port}/vendor/chart.umd.min.js"
+        with urllib.request.urlopen(url) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertIn("text/javascript", resp.headers["Content-Type"])
+            self.assertIn(b"Chart.js v4.4.0", resp.read(200))
+
+    def test_hotfix_ops_icon_is_served_locally(self):
+        url = f"http://127.0.0.1:{self.port}/assets/hfo-icon.png"
+        with urllib.request.urlopen(url) as resp:
+            self.assertEqual(resp.status, 200)
+            self.assertIn("image/png", resp.headers["Content-Type"])
+            self.assertEqual(resp.read(8), b"\x89PNG\r\n\x1a\n")
 
     def test_index_with_query_string_returns_html(self):
         # Regression: ?range=... and ?models=... must not 404. The dashboard
@@ -298,7 +413,7 @@ class TestDashboardHTTP(unittest.TestCase):
         for qs in ("?range=all", "?range=30d&models=claude-opus-4-7"):
             with urllib.request.urlopen(f"http://127.0.0.1:{self.port}/{qs}") as resp:
                 self.assertEqual(resp.status, 200)
-                self.assertIn(b"Claude Code Usage", resp.read())
+                self.assertIn(b"HotFix Ops Usage Dashboard", resp.read())
 
     def test_api_data_with_query_string(self):
         # /api/data is fetched without query parameters today, but the route
@@ -307,6 +422,7 @@ class TestDashboardHTTP(unittest.TestCase):
             f"http://127.0.0.1:{self.port}/api/data?_=cachebust"
         ) as resp:
             self.assertEqual(resp.status, 200)
+            resp.read()
 
     def test_api_data_returns_json(self):
         url = f"http://127.0.0.1:{self.port}/api/data"
@@ -328,6 +444,38 @@ class TestDashboardHTTP(unittest.TestCase):
             self.assertIn("updated", data)
             self.assertIn("skipped", data)
 
+    def test_cross_origin_post_is_rejected(self):
+        url = f"http://127.0.0.1:{self.port}/api/refresh"
+        req = urllib.request.Request(
+            url,
+            method="POST",
+            headers={"Origin": "https://example.com", "Sec-Fetch-Site": "cross-site"},
+        )
+        with self.assertRaises(urllib.error.HTTPError) as caught:
+            urllib.request.urlopen(req)
+        self.assertEqual(caught.exception.code, 403)
+        caught.exception.close()
+
+    def test_non_loopback_host_header_is_rejected(self):
+        url = f"http://127.0.0.1:{self.port}/api/data"
+        req = urllib.request.Request(url, headers={"Host": "example.com"})
+        with self.assertRaises(urllib.error.HTTPError) as caught:
+            urllib.request.urlopen(req)
+        self.assertEqual(caught.exception.code, 403)
+        caught.exception.close()
+
+    def test_different_loopback_origin_is_rejected(self):
+        url = f"http://127.0.0.1:{self.port}/api/refresh"
+        req = urllib.request.Request(
+            url,
+            method="POST",
+            headers={"Origin": "http://127.0.0.1:1"},
+        )
+        with self.assertRaises(urllib.error.HTTPError) as caught:
+            urllib.request.urlopen(req)
+        self.assertEqual(caught.exception.code, 403)
+        caught.exception.close()
+
     def test_404_for_unknown_path(self):
         url = f"http://127.0.0.1:{self.port}/nonexistent"
         try:
@@ -335,6 +483,7 @@ class TestDashboardHTTP(unittest.TestCase):
             self.fail("Expected 404")
         except urllib.error.HTTPError as e:
             self.assertEqual(e.code, 404)
+            e.close()
 
 
 class TestHTMLTemplate(unittest.TestCase):
@@ -348,6 +497,48 @@ class TestHTMLTemplate(unittest.TestCase):
 
     def test_template_has_chart_js(self):
         self.assertIn("chart.js", HTML_TEMPLATE.lower())
+        self.assertNotIn("cdn.jsdelivr.net", HTML_TEMPLATE)
+
+    def test_provider_refresh_preserves_model_selection(self):
+        self.assertIn("preservedModels", HTML_TEMPLATE)
+        self.assertIn("providerChanged ? null : selectedModels", HTML_TEMPLATE)
+        self.assertIn("previousSelectionWasAll", HTML_TEMPLATE)
+
+    def test_orbs_render_on_overview_and_provider_tabs(self):
+        self.assertIn('id="overview-grid"', HTML_TEMPLATE)
+        self.assertIn('id="detail-provider-summary"', HTML_TEMPLATE)
+        self.assertIn('class="orb-liquid"', HTML_TEMPLATE)
+        self.assertIn("--fill:${used}", HTML_TEMPLATE)
+
+    def test_account_cards_are_grouped_by_provider_and_boldly_labeled(self):
+        self.assertIn("function providerCards(payload, provider)", HTML_TEMPLATE)
+        self.assertIn("renderProviderAccountGroup(provider, providerCards(payload, provider))", HTML_TEMPLATE)
+        self.assertIn("<h2 class=\"provider-account-group-title\">", HTML_TEMPLATE)
+        self.assertIn("<p class=\"account-name\"><strong>${esc(accountName)}</strong></p>", HTML_TEMPLATE)
+
+    def test_template_has_isolated_first_run_preview_controls(self):
+        self.assertIn('id="testing-mode-banner"', HTML_TEMPLATE)
+        self.assertIn("Load sample accounts", HTML_TEMPLATE)
+        self.assertIn("Reset preview", HTML_TEMPLATE)
+        self.assertIn("/api/testing/reset", HTML_TEMPLATE)
+        self.assertIn("/api/testing/seed", HTML_TEMPLATE)
+        self.assertIn("clears only test-mode profiles", HTML_TEMPLATE)
+        self.assertIn("no normal history or account data is read", HTML_TEMPLATE)
+
+    def test_template_uses_hotfix_ops_branding_and_local_icon(self):
+        self.assertIn("HotFix Ops Usage Dashboard", HTML_TEMPLATE)
+        self.assertIn("/assets/hfo-icon.png", HTML_TEMPLATE)
+        self.assertIn("HOTFIX OPS", HTML_TEMPLATE)
+        self.assertEqual(HTML_TEMPLATE.count('href="https://hotfixops.com/"'), 2)
+        self.assertIn(".footer-content .footer-brand { color: var(--accent);", HTML_TEMPLATE)
+        self.assertNotIn("Created by:", HTML_TEMPLATE)
+
+    def test_template_has_conservative_fable_and_reset_credit_status(self):
+        self.assertIn("function fableHeadroom(subscription)", HTML_TEMPLATE)
+        self.assertIn("Math.max(0, Math.min(50, remaining - 50))", HTML_TEMPLATE)
+        self.assertIn("guaranteed weekly headroom", HTML_TEMPLATE)
+        self.assertIn("Codex reset credits", HTML_TEMPLATE)
+        self.assertIn("test_profile_cards", HTML_TEMPLATE)
 
     def test_template_has_substring_matching(self):
         """Verify getPricing falls back to substring match for unknown models."""
