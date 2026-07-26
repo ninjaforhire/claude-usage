@@ -330,7 +330,7 @@ def cmd_stats():
 
     print()
     hr("=")
-    print("  Claude Code Usage - All-Time Statistics")
+    print("  HotFix Ops Usage - All-Time Statistics")
     hr("=")
 
     first_date = (session_info["first"] or "")[:10]
@@ -339,7 +339,7 @@ def cmd_stats():
     print(f"  Total sessions:   {session_info['sessions'] or 0:,}")
     print(f"  Total turns:      {fmt(totals['turns'] or 0)}")
     print()
-    print(f"  Input tokens:     {fmt(totals['inp'] or 0):<12}  (raw prompt tokens)")
+    print(f"  Fresh input:      {fmt(totals['inp'] or 0):<12}  (cache excluded)")
     print(f"  Output tokens:    {fmt(totals['out'] or 0):<12}  (generated tokens)")
     print(f"  Cache read:       {fmt(totals['cr'] or 0):<12}  (90% cheaper than input)")
     print(f"  Cache creation:   {fmt(totals['cc'] or 0):<12}  (25% premium on input)")
@@ -956,7 +956,7 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 USAGE = """
-Claude Code Usage Dashboard
+HotFix Ops Usage Dashboard
 
 Usage:
   python cli.py scan [--projects-dir PATH]   Scan JSONL files and update database

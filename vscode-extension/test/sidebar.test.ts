@@ -29,7 +29,7 @@ describe("escapeHtml", () => {
   });
 
   it("passes through safe text unchanged", () => {
-    expect(escapeHtml("Claude Usage Dashboard")).toBe("Claude Usage Dashboard");
+    expect(escapeHtml("HotFix Ops Usage Dashboard")).toBe("HotFix Ops Usage Dashboard");
   });
 
   it("handles empty input", () => {
@@ -96,7 +96,7 @@ describe("renderHtml with null URL (status pane)", () => {
 
   it("renders the placeholder when no URL is set", () => {
     const html = renderHtml(null, "", NONCE);
-    expect(html).toContain("Claude Code Usage");
+    expect(html).toContain("HotFix Ops Usage");
     expect(html).toContain("not running yet");
     expect(html).not.toContain("<iframe");
   });
@@ -121,7 +121,7 @@ describe("renderHtml with null URL (status pane)", () => {
     const html = renderHtml(null, "", NONCE, "https://host/icon.svg", "vscode-webview://abc");
     expect(html).toContain('class="logo"');
     expect(html).toContain("img-src vscode-webview://abc");
-    expect(html).toContain('mask: url("https://host/icon.svg")');
+    expect(html).toContain('src="https://host/icon.svg"');
   });
 
   it("omits the logo and img-src when no icon URI is provided", () => {
