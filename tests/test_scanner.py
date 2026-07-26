@@ -615,19 +615,25 @@ class TestScanIntegration(unittest.TestCase):
         self._write_project_jsonl("user/myproject", "sess-1")
         scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
         # Second scan should skip
-        result = scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir, db_path=self.db_path, verbose=False
+        )
         self.assertEqual(result["skipped"], 1)
         self.assertEqual(result["new"], 0)
 
     def test_scan_empty_directory(self):
-        result = scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir, db_path=self.db_path, verbose=False
+        )
         self.assertEqual(result["new"], 0)
         self.assertEqual(result["turns"], 0)
 
     def test_scan_multiple_files(self):
         self._write_project_jsonl("user/project-a", "sess-1", num_turns=2)
         self._write_project_jsonl("user/project-b", "sess-2", num_turns=4)
-        result = scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir, db_path=self.db_path, verbose=False
+        )
         self.assertEqual(result["new"], 2)
         self.assertEqual(result["turns"], 6)
         self.assertEqual(result["sessions"], 2)
@@ -645,31 +651,60 @@ class TestScanIncrementalUpdate(unittest.TestCase):
 
     def _write_initial(self):
         with open(self.filepath, "w") as f:
-            f.write(_make_user_record(session_id="sess-1",
-                                      timestamp="2026-04-08T09:00:00Z") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           timestamp="2026-04-08T09:01:00Z",
-                                           input_tokens=100, output_tokens=50) + "\n")
+            f.write(
+                _make_user_record(session_id="sess-1", timestamp="2026-04-08T09:00:00Z")
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    timestamp="2026-04-08T09:01:00Z",
+                    input_tokens=100,
+                    output_tokens=50,
+                )
+                + "\n"
+            )
 
     def _append_turns(self):
         # Ensure mtime visibly changes (filesystem resolution can be ~10ms)
         import time
+
         time.sleep(0.05)
         with open(self.filepath, "a") as f:
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           timestamp="2026-04-08T09:05:00Z",
-                                           input_tokens=200, output_tokens=100) + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           timestamp="2026-04-08T09:10:00Z",
-                                           input_tokens=300, output_tokens=150) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    timestamp="2026-04-08T09:05:00Z",
+                    input_tokens=200,
+                    output_tokens=100,
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    timestamp="2026-04-08T09:10:00Z",
+                    input_tokens=300,
+                    output_tokens=150,
+                )
+                + "\n"
+            )
 
     def test_no_duplicate_turns_on_update(self):
         """Growing a file must add only new turns, not re-insert old ones."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self._append_turns()
-        result = scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self.assertEqual(result["updated"], 1)
         self.assertEqual(result["turns"], 2)  # only the 2 new turns
@@ -682,14 +717,24 @@ class TestScanIncrementalUpdate(unittest.TestCase):
     def test_token_counts_accumulate_correctly(self):
         """Session totals should reflect all turns, not double-count."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self._append_turns()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        session = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-1'").fetchone()
+        session = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-1'"
+        ).fetchone()
         conn.close()
         # 100 + 200 + 300 = 600
         self.assertEqual(session["total_input_tokens"], 600)
@@ -700,14 +745,24 @@ class TestScanIncrementalUpdate(unittest.TestCase):
     def test_session_timestamp_updated(self):
         """Last timestamp should advance after file grows."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self._append_turns()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        session = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-1'").fetchone()
+        session = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-1'"
+        ).fetchone()
         conn.close()
         self.assertEqual(session["last_timestamp"], "2026-04-08T09:10:00Z")
 
@@ -717,41 +772,73 @@ class TestScanIncrementalUpdate(unittest.TestCase):
         first_timestamp. Regression for the incremental branch only tracking
         last_timestamp (parse_jsonl_file already tracked both)."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         # Append two records for a NEW session 'sess-2' with timestamps in
         # reverse order — later one observed first, earlier one second.
         import time
+
         time.sleep(0.05)
         with open(self.filepath, "a") as f:
-            f.write(_make_assistant_record(session_id="sess-2",
-                                           timestamp="2026-04-08T10:05:00Z",
-                                           input_tokens=50, output_tokens=25,
-                                           message_id="msg-new-2-late") + "\n")
-            f.write(_make_assistant_record(session_id="sess-2",
-                                           timestamp="2026-04-08T09:55:00Z",
-                                           input_tokens=70, output_tokens=35,
-                                           message_id="msg-new-2-early") + "\n")
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-2",
+                    timestamp="2026-04-08T10:05:00Z",
+                    input_tokens=50,
+                    output_tokens=25,
+                    message_id="msg-new-2-late",
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-2",
+                    timestamp="2026-04-08T09:55:00Z",
+                    input_tokens=70,
+                    output_tokens=35,
+                    message_id="msg-new-2-early",
+                )
+                + "\n"
+            )
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        sess2 = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-2'").fetchone()
+        sess2 = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-2'"
+        ).fetchone()
         conn.close()
         self.assertEqual(sess2["first_timestamp"], "2026-04-08T09:55:00Z")
-        self.assertEqual(sess2["last_timestamp"],  "2026-04-08T10:05:00Z")
+        self.assertEqual(sess2["last_timestamp"], "2026-04-08T10:05:00Z")
 
     def test_mtime_change_without_growth_skipped(self):
         """If mtime changes but line count doesn't grow, skip the file."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         # Touch the file (change mtime) without adding content
         import time
+
         time.sleep(0.05)
         os.utime(self.filepath, None)
 
-        result = scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
         self.assertEqual(result["skipped"], 1)
         self.assertEqual(result["updated"], 0)
         self.assertEqual(result["turns"], 0)
@@ -772,22 +859,50 @@ class TestCrossFileSessionTotals(unittest.TestCase):
         f1 = self.projects_dir / "file1.jsonl"
         with open(f1, "w") as f:
             f.write(_make_user_record(session_id="sess-1") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1", message_id="msg-1",
-                                           input_tokens=100, output_tokens=50,
-                                           cache_read=0, cache_creation=0) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-1",
+                    input_tokens=100,
+                    output_tokens=50,
+                    cache_read=0,
+                    cache_creation=0,
+                )
+                + "\n"
+            )
 
         # File 2: same message msg-1 (duplicate) + new message msg-2
         f2 = self.projects_dir / "file2.jsonl"
         with open(f2, "w") as f:
             f.write(_make_user_record(session_id="sess-1") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1", message_id="msg-1",
-                                           input_tokens=100, output_tokens=50,
-                                           cache_read=0, cache_creation=0) + "\n")
-            f.write(_make_assistant_record(session_id="sess-1", message_id="msg-2",
-                                           input_tokens=200, output_tokens=100,
-                                           cache_read=0, cache_creation=0) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-1",
+                    input_tokens=100,
+                    output_tokens=50,
+                    cache_read=0,
+                    cache_creation=0,
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-2",
+                    input_tokens=200,
+                    output_tokens=100,
+                    cache_read=0,
+                    cache_creation=0,
+                )
+                + "\n"
+            )
 
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
@@ -797,7 +912,9 @@ class TestCrossFileSessionTotals(unittest.TestCase):
         self.assertEqual(turns, 2)
 
         # Session totals should match turns table, not be inflated
-        session = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-1'").fetchone()
+        session = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-1'"
+        ).fetchone()
         self.assertEqual(session["total_input_tokens"], 300)  # 100 + 200
         self.assertEqual(session["total_output_tokens"], 150)  # 50 + 100
         self.assertEqual(session["turn_count"], 2)
@@ -821,8 +938,7 @@ class TestParseJsonlFileLineCount(unittest.TestCase):
 
     def test_empty_file_returns_zero(self):
         path = os.path.join(self.tmpdir, "empty.jsonl")
-        with open(path, "w") as f:
-            pass
+        open(path, "w").close()
         _, _, line_count = parse_jsonl_file(path)
         self.assertEqual(line_count, 0)
 
