@@ -67,15 +67,18 @@ def get_dashboard_data(db_path=DB_PATH):
         ORDER BY day, model
     """).fetchall()
 
-    daily_by_model = [{
-        "day":            r["day"],
-        "model":          r["model"],
-        "input":          r["input"] or 0,
-        "output":         r["output"] or 0,
-        "cache_read":     r["cache_read"] or 0,
-        "cache_creation": r["cache_creation"] or 0,
-        "turns":          r["turns"] or 0,
-    } for r in daily_rows]
+    daily_by_model = [
+        {
+            "day": r["day"],
+            "model": r["model"],
+            "input": r["input"] or 0,
+            "output": r["output"] or 0,
+            "cache_read": r["cache_read"] or 0,
+            "cache_creation": r["cache_creation"] or 0,
+            "turns": r["turns"] or 0,
+        }
+        for r in daily_rows
+    ]
 
     # ── Hourly per-day per-model (client filters by range + TZ-shifts) ────────
     # Timestamps are ISO8601 UTC (e.g. "2026-04-08T09:30:00Z"); chars 12-13 = hour.
@@ -92,13 +95,16 @@ def get_dashboard_data(db_path=DB_PATH):
         ORDER BY day, hour, model
     """).fetchall()
 
-    hourly_by_model = [{
-        "day":    r["day"],
-        "hour":   r["hour"] if r["hour"] is not None else 0,
-        "model":  r["model"],
-        "output": r["output"] or 0,
-        "turns":  r["turns"] or 0,
-    } for r in hourly_rows]
+    hourly_by_model = [
+        {
+            "day": r["day"],
+            "hour": r["hour"] if r["hour"] is not None else 0,
+            "model": r["model"],
+            "output": r["output"] or 0,
+            "turns": r["turns"] or 0,
+        }
+        for r in hourly_rows
+    ]
 
     # ── All sessions (client filters by range and model) ──────────────────────
     session_rows = conn.execute("""
@@ -119,20 +125,22 @@ def get_dashboard_data(db_path=DB_PATH):
             duration_min = round((t2 - t1).total_seconds() / 60, 1)
         except Exception:
             duration_min = 0
-        sessions_all.append({
-            "session_id":    r["session_id"][:8],
-            "project":       r["project_name"] or "unknown",
-            "branch":        r["git_branch"] or "",
-            "last":          (r["last_timestamp"] or "")[:16].replace("T", " "),
-            "last_date":     (r["last_timestamp"] or "")[:10],
-            "duration_min":  duration_min,
-            "model":         r["model"] or "unknown",
-            "turns":         r["turn_count"] or 0,
-            "input":         r["total_input_tokens"] or 0,
-            "output":        r["total_output_tokens"] or 0,
-            "cache_read":    r["total_cache_read"] or 0,
-            "cache_creation": r["total_cache_creation"] or 0,
-        })
+        sessions_all.append(
+            {
+                "session_id": r["session_id"][:8],
+                "project": r["project_name"] or "unknown",
+                "branch": r["git_branch"] or "",
+                "last": (r["last_timestamp"] or "")[:16].replace("T", " "),
+                "last_date": (r["last_timestamp"] or "")[:10],
+                "duration_min": duration_min,
+                "model": r["model"] or "unknown",
+                "turns": r["turn_count"] or 0,
+                "input": r["total_input_tokens"] or 0,
+                "output": r["total_output_tokens"] or 0,
+                "cache_read": r["total_cache_read"] or 0,
+                "cache_creation": r["total_cache_creation"] or 0,
+            }
+        )
 
     # ── Scan freshness (drives the staleness banner) ─────────────────────────
     row = conn.execute("SELECT MAX(mtime) AS m FROM processed_files").fetchone()
@@ -144,6 +152,7 @@ def get_dashboard_data(db_path=DB_PATH):
     if last_scan_epoch:
         try:
             import scanner
+
             for d in scanner.DEFAULT_PROJECTS_DIRS:
                 base = Path(d).expanduser()
                 if not base.is_dir():
@@ -162,11 +171,11 @@ def get_dashboard_data(db_path=DB_PATH):
             "last_scan_epoch": last_scan_epoch,
             "unscanned_files": unscanned,
         },
-        "all_models":      all_models,
-        "daily_by_model":  daily_by_model,
+        "all_models": all_models,
+        "daily_by_model": daily_by_model,
         "hourly_by_model": hourly_by_model,
-        "sessions_all":    sessions_all,
-        "generated_at":    datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "sessions_all": sessions_all,
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
     }
 
 
@@ -2212,9 +2221,7 @@ def get_accounts_data(refresh=False):
     """Account limit data for the orb row; credential-free public view."""
     import accounts
 
-    accts = (
-        accounts.fetch_all_usage() if refresh else accounts.load_store()["accounts"]
-    )
+    accts = accounts.fetch_all_usage() if refresh else accounts.load_store()["accounts"]
     return accounts.dashboard_payload(accts)
 
 
