@@ -20,9 +20,17 @@ class TestGetPricing(unittest.TestCase):
         self.assertEqual(p["output"], 25.00)
 
     def test_all_known_models_have_pricing(self):
-        for model in ("claude-opus-4-7", "claude-opus-4-6", "claude-opus-4-5",
-                       "claude-sonnet-4-7", "claude-sonnet-4-6", "claude-sonnet-4-5",
-                       "claude-haiku-4-7", "claude-haiku-4-6", "claude-haiku-4-5"):
+        for model in (
+            "claude-opus-4-7",
+            "claude-opus-4-6",
+            "claude-opus-4-5",
+            "claude-sonnet-4-7",
+            "claude-sonnet-4-6",
+            "claude-sonnet-4-5",
+            "claude-haiku-4-7",
+            "claude-haiku-4-6",
+            "claude-haiku-4-5",
+        ):
             p = get_pricing(model)
             self.assertGreater(p["input"], 0, f"Missing input price for {model}")
             self.assertGreater(p["output"], 0, f"Missing output price for {model}")
@@ -97,24 +105,24 @@ class TestGetPricing(unittest.TestCase):
 
     def test_fable_5_exact(self):
         p = get_pricing("claude-fable-5")
-        self.assertEqual(p["input"],       10.00)
-        self.assertEqual(p["output"],      50.00)
-        self.assertEqual(p["cache_read"],   1.00)
+        self.assertEqual(p["input"], 10.00)
+        self.assertEqual(p["output"], 50.00)
+        self.assertEqual(p["cache_read"], 1.00)
         self.assertEqual(p["cache_write"], 12.50)
 
     def test_mythos_5_exact(self):
         p = get_pricing("claude-mythos-5")
-        self.assertEqual(p["input"],       10.00)
-        self.assertEqual(p["output"],      50.00)
-        self.assertEqual(p["cache_read"],   1.00)
+        self.assertEqual(p["input"], 10.00)
+        self.assertEqual(p["output"], 50.00)
+        self.assertEqual(p["cache_read"], 1.00)
         self.assertEqual(p["cache_write"], 12.50)
 
     def test_opus_4_8_exact(self):
         p = get_pricing("claude-opus-4-8")
-        self.assertEqual(p["input"],        5.00)
-        self.assertEqual(p["output"],      25.00)
-        self.assertEqual(p["cache_read"],   0.50)
-        self.assertEqual(p["cache_write"],  6.25)
+        self.assertEqual(p["input"], 5.00)
+        self.assertEqual(p["output"], 25.00)
+        self.assertEqual(p["cache_read"], 0.50)
+        self.assertEqual(p["cache_write"], 6.25)
 
     def test_fable_keyword_fallback(self):
         p = get_pricing("some-fable-model-future")
@@ -149,14 +157,18 @@ class TestCalcCost(unittest.TestCase):
         self.assertAlmostEqual(cost, 6.25)
 
     def test_combined_cost(self):
-        cost = calc_cost("claude-haiku-4-5",
-                         inp=500_000, out=100_000,
-                         cache_read=200_000, cache_creation=50_000)
+        cost = calc_cost(
+            "claude-haiku-4-5",
+            inp=500_000,
+            out=100_000,
+            cache_read=200_000,
+            cache_creation=50_000,
+        )
         expected = (
-            500_000 * 1.00 / 1_000_000 +   # input
-            100_000 * 5.00 / 1_000_000 +    # output
-            200_000 * 1.00 * 0.10 / 1_000_000 +  # cache read
-            50_000 * 1.00 * 1.25 / 1_000_000     # cache creation
+            500_000 * 1.00 / 1_000_000  # input
+            + 100_000 * 5.00 / 1_000_000  # output
+            + 200_000 * 1.00 * 0.10 / 1_000_000  # cache read
+            + 50_000 * 1.00 * 1.25 / 1_000_000  # cache creation
         )
         self.assertAlmostEqual(cost, expected)
 
@@ -220,18 +232,19 @@ class TestDashboardNoBrowser(unittest.TestCase):
     """The VS Code extension passes --no-browser; CLI users get a browser."""
 
     def test_no_browser_suppresses_webbrowser(self):
-        with mock.patch.object(cli, "cmd_scan"), \
-             mock.patch("dashboard.serve") as mock_serve, \
-             mock.patch("webbrowser.open") as mock_open, \
-             redirect_stdout(io.StringIO()):
+        with mock.patch.object(cli, "cmd_scan"), mock.patch(
+            "dashboard.serve"
+        ) as mock_serve, mock.patch("webbrowser.open") as mock_open, redirect_stdout(
+            io.StringIO()
+        ):
             cli.cmd_dashboard(host="127.0.0.1", port=9999, no_browser=True)
             mock_open.assert_not_called()
             mock_serve.assert_called_once()
 
     def test_test_mode_skips_scans_and_starts_isolated_server(self):
-        with mock.patch.object(cli, "cmd_scan") as mock_scan, \
-             mock.patch("dashboard.serve") as mock_serve, \
-             redirect_stdout(io.StringIO()):
+        with mock.patch.object(cli, "cmd_scan") as mock_scan, mock.patch(
+            "dashboard.serve"
+        ) as mock_serve, redirect_stdout(io.StringIO()):
             cli.cmd_dashboard(
                 host="127.0.0.1", port=9999, no_browser=True, test_mode=True
             )
@@ -339,22 +352,30 @@ def test_accounts_remove_without_email_prints_usage(capsys):
 
 # ── accounts add --quiet: launchd re-capture path ───────────────────────────
 
-_FRESH = {"access_token": "new", "refresh_token": "newr",
-          "expires_at": "2099-01-01T00:00:00Z"}
-_USAGE = {"five_hour": {"utilization": 3.0, "resets_at": "2099"},
-          "seven_day": {"utilization": 9.0, "resets_at": "2099"}}
+_FRESH = {
+    "access_token": "new",
+    "refresh_token": "newr",
+    "expires_at": "2099-01-01T00:00:00Z",
+}
+_USAGE = {
+    "five_hour": {"utilization": 3.0, "resets_at": "2099"},
+    "seven_day": {"utilization": 9.0, "resets_at": "2099"},
+}
 
 
 def test_quiet_existing_account_recaptures_not_upserts():
     """Existing account -> update_oauth (preserve history), never upsert."""
-    with mock.patch.object(cli, "_read_keychain", return_value="{}"), \
-         mock.patch.object(cli, "parse_keychain_credentials", return_value=_FRESH), \
-         mock.patch("accounts.fetch_profile_email", return_value="x@y.com"), \
-         mock.patch("accounts.fetch_usage", return_value=_USAGE), \
-         mock.patch("accounts.load_store",
-                    return_value={"accounts": [{"email": "x@y.com"}]}), \
-         mock.patch("accounts.update_oauth") as upd, \
-         mock.patch("accounts.upsert_account") as ups:
+    with mock.patch.object(cli, "_read_keychain", return_value="{}"), mock.patch.object(
+        cli, "parse_keychain_credentials", return_value=_FRESH
+    ), mock.patch("accounts.fetch_profile_email", return_value="x@y.com"), mock.patch(
+        "accounts.fetch_usage", return_value=_USAGE
+    ), mock.patch(
+        "accounts.load_store", return_value={"accounts": [{"email": "x@y.com"}]}
+    ), mock.patch(
+        "accounts.update_oauth"
+    ) as upd, mock.patch(
+        "accounts.upsert_account"
+    ) as ups:
         cli.cmd_accounts(["add", "--quiet"])
     upd.assert_called_once_with("x@y.com", _FRESH, _USAGE)
     ups.assert_not_called()
@@ -362,12 +383,15 @@ def test_quiet_existing_account_recaptures_not_upserts():
 
 def test_quiet_new_account_without_billing_exits():
     """A brand-new account in --quiet mode can't prompt -> hard exit."""
-    with mock.patch.object(cli, "_read_keychain", return_value="{}"), \
-         mock.patch.object(cli, "parse_keychain_credentials", return_value=_FRESH), \
-         mock.patch("accounts.fetch_profile_email", return_value="z@new.com"), \
-         mock.patch("accounts.fetch_usage", return_value=_USAGE), \
-         mock.patch("accounts.load_store", return_value={"accounts": []}), \
-         mock.patch("accounts.upsert_account") as ups:
+    with mock.patch.object(cli, "_read_keychain", return_value="{}"), mock.patch.object(
+        cli, "parse_keychain_credentials", return_value=_FRESH
+    ), mock.patch("accounts.fetch_profile_email", return_value="z@new.com"), mock.patch(
+        "accounts.fetch_usage", return_value=_USAGE
+    ), mock.patch(
+        "accounts.load_store", return_value={"accounts": []}
+    ), mock.patch(
+        "accounts.upsert_account"
+    ) as ups:
         with pytest.raises(SystemExit):
             cli.cmd_accounts(["add", "--quiet"])
     ups.assert_not_called()
@@ -375,12 +399,15 @@ def test_quiet_new_account_without_billing_exits():
 
 def test_quiet_new_account_with_billing_day_upserts():
     """New account + --billing-day registers a full record non-interactively."""
-    with mock.patch.object(cli, "_read_keychain", return_value="{}"), \
-         mock.patch.object(cli, "parse_keychain_credentials", return_value=_FRESH), \
-         mock.patch("accounts.fetch_profile_email", return_value="z@new.com"), \
-         mock.patch("accounts.fetch_usage", return_value=_USAGE), \
-         mock.patch("accounts.load_store", return_value={"accounts": []}), \
-         mock.patch("accounts.upsert_account") as ups:
+    with mock.patch.object(cli, "_read_keychain", return_value="{}"), mock.patch.object(
+        cli, "parse_keychain_credentials", return_value=_FRESH
+    ), mock.patch("accounts.fetch_profile_email", return_value="z@new.com"), mock.patch(
+        "accounts.fetch_usage", return_value=_USAGE
+    ), mock.patch(
+        "accounts.load_store", return_value={"accounts": []}
+    ), mock.patch(
+        "accounts.upsert_account"
+    ) as ups:
         cli.cmd_accounts(["add", "--quiet", "--billing-day", "10"])
     ups.assert_called_once()
     rec = ups.call_args[0][0]
@@ -388,6 +415,7 @@ def test_quiet_new_account_with_billing_day_upserts():
 
 
 # ── accounts refresh: server-independent token rotation ─────────────────────
+
 
 def test_refresh_calls_fetch_all_and_reports(capsys):
     """'accounts refresh' rotates via fetch_all_usage (no HTTP server)."""
@@ -405,6 +433,7 @@ def test_refresh_calls_fetch_all_and_reports(capsys):
 
 def test_freshness_tick_invokes_run_once():
     import freshness_watch
+
     with mock.patch.object(freshness_watch, "run_once") as ro:
         cli.cmd_freshness_tick()
     ro.assert_called_once_with()

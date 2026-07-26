@@ -35,8 +35,8 @@ class TestFindRogues(unittest.TestCase):
             _proc(
                 18877,
                 1,
-                f'{CLAUDE} daemon run --json-path /Users/u/.claude/daemon.json '
-                '--log-file /Users/u/.claude/daemon.log --origin transient '
+                f"{CLAUDE} daemon run --json-path /Users/u/.claude/daemon.json "
+                "--log-file /Users/u/.claude/daemon.log --origin transient "
                 '--spawned-by {"label":"claude","cwd":"/Users/u/_Code/mighty/'
                 'agents/tools/jimbo","pid":80727}',
             )
