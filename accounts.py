@@ -225,14 +225,13 @@ def _is_expired(oauth: dict) -> bool:
 
 def _refresh(oauth: dict) -> dict:
     """Exchange a refresh token for a new access token; return updated oauth dict."""
-    data = _post_json(
-        TOKEN_URL,
-        {
-            "grant_type": "refresh_token",
-            "refresh_token": oauth["refresh_token"],
-            "client_id": CLIENT_ID,
-        },
-    )
+    # fmt: off
+    data = _post_json(TOKEN_URL, {
+        "grant_type": "refresh_token",
+        "refresh_token": oauth["refresh_token"],
+        "client_id": CLIENT_ID,
+    })
+    # fmt: on
     exp = datetime.now(timezone.utc) + timedelta(seconds=data["expires_in"])
     return {
         "access_token": data["access_token"],

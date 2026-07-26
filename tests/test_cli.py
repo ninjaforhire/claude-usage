@@ -352,15 +352,12 @@ def test_accounts_remove_without_email_prints_usage(capsys):
 
 # ── accounts add --quiet: launchd re-capture path ───────────────────────────
 
-_FRESH = {
-    "access_token": "new",
-    "refresh_token": "newr",
-    "expires_at": "2099-01-01T00:00:00Z",
-}
-_USAGE = {
-    "five_hour": {"utilization": 3.0, "resets_at": "2099"},
-    "seven_day": {"utilization": 9.0, "resets_at": "2099"},
-}
+# fmt: off
+_FRESH = {"access_token": "new", "refresh_token": "newr",
+          "expires_at": "2099-01-01T00:00:00Z"}
+_USAGE = {"five_hour": {"utilization": 3.0, "resets_at": "2099"},
+          "seven_day": {"utilization": 9.0, "resets_at": "2099"}}
+# fmt: on
 
 
 def test_quiet_existing_account_recaptures_not_upserts():
