@@ -39,6 +39,7 @@ _PLAN_RE = re.compile(r"(Max plan\s*-?\s*\d+x|Max\s*\d+x|Claude\s*Pro)", re.I)
 
 # ── Pure parsing (IO-free, unit tested) ───────────────────────────────────────
 
+
 def parse_amount(text: str) -> float | None:
     """The actual amount paid (tax included). Prefers 'Amount paid', then 'Total'."""
     m = _AMOUNT_RE.search(text) or _TOTAL_RE.search(text)
@@ -54,7 +55,9 @@ def parse_plan(text: str) -> str:
 def parse_email_date(raw: str) -> str | None:
     """RFC-2822 Date header -> 'YYYY-MM-DD' in UTC (the charge date)."""
     try:
-        return parsedate_to_datetime(raw).astimezone(_dt.timezone.utc).date().isoformat()
+        return (
+            parsedate_to_datetime(raw).astimezone(_dt.timezone.utc).date().isoformat()
+        )
     except (TypeError, ValueError):
         return None
 
@@ -78,8 +81,15 @@ def route_account(headers: dict, body: str, known: list[str], owner: str) -> str
     receipts belong to the mailbox owner. Falls back to a body scan, then owner.
     """
     hay = " ".join(
-        headers.get(h, "") for h in
-        ("To", "Delivered-To", "X-Forwarded-To", "X-Forwarded-For", "Cc", "X-Original-To")
+        headers.get(h, "")
+        for h in (
+            "To",
+            "Delivered-To",
+            "X-Forwarded-To",
+            "X-Forwarded-For",
+            "Cc",
+            "X-Original-To",
+        )
     ).lower()
     present = [e for e in known if e.lower() in hay]
     # The owner mailbox is only the forward *destination*; a forwarded receipt's
@@ -96,7 +106,9 @@ def route_account(headers: dict, body: str, known: list[str], owner: str) -> str
     return owner if owner in known else (known[0] if known else owner)
 
 
-def parse_receipt(headers: dict, body: str, known: list[str], owner: str) -> dict | None:
+def parse_receipt(
+    headers: dict, body: str, known: list[str], owner: str
+) -> dict | None:
     """Parse one Anthropic billing email into a structured event, or None."""
     kind = classify(headers.get("Subject", ""))
     if kind == "other":
@@ -114,6 +126,7 @@ def parse_receipt(headers: dict, body: str, known: list[str], owner: str) -> dic
 
 # ── gws IO ────────────────────────────────────────────────────────────────────
 
+
 def _gws_json(args: list[str]) -> dict:
     """Run a gws command and parse its JSON (stripping the keyring banner line)."""
     out = subprocess.run(["gws", *args], capture_output=True, text=True).stdout
@@ -124,24 +137,36 @@ def _gws_json(args: list[str]) -> dict:
 
 
 def mailbox_owner() -> str:
-    return _gws_json(["gmail", "users", "getProfile", "--params", '{"userId":"me"}']).get(
-        "emailAddress", ""
-    )
+    return _gws_json(
+        ["gmail", "users", "getProfile", "--params", '{"userId":"me"}']
+    ).get("emailAddress", "")
 
 
 def list_message_ids(query: str = ANTHROPIC_QUERY, limit: int = 100) -> list[str]:
-    d = _gws_json([
-        "gmail", "users", "messages", "list",
-        "--params", json.dumps({"userId": "me", "q": query, "maxResults": limit}),
-    ])
+    d = _gws_json(
+        [
+            "gmail",
+            "users",
+            "messages",
+            "list",
+            "--params",
+            json.dumps({"userId": "me", "q": query, "maxResults": limit}),
+        ]
+    )
     return [m["id"] for m in d.get("messages", [])]
 
 
 def get_message(msg_id: str) -> dict:
-    return _gws_json([
-        "gmail", "users", "messages", "get",
-        "--params", json.dumps({"userId": "me", "id": msg_id, "format": "full"}),
-    ])
+    return _gws_json(
+        [
+            "gmail",
+            "users",
+            "messages",
+            "get",
+            "--params",
+            json.dumps({"userId": "me", "id": msg_id, "format": "full"}),
+        ]
+    )
 
 
 def _headers(msg: dict) -> dict:
@@ -165,6 +190,7 @@ def _flatten_body(payload: dict) -> str:
 
 # ── Ledger upsert ─────────────────────────────────────────────────────────────
 
+
 def _load_seen() -> set[str]:
     if SEEN_PATH.exists():
         return set(json.loads(SEEN_PATH.read_text()))
@@ -185,18 +211,30 @@ def apply_event(account: dict, event: dict) -> bool:
     # Only subscription receipts (a recognized Max/Pro plan line) belong in the
     # charges ledger. API pay-as-you-go receipts have no plan -> skip them; they
     # are a separate spend bucket, not a subscription.
-    if event["kind"] == "charge" and event.get("amount") and event.get("date") and event.get("plan"):
+    if (
+        event["kind"] == "charge"
+        and event.get("amount")
+        and event.get("date")
+        and event.get("plan")
+    ):
         ledger = account.setdefault("charges", [])
         key = (event["date"], round(event["amount"], 2))
         if key not in {(c["date"], round(float(c["amount"]), 2)) for c in ledger}:
-            ledger.append({"date": event["date"], "plan": event["plan"],
-                           "amount": round(event["amount"], 2), "source": "gmail"})
+            ledger.append(
+                {
+                    "date": event["date"],
+                    "plan": event["plan"],
+                    "amount": round(event["amount"], 2),
+                    "source": "gmail",
+                }
+            )
             ledger.sort(key=lambda c: c["date"])
             changed = True
     elif event["kind"] == "start" and event.get("date"):
         ivs = account.setdefault("subscription_intervals", [])
         covered = any(
-            iv["start"] <= event["date"] and (iv["end"] is None or iv["end"] >= event["date"])
+            iv["start"] <= event["date"]
+            and (iv["end"] is None or iv["end"] >= event["date"])
             for iv in ivs
         )
         if not covered:
@@ -225,7 +263,9 @@ def ingest(store_path: Path = accounts.STORE_PATH, dry_run: bool = False) -> dic
             continue
         scanned += 1
         msg = get_message(msg_id)
-        event = parse_receipt(_headers(msg), _flatten_body(msg.get("payload", {})), known, owner)
+        event = parse_receipt(
+            _headers(msg), _flatten_body(msg.get("payload", {})), known, owner
+        )
         seen.add(msg_id)
         if not event or event["account"] not in by_email:
             continue
@@ -240,13 +280,28 @@ def ingest(store_path: Path = accounts.STORE_PATH, dry_run: bool = False) -> dic
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    ap = argparse.ArgumentParser(description="Ingest Anthropic receipts into the charges ledger.")
-    ap.add_argument("--dry-run", action="store_true", help="parse + report, don't write")
+    ap = argparse.ArgumentParser(
+        description="Ingest Anthropic receipts into the charges ledger."
+    )
+    ap.add_argument(
+        "--dry-run", action="store_true", help="parse + report, don't write"
+    )
     args = ap.parse_args()
     summary = ingest(dry_run=args.dry_run)
-    logger.info("owner=%s scanned=%d added=%d", summary["owner"], summary["scanned"], len(summary["added"]))
+    logger.info(
+        "owner=%s scanned=%d added=%d",
+        summary["owner"],
+        summary["scanned"],
+        len(summary["added"]),
+    )
     for e in summary["added"]:
-        logger.info("  + %s %s %s %s", e["account"], e["date"], e.get("amount", e["kind"]), e["plan"])
+        logger.info(
+            "  + %s %s %s %s",
+            e["account"],
+            e["date"],
+            e.get("amount", e["kind"]),
+            e["plan"],
+        )
 
 
 if __name__ == "__main__":

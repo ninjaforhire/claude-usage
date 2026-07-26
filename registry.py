@@ -20,9 +20,7 @@ import json
 import os
 from pathlib import Path
 
-DEFAULT_REGISTRY = (
-    Path.home() / "_Code" / "ops" / "daemon-registry" / "daemons.json"
-)
+DEFAULT_REGISTRY = Path.home() / "_Code" / "ops" / "daemon-registry" / "daemons.json"
 
 # Single source of truth (2026-06-21). The registry lives ONLY in _Code
 # (git-tracked, PR-reviewed). The former ~/.claude mirror existed to dodge macOS
