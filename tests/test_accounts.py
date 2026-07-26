@@ -19,14 +19,19 @@ def _acct(email="a@b.com"):
         "email": email,
         "plan": "max_20x",
         "billing_day": 11,
-        "oauth": {"access_token": "at", "refresh_token": "rt",
-                  "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)
-                                 ).strftime("%Y-%m-%dT%H:%M:%SZ")},
+        "oauth": {
+            "access_token": "at",
+            "refresh_token": "rt",
+            "expires_at": (datetime.now(timezone.utc) + timedelta(hours=1)).strftime(
+                "%Y-%m-%dT%H:%M:%SZ"
+            ),
+        },
         "last_usage": None,
     }
 
 
 # ── Task 1: Store layer ──────────────────────────────────────────────────────
+
 
 def test_store_round_trip(tmp_path):
     path = tmp_path / "usage_accounts.json"
@@ -59,6 +64,7 @@ def test_upsert_replaces_by_email(tmp_path):
 
 # ── Task 2: Token refresh + usage fetch ─────────────────────────────────────
 
+
 def _expired_acct():
     a = _acct()
     a["oauth"]["expires_at"] = "2020-01-01T00:00:00Z"
@@ -74,10 +80,14 @@ USAGE_RESPONSE = {
 def test_fetch_refreshes_expired_token(tmp_path):
     path = tmp_path / "s.json"
     accounts.save_store({"accounts": [_expired_acct()]}, path=path)
-    with patch.object(accounts, "_post_json") as post, \
-         patch.object(accounts, "_get_json") as get:
-        post.return_value = {"access_token": "new_at",
-                             "refresh_token": "new_rt", "expires_in": 3600}
+    with patch.object(accounts, "_post_json") as post, patch.object(
+        accounts, "_get_json"
+    ) as get:
+        post.return_value = {
+            "access_token": "new_at",
+            "refresh_token": "new_rt",
+            "expires_in": 3600,
+        }
         get.return_value = USAGE_RESPONSE
         result = accounts.fetch_all_usage(path=path)
     store = accounts.load_store(path=path)
@@ -94,8 +104,9 @@ def test_fetch_skips_refresh_when_token_fresh(tmp_path):
         datetime.now(timezone.utc) + timedelta(hours=1)
     ).strftime("%Y-%m-%dT%H:%M:%SZ")
     accounts.save_store({"accounts": [a]}, path=path)
-    with patch.object(accounts, "_post_json") as post, \
-         patch.object(accounts, "_get_json") as get:
+    with patch.object(accounts, "_post_json") as post, patch.object(
+        accounts, "_get_json"
+    ) as get:
         get.return_value = USAGE_RESPONSE
         accounts.fetch_all_usage(path=path)
     post.assert_not_called()
@@ -117,9 +128,11 @@ def test_refresh_failure_grays_account_not_others(tmp_path):
             raise OSError("invalid token")
         return USAGE_RESPONSE
 
-    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
-         patch.object(accounts, "_post_json", side_effect=OSError("401")), \
-         patch.object(accounts, "_get_json", side_effect=fake_get):
+    with patch.object(
+        accounts, "keychain_oauth", side_effect=OSError("no keychain")
+    ), patch.object(accounts, "_post_json", side_effect=OSError("401")), patch.object(
+        accounts, "_get_json", side_effect=fake_get
+    ):
         result = accounts.fetch_all_usage(path=path)
     by_email = {r["email"]: r for r in result}
     assert by_email["a@b.com"]["last_usage"]["error"]
@@ -131,9 +144,11 @@ def test_stale_refresh_but_valid_access_token_still_fetches(tmp_path):
     access token still works."""
     path = tmp_path / "s.json"
     accounts.save_store({"accounts": [_expired_acct()]}, path=path)
-    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
-         patch.object(accounts, "_post_json", side_effect=OSError("429")), \
-         patch.object(accounts, "_get_json", return_value=USAGE_RESPONSE):
+    with patch.object(
+        accounts, "keychain_oauth", side_effect=OSError("no keychain")
+    ), patch.object(accounts, "_post_json", side_effect=OSError("429")), patch.object(
+        accounts, "_get_json", return_value=USAGE_RESPONSE
+    ):
         result = accounts.fetch_all_usage(path=path)
     assert result[0]["last_usage"]["error"] is None
     assert result[0]["last_usage"]["five_hour"]["utilization"] == 42.0
@@ -145,10 +160,14 @@ def test_rotated_tokens_persist_when_usage_fetch_fails(tmp_path):
     account must carry an error."""
     path = tmp_path / "s.json"
     accounts.save_store({"accounts": [_expired_acct()]}, path=path)
-    with patch.object(accounts, "_post_json") as post, \
-         patch.object(accounts, "_get_json", side_effect=OSError("network down")):
-        post.return_value = {"access_token": "new_at",
-                             "refresh_token": "new_rt", "expires_in": 3600}
+    with patch.object(accounts, "_post_json") as post, patch.object(
+        accounts, "_get_json", side_effect=OSError("network down")
+    ):
+        post.return_value = {
+            "access_token": "new_at",
+            "refresh_token": "new_rt",
+            "expires_in": 3600,
+        }
         result = accounts.fetch_all_usage(path=path)
     store = accounts.load_store(path=path)
     assert store["accounts"][0]["oauth"]["access_token"] == "new_at"
@@ -172,12 +191,12 @@ def test_malformed_usage_response_grays_account(tmp_path):
 
 
 def test_color_ramp_boundaries():
-    assert accounts.remaining_color(60)[0] == "#39ff6e"   # neon green
-    assert accounts.remaining_color(59)[0] == "#ffe23d"   # yellow
+    assert accounts.remaining_color(60)[0] == "#39ff6e"  # neon green
+    assert accounts.remaining_color(59)[0] == "#ffe23d"  # yellow
     assert accounts.remaining_color(35)[0] == "#ffe23d"
-    assert accounts.remaining_color(34)[0] == "#ff9433"   # orange
+    assert accounts.remaining_color(34)[0] == "#ff9433"  # orange
     assert accounts.remaining_color(15)[0] == "#ff9433"
-    assert accounts.remaining_color(14)[0] == "#ff3b3b"   # red
+    assert accounts.remaining_color(14)[0] == "#ff3b3b"  # red
 
 
 def test_days_until_renewal_same_month():
@@ -231,6 +250,7 @@ def test_public_view_remaining_is_int():
 def test_401_on_fresh_token_forces_refresh_and_retries(tmp_path):
     """Access token invalidated before expires_at (rotated elsewhere) — one forced refresh."""
     import urllib.error
+
     path = tmp_path / "s.json"
     accounts.save_store({"accounts": [_acct()]}, path=path)
     calls = {"n": 0}
@@ -241,11 +261,16 @@ def test_401_on_fresh_token_forces_refresh_and_retries(tmp_path):
             raise urllib.error.HTTPError(url, 401, "Unauthorized", None, None)
         return USAGE_RESPONSE
 
-    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
-         patch.object(accounts, "_get_json", side_effect=fake_get), \
-         patch.object(accounts, "_post_json") as post:
-        post.return_value = {"access_token": "new_at",
-                             "refresh_token": "new_rt", "expires_in": 3600}
+    with patch.object(
+        accounts, "keychain_oauth", side_effect=OSError("no keychain")
+    ), patch.object(accounts, "_get_json", side_effect=fake_get), patch.object(
+        accounts, "_post_json"
+    ) as post:
+        post.return_value = {
+            "access_token": "new_at",
+            "refresh_token": "new_rt",
+            "expires_in": 3600,
+        }
         result = accounts.fetch_all_usage(path=path)
     assert post.call_count == 1
     assert calls["n"] == 2
@@ -254,16 +279,19 @@ def test_401_on_fresh_token_forces_refresh_and_retries(tmp_path):
     assert store["accounts"][0]["oauth"]["access_token"] == "new_at"
 
 
-
 # ── update_oauth: re-capture must preserve billing history ───────────────────
+
 
 def _full_acct(email="x@y.com"):
     return {
         "email": email,
         "plan": "max_20x",
         "billing_day": 12,
-        "oauth": {"access_token": "old", "refresh_token": "oldr",
-                  "expires_at": "2020-01-01T00:00:00Z"},
+        "oauth": {
+            "access_token": "old",
+            "refresh_token": "oldr",
+            "expires_at": "2020-01-01T00:00:00Z",
+        },
         "last_usage": {"error": "HTTP Error 400: Bad Request"},
         "is_main": False,
         "monthly_cost": 213.2,
@@ -275,10 +303,15 @@ def _full_acct(email="x@y.com"):
 def test_update_oauth_preserves_billing_history(tmp_path):
     path = tmp_path / "s.json"
     accounts.save_store({"accounts": [_full_acct()]}, path=path)
-    fresh = {"access_token": "new", "refresh_token": "newr",
-             "expires_at": "2099-01-01T00:00:00Z"}
-    usage = {"five_hour": {"utilization": 3.0, "resets_at": "2099"},
-             "seven_day": {"utilization": 9.0, "resets_at": "2099"}}
+    fresh = {
+        "access_token": "new",
+        "refresh_token": "newr",
+        "expires_at": "2099-01-01T00:00:00Z",
+    }
+    usage = {
+        "five_hour": {"utilization": 3.0, "resets_at": "2099"},
+        "seven_day": {"utilization": 9.0, "resets_at": "2099"},
+    }
     assert accounts.update_oauth("x@y.com", fresh, usage, path=path) is True
     a = accounts.load_store(path=path)["accounts"][0]
     assert a["oauth"]["access_token"] == "new"
@@ -291,8 +324,11 @@ def test_update_oauth_preserves_billing_history(tmp_path):
 def test_update_oauth_without_usage_keeps_prior_usage(tmp_path):
     path = tmp_path / "s.json"
     accounts.save_store({"accounts": [_full_acct()]}, path=path)
-    fresh = {"access_token": "new", "refresh_token": "newr",
-             "expires_at": "2099-01-01T00:00:00Z"}
+    fresh = {
+        "access_token": "new",
+        "refresh_token": "newr",
+        "expires_at": "2099-01-01T00:00:00Z",
+    }
     assert accounts.update_oauth("x@y.com", fresh, None, path=path) is True
     a = accounts.load_store(path=path)["accounts"][0]
     assert a["oauth"]["access_token"] == "new"
@@ -355,12 +391,12 @@ class TestUsageCooldowns(unittest.TestCase):
             return accounts.fetch_all_usage(path=self.path)[0]
 
     def assert_retry_delay(self, usage, expected_seconds):
-        fetched = datetime.strptime(
-            usage["fetched_at"], "%Y-%m-%dT%H:%M:%SZ"
-        ).replace(tzinfo=timezone.utc)
-        retry = datetime.strptime(
-            usage["retry_until"], "%Y-%m-%dT%H:%M:%SZ"
-        ).replace(tzinfo=timezone.utc)
+        fetched = datetime.strptime(usage["fetched_at"], "%Y-%m-%dT%H:%M:%SZ").replace(
+            tzinfo=timezone.utc
+        )
+        retry = datetime.strptime(usage["retry_until"], "%Y-%m-%dT%H:%M:%SZ").replace(
+            tzinfo=timezone.utc
+        )
         self.assertAlmostEqual(
             (retry - fetched).total_seconds(), expected_seconds, delta=1
         )
@@ -441,9 +477,7 @@ class TestUsageCooldowns(unittest.TestCase):
 
         with patch.object(
             accounts, "keychain_oauth", side_effect=OSError("no keychain")
-        ), patch.object(
-            accounts, "fetch_usage", return_value=USAGE_RESPONSE
-        ) as usage:
+        ), patch.object(accounts, "fetch_usage", return_value=USAGE_RESPONSE) as usage:
             result = accounts.fetch_all_usage(path=self.path)[0]
 
         usage.assert_called_once()
@@ -498,9 +532,13 @@ class TestUsageCooldowns(unittest.TestCase):
         error = self._http_error(403, {"error": {"message": "Org blocked"}})
         accounts.save_store({"accounts": [_acct()]}, path=self.path)
 
-        with patch.object(accounts, "keychain_oauth", return_value={"access_token": "kc"}), \
-             patch.object(accounts, "fetch_profile_email", return_value="a@b.com"), \
-             patch.object(accounts, "fetch_usage", side_effect=error) as usage:
+        with patch.object(
+            accounts, "keychain_oauth", return_value={"access_token": "kc"}
+        ), patch.object(
+            accounts, "fetch_profile_email", return_value="a@b.com"
+        ), patch.object(
+            accounts, "fetch_usage", side_effect=error
+        ) as usage:
             result = accounts.fetch_all_usage(path=self.path)[0]
 
         usage.assert_called_once()
@@ -536,9 +574,7 @@ class TestUsageCooldowns(unittest.TestCase):
             }
         )
 
-        result = self._fetch_with_usage(
-            acct, urllib.error.URLError("network down")
-        )
+        result = self._fetch_with_usage(acct, urllib.error.URLError("network down"))
 
         self.assertEqual(result["last_usage"]["five_hour"], USAGE_RESPONSE["five_hour"])
         self.assertEqual(result["last_usage"]["seven_day"], USAGE_RESPONSE["seven_day"])

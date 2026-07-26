@@ -66,7 +66,9 @@ def test_locked_helper_takes_no_reentrant_lock():
     """
     src = inspect.getsource(accounts._fetch_all_usage_locked)
     for forbidden in ("store_lock(", "update_oauth(", "upsert_account("):
-        assert forbidden not in src, f"_fetch_all_usage_locked must not call {forbidden}"
+        assert (
+            forbidden not in src
+        ), f"_fetch_all_usage_locked must not call {forbidden}"
 
 
 def test_upsert_account_works_under_lock(tmp_path, monkeypatch):
@@ -75,8 +77,13 @@ def test_upsert_account_works_under_lock(tmp_path, monkeypatch):
     store = tmp_path / "usage_accounts.json"
     accounts.save_store({"accounts": []}, path=store)
     accounts.upsert_account(
-        {"email": "a@b.com", "plan": "max_20x", "billing_day": 9,
-         "oauth": {}, "last_usage": None},
+        {
+            "email": "a@b.com",
+            "plan": "max_20x",
+            "billing_day": 9,
+            "oauth": {},
+            "last_usage": None,
+        },
         path=store,
     )
     loaded = accounts.load_store(path=store)
