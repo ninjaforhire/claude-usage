@@ -579,6 +579,12 @@ class TestHTMLTemplate(unittest.TestCase):
         self.assertIn(".footer-content .footer-brand { color: var(--accent);", HTML_TEMPLATE)
         self.assertNotIn("Created by:", HTML_TEMPLATE)
 
+    def test_fresh_input_remains_visible_and_is_explained(self):
+        self.assertIn("Fresh Input", HTML_TEMPLATE)
+        self.assertIn("cache excluded", HTML_TEMPLATE)
+        self.assertIn("minBarLength: 2", HTML_TEMPLATE)
+        self.assertNotIn("Input Tokens", HTML_TEMPLATE)
+
     def test_template_has_conservative_fable_and_reset_credit_status(self):
         self.assertIn("function fableHeadroom(subscription)", HTML_TEMPLATE)
         self.assertIn("Math.max(0, Math.min(50, remaining - 50))", HTML_TEMPLATE)

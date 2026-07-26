@@ -685,7 +685,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
       <thead><tr>
         <th>Model</th>
         <th class="sortable" onclick="setModelSort('turns')">Turns <span class="sort-icon" id="msort-turns"></span></th>
-        <th class="sortable" onclick="setModelSort('input')">Input <span class="sort-icon" id="msort-input"></span></th>
+        <th class="sortable" onclick="setModelSort('input')">Fresh Input <span class="sort-icon" id="msort-input"></span></th>
         <th class="sortable" onclick="setModelSort('output')">Output <span class="sort-icon" id="msort-output"></span></th>
         <th class="sortable" onclick="setModelSort('cache_read')">Cache Read <span class="sort-icon" id="msort-cache_read"></span></th>
         <th id="cache-creation-head" class="sortable" onclick="setModelSort('cache_creation')">Cache Creation <span class="sort-icon" id="msort-cache_creation"></span></th>
@@ -705,7 +705,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <th class="sortable" onclick="setSessionSort('duration_min')">Duration <span class="sort-icon" id="sort-icon-duration_min"></span></th>
         <th>Model</th>
         <th class="sortable" onclick="setSessionSort('turns')">Turns <span class="sort-icon" id="sort-icon-turns"></span></th>
-        <th class="sortable" onclick="setSessionSort('input')">Input <span class="sort-icon" id="sort-icon-input"></span></th>
+        <th class="sortable" onclick="setSessionSort('input')">Fresh Input <span class="sort-icon" id="sort-icon-input"></span></th>
         <th class="sortable" onclick="setSessionSort('output')">Output <span class="sort-icon" id="sort-icon-output"></span></th>
         <th class="sortable" onclick="setSessionSort('cost')">Est. Cost <span class="sort-icon" id="sort-icon-cost"></span></th>
       </tr></thead>
@@ -720,7 +720,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <th>Project</th>
         <th class="sortable" onclick="setProjectSort('sessions')">Sessions <span class="sort-icon" id="psort-sessions"></span></th>
         <th class="sortable" onclick="setProjectSort('turns')">Turns <span class="sort-icon" id="psort-turns"></span></th>
-        <th class="sortable" onclick="setProjectSort('input')">Input <span class="sort-icon" id="psort-input"></span></th>
+        <th class="sortable" onclick="setProjectSort('input')">Fresh Input <span class="sort-icon" id="psort-input"></span></th>
         <th class="sortable" onclick="setProjectSort('output')">Output <span class="sort-icon" id="psort-output"></span></th>
         <th class="sortable" onclick="setProjectSort('cost')">Est. Cost <span class="sort-icon" id="psort-cost"></span></th>
       </tr></thead>
@@ -736,7 +736,7 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
         <th>Branch</th>
         <th class="sortable" onclick="setProjectBranchSort('sessions')">Sessions <span class="sort-icon" id="pbsort-sessions"></span></th>
         <th class="sortable" onclick="setProjectBranchSort('turns')">Turns <span class="sort-icon" id="pbsort-turns"></span></th>
-        <th class="sortable" onclick="setProjectBranchSort('input')">Input <span class="sort-icon" id="pbsort-input"></span></th>
+        <th class="sortable" onclick="setProjectBranchSort('input')">Fresh Input <span class="sort-icon" id="pbsort-input"></span></th>
         <th class="sortable" onclick="setProjectBranchSort('output')">Output <span class="sort-icon" id="pbsort-output"></span></th>
         <th class="sortable" onclick="setProjectBranchSort('cost')">Est. Cost <span class="sort-icon" id="pbsort-cost"></span></th>
       </tr></thead>
@@ -751,9 +751,9 @@ HTML_TEMPLATE = r"""<!DOCTYPE html>
   <div class="footer-content">
     <p>Cost estimates based on Anthropic API pricing (<a href="https://claude.com/pricing#api" target="_blank">claude.com/pricing#api</a>) as of May 2026. Only models containing <em>fable</em>, <em>mythos</em>, <em>opus</em>, <em>sonnet</em>, or <em>haiku</em> in the name are included in cost calculations. Actual costs for Max/Pro subscribers differ from API pricing.</p>
     <p>
-      GitHub: <a href="https://github.com/phuryn/claude-usage" target="_blank">https://github.com/phuryn/claude-usage</a>
+      Source: <a href="https://github.com/ninjaforhire/claude-usage" target="_blank">HotFix Ops Usage on GitHub</a>
       &nbsp;&middot;&nbsp;
-      <a href="https://www.productcompass.pm" target="_blank">The Product Compass Newsletter</a>
+      Based on <a href="https://github.com/phuryn/claude-usage" target="_blank">phuryn/claude-usage</a>
       &nbsp;&middot;&nbsp;
       License: MIT
     </p>
@@ -1469,7 +1469,7 @@ function renderStats(t) {
   const stats = [
     { label: 'Sessions',       value: t.sessions.toLocaleString(), sub: rangeLabel },
     { label: 'Turns',          value: fmt(t.turns),                sub: rangeLabel },
-    { label: 'Input Tokens',   value: fmt(t.input),                sub: rangeLabel },
+    { label: 'Fresh Input',    value: fmt(t.input),                sub: rangeLabel + ' · cache excluded' },
     { label: 'Output Tokens',  value: fmt(t.output),               sub: rangeLabel },
     { label: 'Cache Read',     value: fmt(t.cache_read),           sub: 'from prompt cache' },
     { label: cacheCreationLabel, value: fmt(t.cache_creation),     sub: cacheCreationSub },
@@ -1603,7 +1603,7 @@ function renderDailyChart(daily) {
     data: {
       labels: daily.map(d => d.day),
       datasets: [
-        { label: 'Input',          hidden: hiddenSeries.daily.has('Input'),          data: daily.map(d => d.input),          backgroundColor: TOKEN_COLORS.input,          hoverBackgroundColor: TOKEN_HOVER.input,          stack: 'io',    yAxisID: 'y1' },
+        { label: 'Fresh Input',    hidden: hiddenSeries.daily.has('Fresh Input'),    data: daily.map(d => d.input),          backgroundColor: TOKEN_COLORS.input,          hoverBackgroundColor: TOKEN_HOVER.input,          minBarLength: 2, stack: 'io', yAxisID: 'y1' },
         { label: 'Output',         hidden: hiddenSeries.daily.has('Output'),         data: daily.map(d => d.output),         backgroundColor: TOKEN_COLORS.output,         hoverBackgroundColor: TOKEN_HOVER.output,         stack: 'io',    yAxisID: 'y1' },
         { label: 'Cache Read',     hidden: hiddenSeries.daily.has('Cache Read'),     data: daily.map(d => d.cache_read),     backgroundColor: TOKEN_COLORS.cache_read,     hoverBackgroundColor: TOKEN_HOVER.cache_read,     stack: 'cache', yAxisID: 'y' },
         { label: activeProvider === 'codex' ? 'Reasoning' : 'Cache Creation', hidden: hiddenSeries.daily.has(activeProvider === 'codex' ? 'Reasoning' : 'Cache Creation'), data: daily.map(d => d.cache_creation), backgroundColor: TOKEN_COLORS.cache_creation, hoverBackgroundColor: TOKEN_HOVER.cache_creation, stack: 'cache', yAxisID: 'y' },
@@ -1615,7 +1615,7 @@ function renderDailyChart(daily) {
       scales: {
         x: { ticks: { color: C.axis, maxTicksLimit: RANGE_TICKS[selectedRange] }, grid: { color: C.border } },
         y:  { position: 'left',  ticks: { color: C.green, callback: v => fmt(v) }, grid: { color: C.border }, title: { display: true, text: activeProvider === 'codex' ? 'Cache / Reasoning' : 'Cache', color: C.green } },
-        y1: { position: 'right', ticks: { color: C.blue, callback: v => fmt(v) }, grid: { drawOnChartArea: false },    title: { display: true, text: 'Input / Output', color: C.blue } },
+        y1: { position: 'right', ticks: { color: C.blue, callback: v => fmt(v) }, grid: { drawOnChartArea: false },    title: { display: true, text: 'Fresh Input / Output', color: C.blue } },
       }
     }
   });
@@ -1666,7 +1666,7 @@ function renderProjectChart(byProject) {
     data: {
       labels: top.map(p => p.project.length > 22 ? '\u2026' + p.project.slice(-20) : p.project),
       datasets: [
-        { label: 'Input',  hidden: hiddenSeries.project.has('Input'),  data: top.map(p => p.input),  backgroundColor: TOKEN_COLORS.input,  hoverBackgroundColor: TOKEN_HOVER.input },
+        { label: 'Fresh Input', hidden: hiddenSeries.project.has('Fresh Input'), data: top.map(p => p.input), backgroundColor: TOKEN_COLORS.input, hoverBackgroundColor: TOKEN_HOVER.input, minBarLength: 2 },
         { label: 'Output', hidden: hiddenSeries.project.has('Output'), data: top.map(p => p.output), backgroundColor: TOKEN_COLORS.output, hoverBackgroundColor: TOKEN_HOVER.output },
       ]
     },
@@ -1922,7 +1922,7 @@ function downloadCSV(reportType, header, rows) {
 }
 
 function exportModelCSV() {
-  const header = ['Model', 'Turns', 'Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
+  const header = ['Model', 'Turns', 'Fresh Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
   const rows = sortModels(lastByModel).map(m => {
     const cost = calcCost(m.model, m.input, m.output, m.cache_read, m.cache_creation);
     return [m.model, m.turns, m.input, m.output, m.cache_read, m.cache_creation, cost.toFixed(4)];
@@ -1931,7 +1931,7 @@ function exportModelCSV() {
 }
 
 function exportSessionsCSV() {
-  const header = ['Session', 'Project', 'Last Active', 'Duration (min)', 'Model', 'Turns', 'Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
+  const header = ['Session', 'Project', 'Last Active', 'Duration (min)', 'Model', 'Turns', 'Fresh Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
   const rows = lastFilteredSessions.map(s => {
     const cost = calcCost(s.model, s.input, s.output, s.cache_read, s.cache_creation);
     return [s.session_id, s.project, s.last, s.duration_min, s.model, s.turns, s.input, s.output, s.cache_read, s.cache_creation, cost.toFixed(4)];
@@ -1940,7 +1940,7 @@ function exportSessionsCSV() {
 }
 
 function exportProjectsCSV() {
-  const header = ['Project', 'Sessions', 'Turns', 'Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
+  const header = ['Project', 'Sessions', 'Turns', 'Fresh Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
   const rows = lastByProject.map(p => {
     return [p.project, p.sessions, p.turns, p.input, p.output, p.cache_read, p.cache_creation, p.cost.toFixed(4)];
   });
@@ -1948,7 +1948,7 @@ function exportProjectsCSV() {
 }
 
 function exportProjectBranchCSV() {
-  const header = ['Project', 'Branch', 'Sessions', 'Turns', 'Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
+  const header = ['Project', 'Branch', 'Sessions', 'Turns', 'Fresh Input', 'Output', 'Cache Read', 'Cache Creation', 'Est. Cost'];
   const rows = lastByProjectBranch.map(pb => {
     return [pb.project, pb.branch, pb.sessions, pb.turns, pb.input, pb.output, pb.cache_read, pb.cache_creation, pb.cost.toFixed(4)];
   });
