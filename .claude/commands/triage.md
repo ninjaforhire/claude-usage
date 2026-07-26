@@ -26,9 +26,9 @@ Designed to be run **headless** via Windows Task Scheduler (`claude -p "/triage"
    - modifies anything under `.github/workflows/`, `scripts/`, `.claude/`, OR
    - includes deletions or renames of existing files (not just additions/edits), OR
    - includes a database schema change (`init_db` body, new `CREATE TABLE`, new `ALTER TABLE`).
-5. **Never push DEV if `python -m unittest discover -s tests -v` fails on `main` first.** Baseline must be green before any work.
+5. **Never push DEV if `python -m pytest -v` fails on `main` first.** Baseline must be green before any work.
 6. **Never push DEV if the final test sweep after merges fails.** Roll back, leave nothing on DEV.
-7. **Stop if any external dependency is missing** (`gh`, `codex`, `python`) — exit cleanly with a noted error rather than partial state.
+7. **Stop if any external dependency is missing** (`gh`, `codex`, `python`, `pytest`) — exit cleanly with a noted error rather than partial state.
 8. **Codex sign-off is mechanical, not advisory.** Before any `gh pr close` / `gh issue close` fires, a file at `/tmp/triage-codex-signoff.md` must exist containing (a) every item on the close list, and (b) the exact phrase `Codex sign-off: close list approved` on its own line. Codex generates this in step 2. No file → no closes. If Codex says "uncertain" on any item, that item stays open regardless.
 9. **If unclear, leave it open and comment.** Don't guess. Surfacing as "needs maintainer review" is always preferable to a wrong close.
 
@@ -41,10 +41,11 @@ Examples are bash; use the PowerShell equivalents on Windows (`Get-Command codex
 ```
 gh auth status                                   || exit 1
 command -v codex                                 || exit 1
+python -c "import pytest"                        || exit 1
 [ -z "$(git status --porcelain)" ]               || exit 1   # SAFETY RAIL 1
 git fetch origin
 git checkout main && git pull --ff-only
-python -m unittest discover -s tests             || exit 1   # SAFETY RAIL 5
+python -m pytest                                 || exit 1   # SAFETY RAIL 5
 git checkout DEV
 git merge --ff-only origin/DEV                                # fast-forward to remote DEV
 git merge --ff-only main                                      # bring DEV up to date with main
@@ -96,10 +97,10 @@ git merge --no-ff pr-<N> -m "Merge pull request #<N> from <author>/<branch>
 <title>
 
 <one-paragraph why this fix is correct>"
-python -m unittest discover -s tests
+python -m pytest
 ```
 
-If `unittest` fails, **abort the entire run** (don't try to recover this PR and keep going):
+If `pytest` fails, **abort the entire run** (don't try to recover this PR and keep going):
 - Delete the temp branch (`git checkout DEV && git branch -D triage-run/<date>`).
 - `DEV` is exactly where it was before the run started.
 - Post a self-comment (step 8) noting which PR's merge broke tests.

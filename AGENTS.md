@@ -6,7 +6,9 @@ Guidance for any coding agent (Codex, Claude Code, etc.) working on this reposit
 
 ## Project shape
 
-Python standard library only, no `pip install` step. Python 3.9+.
+The runtime uses only the Python standard library and needs no `pip install`
+step. Development and CI use the test-only `pytest>=8,<9` dependency declared
+in `requirements-dev.txt`. Python 3.9+.
 
 - [scanner.py](scanner.py) — parses Claude Code JSONL transcripts into a SQLite DB at `~/.claude/usage.db`.
 - [codex_scanner.py](codex_scanner.py) — parses Codex rollout JSONL into `~/.claude-codex-usage/codex.db`.
@@ -27,9 +29,10 @@ python cli.py dashboard             # scan + open http://localhost:8080
 python cli.py scan --projects-dir PATH    # scan a custom transcripts dir
 HOST=127.0.0.1 PORT=9000 python cli.py dashboard
 
-python -m unittest discover -s tests -v             # full test suite (CI runs this)
-python -m unittest tests.test_scanner -v            # one file
-python -m unittest tests.test_scanner.TestProjectNameFromCwd.test_windows_path  # one test
+python -m pip install -r requirements-dev.txt       # test-only dependencies
+python -m pytest -v                                 # full test suite (CI runs this)
+python -m pytest tests/test_scanner.py -v            # one file
+python -m pytest tests/test_scanner.py::TestProjectNameFromCwd::test_windows_path  # one test
 ```
 
 CI ([.github/workflows/tests.yml](.github/workflows/tests.yml)) runs the suite on Python 3.9 / 3.11 / 3.12 against `main` and PRs.

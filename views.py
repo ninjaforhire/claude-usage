@@ -8,6 +8,8 @@ Public API:
     spark_report(conn, period)
 """
 
+from __future__ import annotations
+
 import re
 import sqlite3
 from datetime import date, timedelta

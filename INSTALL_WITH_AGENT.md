@@ -10,13 +10,13 @@ Safety rules:
 1. Work only inside this repository except for the dashboard-owned derived databases at ~/.claude/usage.db and ~/.claude-codex-usage/codex.db, normal profiles at ~/.hotfix-ops-usage/accounts.json, and isolated test profiles under ~/.hotfix-ops-usage/testing/.
 2. Never read, print, copy, edit, or upload any credential file, keychain item, browser cookie, API key, OAuth token, .env file, prompt, or message body.
 3. Do not automate provider login. If Claude or Codex is logged out, stop and tell me the exact official interactive login command I should run myself.
-4. Do not add a hosted service, telemetry, executable installer, browser scraper, private endpoint, or third-party Python dependency.
+4. Do not add a hosted service, telemetry, executable installer, browser scraper, private endpoint, or third-party runtime Python dependency.
 5. Do not commit, push, publish, or delete source history.
 
 Steps:
 1. Read README.md, connectors/claude_subscription.py, connectors/codex_subscription.py, dashboard.py, and cli.py.
 2. Verify Python 3.9 or newer, then verify whether `claude` and `codex` are available on PATH. Use `python` on Windows and `python3` on macOS/Linux for every command below.
-3. Run `<PYTHON> -m unittest discover -s tests -v`. Fix only installation or compatibility problems you can reproduce, preserve unrelated work, and show me the diff before applying any source change.
+3. Run `<PYTHON> -m pip install -r requirements-dev.txt`, then `<PYTHON> -m pytest -v`. Fix only installation or compatibility problems you can reproduce, preserve unrelated work, and show me the diff before applying any source change.
 4. Run `<PYTHON> connectors/claude_subscription.py` and confirm its output contains only provider, availability, source, sanitized account fields, windows, fetched_at, and an optional error.
 5. Run `<PYTHON> connectors/codex_subscription.py` and apply the same safe-output check. It may also expose only the available reset-credit count and earliest expiry; it must never expose a reset-credit ID or consume one.
 6. Offer to create an account card with `<PYTHON> cli.py accounts setup --label "<user chosen label>"`. Do not run it until the user supplies that display label. It may inspect only the currently signed-in official CLI account, must never automate login, and must save nothing if no provider is connected.
