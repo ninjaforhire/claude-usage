@@ -33,7 +33,7 @@ The scripts run `vsce package` then `code --install-extension` against your loca
 
 ## Requirements
 
-- **Python 3.8 or newer on your `PATH`.** Almost everyone running Claude Code already has Python installed; if not, see [python.org/downloads](https://www.python.org/downloads/). On Windows make sure to check **"Add Python to PATH"** during the installer.
+- **Python 3.9 or newer on your `PATH`.** Almost everyone running Claude Code already has Python installed; if not, see [python.org/downloads](https://www.python.org/downloads/). On Windows make sure to check **"Add Python to PATH"** during the installer.
 
 That's the only dependency. The Python sources (`cli.py`, `scanner.py`, `dashboard.py`) are bundled inside the extension — no separate clone or Homebrew install needed.
 
@@ -62,7 +62,7 @@ Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`):
 
 | Setting | Default | Description |
 |---|---|---|
-| `claudeUsage.pythonPath` | _(auto-discover)_ | Path to a Python 3.8+ interpreter. Leave empty to auto-detect (`claude-usage` on PATH first, then `python3`, then `python`). |
+| `claudeUsage.pythonPath` | _(auto-discover)_ | Path to a Python 3.9+ interpreter. Leave empty to auto-detect (`claude-usage` on PATH first, then `python3`, then `python`). |
 | `claudeUsage.cliPath` | _(bundled)_ | Path to a custom `cli.py` (or its parent directory). Empty = use the bundled copy that ships with the extension. |
 | `claudeUsage.port` | `0` | Port for the local dashboard server. `0` = OS picks a free one. |
 
@@ -78,7 +78,7 @@ When you click the icon, the extension resolves how to run the dashboard in this
 4. A `cli.py` in any open VS Code workspace folder (the legacy "open the cloned repo" path)
 5. A sibling `cli.py` from the extension dir (dev mode, when running from source via F5)
 
-If none of those find anything, you'll get a friendly message in the sidebar — most often "Python 3.8+ is required" with a platform-specific install hint.
+If none of those find anything, you'll get a friendly message in the sidebar — most often "Python 3.9+ is required" with a platform-specific install hint.
 
 ---
 
@@ -95,7 +95,7 @@ No data leaves your machine. No API calls. No telemetry.
 
 ## Troubleshooting
 
-- **"Python 3.8 or newer required"** — install from [python.org](https://www.python.org/downloads/) and reload VS Code (`Ctrl+Shift+P` → `Developer: Reload Window`). On Windows make sure "Add Python to PATH" is checked in the installer.
+- **"Python 3.9 or newer required"** — install from [python.org](https://www.python.org/downloads/) and reload VS Code (`Ctrl+Shift+P` → `Developer: Reload Window`). On Windows make sure "Add Python to PATH" is checked in the installer.
 - **Sidebar stays blank or shows "starting…"** — run `Claude Usage: Show Logs`. The extension logs the resolved Python path, the install mode, the spawn command, and any stdout/stderr from the server.
 - **Dashboard renders but shows "No usage recorded"** — Claude Code hasn't written transcripts to `~/.claude/projects/` yet. Run a Claude Code session first.
 

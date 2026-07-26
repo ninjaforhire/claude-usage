@@ -76,7 +76,7 @@
         "claudeUsage.pythonPath": {
           "type": "string",
           "default": "",
-          "description": "Path to a Python interpreter (>=3.8). Empty = auto-discover (claude-usage on PATH, then python3, then python)."
+          "description": "Path to a Python interpreter (>=3.9). Empty = auto-discover (claude-usage on PATH, then python3, then python)."
         },
         "claudeUsage.cliPath": {
           "type": "string",
