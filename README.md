@@ -34,7 +34,8 @@ macOS/Linux:
 ```bash
 git clone <this-repository-url>
 cd <this-repository-folder>
-python3 -m unittest discover -s tests
+python3 -m pip install -r requirements-dev.txt
+python3 -m pytest
 python3 cli.py dashboard
 ```
 
@@ -43,7 +44,8 @@ Windows PowerShell:
 ```powershell
 git clone <this-repository-url>
 cd <this-repository-folder>
-python -m unittest discover -s tests
+python -m pip install -r requirements-dev.txt
+python -m pytest
 python cli.py dashboard
 ```
 

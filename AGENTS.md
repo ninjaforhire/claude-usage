@@ -27,9 +27,10 @@ python cli.py dashboard             # scan + open http://localhost:8080
 python cli.py scan --projects-dir PATH    # scan a custom transcripts dir
 HOST=127.0.0.1 PORT=9000 python cli.py dashboard
 
-python -m unittest discover -s tests -v             # full test suite (CI runs this)
-python -m unittest tests.test_scanner -v            # one file
-python -m unittest tests.test_scanner.TestProjectNameFromCwd.test_windows_path  # one test
+python -m pip install -r requirements-dev.txt       # test-only dependencies
+python -m pytest -v                                 # full test suite (CI runs this)
+python -m pytest tests/test_scanner.py -v            # one file
+python -m pytest tests/test_scanner.py::TestProjectNameFromCwd::test_windows_path  # one test
 ```
 
 CI ([.github/workflows/tests.yml](.github/workflows/tests.yml)) runs the suite on Python 3.9 / 3.11 / 3.12 against `main` and PRs.
