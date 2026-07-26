@@ -1,6 +1,6 @@
 # [HotFix Ops](https://hotfixops.com/) Usage Dashboard
 
-A local, source-only [HotFix Ops](https://hotfixops.com/) dashboard for Claude
+A local-first [HotFix Ops](https://hotfixops.com/) dashboard for Claude
 Code and OpenAI Codex usage.
 
 It has three views:
@@ -11,12 +11,14 @@ It has three views:
 
 The credential-free dashboard uses your existing official CLI logins. Its
 connectors and local profile registry do not ask for, copy, store, or send
-passwords, browser cookies, API keys, or OAuth tokens. This fork also retains
+passwords, browser cookies, API keys, or OAuth tokens. The private build also retains
 the separate legacy OAuth account-orb subsystem described below.
 
 The interface uses the [HotFix Ops](https://hotfixops.com/) visual system and
 local [HotFix Ops](https://hotfixops.com/) icon. It is a distinct local-first
-product; the original project's MIT notices remain in this source distribution.
+product maintained at
+[`ninjaforhire/claude-usage`](https://github.com/ninjaforhire/claude-usage);
+the original project's MIT notices remain in this source distribution.
 
 > This is an independent community project. It is not affiliated with,
 > endorsed by, or supported by Anthropic or OpenAI.
@@ -54,6 +56,13 @@ python -m pytest
 ```
 
 Open <http://localhost:8080> if the browser does not open automatically.
+
+Homebrew installs expose `hotfix-ops-usage` as the primary command and retain
+`claude-usage` as a compatibility alias:
+
+```bash
+hotfix-ops-usage dashboard
+```
 
 ## Requirements
 
@@ -250,7 +259,7 @@ python3 cli.py accounts profiles --testing add --id studio --label "Studio Max" 
 
 ### Separate legacy OAuth account orbs
 
-The fork's pre-existing OAuth account-orb system remains available in the
+The private build's OAuth account-orb system remains available in the
 **Account Limits** row. It is separate from the credential-free profiles above:
 
 ```bash
@@ -301,7 +310,8 @@ percentage.
 
 ## Project lineage
 
-This fork is based on Paweł Huryn's MIT-licensed
+HotFix Ops Usage is an independent continuation based on Paweł Huryn's
+MIT-licensed
 [`phuryn/claude-usage`](https://github.com/phuryn/claude-usage), created by
 [The Product Compass Newsletter](https://www.productcompass.pm). The original
 Claude scanner, dashboard charts, and attribution are retained under the

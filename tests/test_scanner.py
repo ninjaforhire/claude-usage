@@ -8,14 +8,22 @@ import unittest
 from pathlib import Path
 
 from scanner import (
-    get_db, init_db, project_name_from_cwd, parse_jsonl_file,
-    aggregate_sessions, upsert_sessions, insert_turns, scan,
+    get_db,
+    init_db,
+    project_name_from_cwd,
+    parse_jsonl_file,
+    aggregate_sessions,
+    upsert_sessions,
+    insert_turns,
+    scan,
 )
 
 
 class TestProjectNameFromCwd(unittest.TestCase):
     def test_two_components(self):
-        self.assertEqual(project_name_from_cwd("/home/user/myproject"), "user/myproject")
+        self.assertEqual(
+            project_name_from_cwd("/home/user/myproject"), "user/myproject"
+        )
 
     def test_deep_path(self):
         self.assertEqual(project_name_from_cwd("/a/b/c/d"), "c/d")
@@ -36,12 +44,17 @@ class TestProjectNameFromCwd(unittest.TestCase):
         self.assertEqual(project_name_from_cwd(None), "unknown")
 
 
-def _make_assistant_record(session_id="sess-1", model="claude-sonnet-4-6",
-                           input_tokens=100, output_tokens=50,
-                           cache_read=10, cache_creation=5,
-                           timestamp="2026-04-08T10:00:00Z",
-                           cwd="/home/user/project",
-                           message_id=""):
+def _make_assistant_record(
+    session_id="sess-1",
+    model="claude-sonnet-4-6",
+    input_tokens=100,
+    output_tokens=50,
+    cache_read=10,
+    cache_creation=5,
+    timestamp="2026-04-08T10:00:00Z",
+    cwd="/home/user/project",
+    message_id="",
+):
     msg = {
         "model": model,
         "usage": {
@@ -54,23 +67,28 @@ def _make_assistant_record(session_id="sess-1", model="claude-sonnet-4-6",
     }
     if message_id:
         msg["id"] = message_id
-    return json.dumps({
-        "type": "assistant",
-        "sessionId": session_id,
-        "timestamp": timestamp,
-        "cwd": cwd,
-        "message": msg,
-    })
+    return json.dumps(
+        {
+            "type": "assistant",
+            "sessionId": session_id,
+            "timestamp": timestamp,
+            "cwd": cwd,
+            "message": msg,
+        }
+    )
 
 
-def _make_user_record(session_id="sess-1", timestamp="2026-04-08T09:59:00Z",
-                      cwd="/home/user/project"):
-    return json.dumps({
-        "type": "user",
-        "sessionId": session_id,
-        "timestamp": timestamp,
-        "cwd": cwd,
-    })
+def _make_user_record(
+    session_id="sess-1", timestamp="2026-04-08T09:59:00Z", cwd="/home/user/project"
+):
+    return json.dumps(
+        {
+            "type": "user",
+            "sessionId": session_id,
+            "timestamp": timestamp,
+            "cwd": cwd,
+        }
+    )
 
 
 class TestParseJsonlFile(unittest.TestCase):
@@ -85,10 +103,13 @@ class TestParseJsonlFile(unittest.TestCase):
         return path
 
     def test_basic_parsing(self):
-        path = self._write_jsonl("test.jsonl", [
-            _make_user_record(),
-            _make_assistant_record(),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                _make_user_record(),
+                _make_assistant_record(),
+            ],
+        )
         metas, turns, line_count = parse_jsonl_file(path)
         self.assertEqual(len(metas), 1)
         self.assertEqual(len(turns), 1)
@@ -98,26 +119,36 @@ class TestParseJsonlFile(unittest.TestCase):
         self.assertEqual(line_count, 2)
 
     def test_skips_zero_token_records(self):
-        path = self._write_jsonl("test.jsonl", [
-            _make_assistant_record(input_tokens=0, output_tokens=0,
-                                   cache_read=0, cache_creation=0),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                _make_assistant_record(
+                    input_tokens=0, output_tokens=0, cache_read=0, cache_creation=0
+                ),
+            ],
+        )
         _, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(turns), 0)
 
     def test_skips_non_assistant_user_types(self):
-        path = self._write_jsonl("test.jsonl", [
-            json.dumps({"type": "system", "sessionId": "s1"}),
-            _make_assistant_record(session_id="s1"),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                json.dumps({"type": "system", "sessionId": "s1"}),
+                _make_assistant_record(session_id="s1"),
+            ],
+        )
         metas, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(turns), 1)
 
     def test_handles_malformed_json(self):
-        path = self._write_jsonl("test.jsonl", [
-            "not valid json",
-            _make_assistant_record(),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                "not valid json",
+                _make_assistant_record(),
+            ],
+        )
         _, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(turns), 1)
 
@@ -128,38 +159,49 @@ class TestParseJsonlFile(unittest.TestCase):
         self.assertEqual(len(turns), 0)
 
     def test_multiple_sessions(self):
-        path = self._write_jsonl("test.jsonl", [
-            _make_assistant_record(session_id="s1"),
-            _make_assistant_record(session_id="s2"),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                _make_assistant_record(session_id="s1"),
+                _make_assistant_record(session_id="s2"),
+            ],
+        )
         metas, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(metas), 2)
         self.assertEqual(len(turns), 2)
 
     def test_session_timestamps_tracked(self):
-        path = self._write_jsonl("test.jsonl", [
-            _make_user_record(timestamp="2026-04-08T09:00:00Z"),
-            _make_assistant_record(timestamp="2026-04-08T09:05:00Z"),
-            _make_assistant_record(timestamp="2026-04-08T09:10:00Z"),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                _make_user_record(timestamp="2026-04-08T09:00:00Z"),
+                _make_assistant_record(timestamp="2026-04-08T09:05:00Z"),
+                _make_assistant_record(timestamp="2026-04-08T09:10:00Z"),
+            ],
+        )
         metas, _, _ = parse_jsonl_file(path)
         self.assertEqual(metas[0]["first_timestamp"], "2026-04-08T09:00:00Z")
         self.assertEqual(metas[0]["last_timestamp"], "2026-04-08T09:10:00Z")
 
     def test_tool_name_extracted(self):
-        record = json.dumps({
-            "type": "assistant",
-            "sessionId": "s1",
-            "timestamp": "2026-04-08T10:00:00Z",
-            "cwd": "/tmp",
-            "message": {
-                "model": "claude-sonnet-4-6",
-                "usage": {"input_tokens": 100, "output_tokens": 50,
-                          "cache_read_input_tokens": 0,
-                          "cache_creation_input_tokens": 0},
-                "content": [{"type": "tool_use", "name": "Read"}],
-            },
-        })
+        record = json.dumps(
+            {
+                "type": "assistant",
+                "sessionId": "s1",
+                "timestamp": "2026-04-08T10:00:00Z",
+                "cwd": "/tmp",
+                "message": {
+                    "model": "claude-sonnet-4-6",
+                    "usage": {
+                        "input_tokens": 100,
+                        "output_tokens": 50,
+                        "cache_read_input_tokens": 0,
+                        "cache_creation_input_tokens": 0,
+                    },
+                    "content": [{"type": "tool_use", "name": "Read"}],
+                },
+            }
+        )
         path = self._write_jsonl("test.jsonl", [record])
         _, turns, _ = parse_jsonl_file(path)
         self.assertEqual(turns[0]["tool_name"], "Read")
@@ -180,14 +222,23 @@ class TestMessageIdDedup(unittest.TestCase):
 
     def test_streaming_events_deduped(self):
         """Multiple records with same message.id should produce one turn."""
-        path = self._write_jsonl("test.jsonl", [
-            # Streaming event 1: partial usage
-            _make_assistant_record(message_id="msg-abc", input_tokens=50, output_tokens=10),
-            # Streaming event 2: more usage (same message)
-            _make_assistant_record(message_id="msg-abc", input_tokens=100, output_tokens=50),
-            # Streaming event 3: final usage (same message)
-            _make_assistant_record(message_id="msg-abc", input_tokens=150, output_tokens=80),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                # Streaming event 1: partial usage
+                _make_assistant_record(
+                    message_id="msg-abc", input_tokens=50, output_tokens=10
+                ),
+                # Streaming event 2: more usage (same message)
+                _make_assistant_record(
+                    message_id="msg-abc", input_tokens=100, output_tokens=50
+                ),
+                # Streaming event 3: final usage (same message)
+                _make_assistant_record(
+                    message_id="msg-abc", input_tokens=150, output_tokens=80
+                ),
+            ],
+        )
         _, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(turns), 1)
         # Last record wins (has final tallies)
@@ -197,29 +248,38 @@ class TestMessageIdDedup(unittest.TestCase):
 
     def test_different_message_ids_kept(self):
         """Records with different message.id are separate turns."""
-        path = self._write_jsonl("test.jsonl", [
-            _make_assistant_record(message_id="msg-1", input_tokens=100),
-            _make_assistant_record(message_id="msg-2", input_tokens=200),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                _make_assistant_record(message_id="msg-1", input_tokens=100),
+                _make_assistant_record(message_id="msg-2", input_tokens=200),
+            ],
+        )
         _, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(turns), 2)
 
     def test_records_without_message_id_kept(self):
         """Records without message.id are kept as-is (no dedup)."""
-        path = self._write_jsonl("test.jsonl", [
-            _make_assistant_record(input_tokens=100),
-            _make_assistant_record(input_tokens=200),
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                _make_assistant_record(input_tokens=100),
+                _make_assistant_record(input_tokens=200),
+            ],
+        )
         _, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(turns), 2)
 
     def test_mixed_with_and_without_ids(self):
         """Mix of records with and without message.id."""
-        path = self._write_jsonl("test.jsonl", [
-            _make_assistant_record(message_id="msg-1", input_tokens=50),
-            _make_assistant_record(message_id="msg-1", input_tokens=100),  # deduped
-            _make_assistant_record(input_tokens=200),  # no id, kept
-        ])
+        path = self._write_jsonl(
+            "test.jsonl",
+            [
+                _make_assistant_record(message_id="msg-1", input_tokens=50),
+                _make_assistant_record(message_id="msg-1", input_tokens=100),  # deduped
+                _make_assistant_record(input_tokens=200),  # no id, kept
+            ],
+        )
         _, turns, _ = parse_jsonl_file(path)
         self.assertEqual(len(turns), 2)  # 1 deduped + 1 without id
         token_sums = sorted([t["input_tokens"] for t in turns])
@@ -240,18 +300,39 @@ class TestMessageIdDedupIntegration(unittest.TestCase):
         """3 streaming events for 2 messages should produce 2 turns."""
         with open(self.filepath, "w") as f:
             f.write(_make_user_record(session_id="sess-1") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           message_id="msg-1",
-                                           input_tokens=50, output_tokens=20) + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           message_id="msg-1",
-                                           input_tokens=100, output_tokens=50) + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           message_id="msg-2",
-                                           input_tokens=200, output_tokens=100) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-1",
+                    input_tokens=50,
+                    output_tokens=20,
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-1",
+                    input_tokens=100,
+                    output_tokens=50,
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-2",
+                    input_tokens=200,
+                    output_tokens=100,
+                )
+                + "\n"
+            )
 
-        result = scan(projects_dir=self.projects_dir.parent.parent,
-                      db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
         self.assertEqual(result["turns"], 2)
 
         conn = sqlite3.connect(self.db_path)
@@ -270,12 +351,21 @@ class TestMessageIdDedupIntegration(unittest.TestCase):
         """Re-scanning a file shouldn't create duplicate turns for same message_id."""
         with open(self.filepath, "w") as f:
             f.write(_make_user_record(session_id="sess-1") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           message_id="msg-1",
-                                           input_tokens=100, output_tokens=50) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-1",
+                    input_tokens=100,
+                    output_tokens=50,
+                )
+                + "\n"
+            )
 
-        scan(projects_dir=self.projects_dir.parent.parent,
-             db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         count1 = conn.execute("SELECT COUNT(*) FROM turns").fetchone()[0]
@@ -286,8 +376,11 @@ class TestMessageIdDedupIntegration(unittest.TestCase):
         conn.commit()
         conn.close()
 
-        scan(projects_dir=self.projects_dir.parent.parent,
-             db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         count2 = conn.execute("SELECT COUNT(*) FROM turns").fetchone()[0]
@@ -317,6 +410,7 @@ class TestMessageIdDedupIntegration(unittest.TestCase):
 
         # init_db should add message_id column
         from scanner import get_db, init_db
+
         conn = get_db(self.db_path)
         init_db(conn)
         # Verify column exists
@@ -328,14 +422,33 @@ class TestMessageIdDedupIntegration(unittest.TestCase):
 
 class TestAggregateSessions(unittest.TestCase):
     def test_aggregation(self):
-        metas = [{"session_id": "s1", "project_name": "test",
-                  "first_timestamp": "t1", "last_timestamp": "t2",
-                  "git_branch": "main", "model": None}]
+        metas = [
+            {
+                "session_id": "s1",
+                "project_name": "test",
+                "first_timestamp": "t1",
+                "last_timestamp": "t2",
+                "git_branch": "main",
+                "model": None,
+            }
+        ]
         turns = [
-            {"session_id": "s1", "input_tokens": 100, "output_tokens": 50,
-             "cache_read_tokens": 10, "cache_creation_tokens": 5, "model": "claude-sonnet-4-6"},
-            {"session_id": "s1", "input_tokens": 200, "output_tokens": 100,
-             "cache_read_tokens": 20, "cache_creation_tokens": 10, "model": "claude-sonnet-4-6"},
+            {
+                "session_id": "s1",
+                "input_tokens": 100,
+                "output_tokens": 50,
+                "cache_read_tokens": 10,
+                "cache_creation_tokens": 5,
+                "model": "claude-sonnet-4-6",
+            },
+            {
+                "session_id": "s1",
+                "input_tokens": 200,
+                "output_tokens": 100,
+                "cache_read_tokens": 20,
+                "cache_creation_tokens": 10,
+                "model": "claude-sonnet-4-6",
+            },
         ]
         sessions = aggregate_sessions(metas, turns)
         self.assertEqual(len(sessions), 1)
@@ -345,9 +458,16 @@ class TestAggregateSessions(unittest.TestCase):
         self.assertEqual(sessions[0]["model"], "claude-sonnet-4-6")
 
     def test_empty_turns(self):
-        metas = [{"session_id": "s1", "project_name": "test",
-                  "first_timestamp": "t1", "last_timestamp": "t2",
-                  "git_branch": "main", "model": None}]
+        metas = [
+            {
+                "session_id": "s1",
+                "project_name": "test",
+                "first_timestamp": "t1",
+                "last_timestamp": "t2",
+                "git_branch": "main",
+                "model": None,
+            }
+        ]
         sessions = aggregate_sessions(metas, [])
         self.assertEqual(len(sessions), 1)
         self.assertEqual(sessions[0]["total_input_tokens"], 0)
@@ -381,47 +501,74 @@ class TestDatabaseOperations(unittest.TestCase):
         init_db(self.conn)
 
     def test_upsert_new_session(self):
-        sessions = [{
-            "session_id": "s1", "project_name": "test",
-            "first_timestamp": "2026-04-08T09:00:00Z",
-            "last_timestamp": "2026-04-08T10:00:00Z",
-            "git_branch": "main", "model": "claude-sonnet-4-6",
-            "total_input_tokens": 1000, "total_output_tokens": 500,
-            "total_cache_read": 100, "total_cache_creation": 50,
-            "turn_count": 5,
-        }]
+        sessions = [
+            {
+                "session_id": "s1",
+                "project_name": "test",
+                "first_timestamp": "2026-04-08T09:00:00Z",
+                "last_timestamp": "2026-04-08T10:00:00Z",
+                "git_branch": "main",
+                "model": "claude-sonnet-4-6",
+                "total_input_tokens": 1000,
+                "total_output_tokens": 500,
+                "total_cache_read": 100,
+                "total_cache_creation": 50,
+                "turn_count": 5,
+            }
+        ]
         upsert_sessions(self.conn, sessions)
-        row = self.conn.execute("SELECT * FROM sessions WHERE session_id = 's1'").fetchone()
+        row = self.conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 's1'"
+        ).fetchone()
         self.assertIsNotNone(row)
         self.assertEqual(row["total_input_tokens"], 1000)
         self.assertEqual(row["turn_count"], 5)
 
     def test_upsert_updates_existing_session(self):
         session = {
-            "session_id": "s1", "project_name": "test",
+            "session_id": "s1",
+            "project_name": "test",
             "first_timestamp": "2026-04-08T09:00:00Z",
             "last_timestamp": "2026-04-08T10:00:00Z",
-            "git_branch": "main", "model": "claude-sonnet-4-6",
-            "total_input_tokens": 1000, "total_output_tokens": 500,
-            "total_cache_read": 100, "total_cache_creation": 50,
+            "git_branch": "main",
+            "model": "claude-sonnet-4-6",
+            "total_input_tokens": 1000,
+            "total_output_tokens": 500,
+            "total_cache_read": 100,
+            "total_cache_creation": 50,
             "turn_count": 5,
         }
         upsert_sessions(self.conn, [session])
         # Add more tokens
-        session2 = {**session, "total_input_tokens": 200, "total_output_tokens": 100,
-                    "total_cache_read": 20, "total_cache_creation": 10, "turn_count": 2}
+        session2 = {
+            **session,
+            "total_input_tokens": 200,
+            "total_output_tokens": 100,
+            "total_cache_read": 20,
+            "total_cache_creation": 10,
+            "turn_count": 2,
+        }
         upsert_sessions(self.conn, [session2])
-        row = self.conn.execute("SELECT * FROM sessions WHERE session_id = 's1'").fetchone()
+        row = self.conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 's1'"
+        ).fetchone()
         self.assertEqual(row["total_input_tokens"], 1200)  # 1000 + 200
         self.assertEqual(row["turn_count"], 7)  # 5 + 2
 
     def test_insert_turns(self):
-        turns = [{
-            "session_id": "s1", "timestamp": "2026-04-08T10:00:00Z",
-            "model": "claude-sonnet-4-6", "input_tokens": 100,
-            "output_tokens": 50, "cache_read_tokens": 10,
-            "cache_creation_tokens": 5, "tool_name": "Read", "cwd": "/tmp",
-        }]
+        turns = [
+            {
+                "session_id": "s1",
+                "timestamp": "2026-04-08T10:00:00Z",
+                "model": "claude-sonnet-4-6",
+                "input_tokens": 100,
+                "output_tokens": 50,
+                "cache_read_tokens": 10,
+                "cache_creation_tokens": 5,
+                "tool_name": "Read",
+                "cwd": "/tmp",
+            }
+        ]
         insert_turns(self.conn, turns)
         rows = self.conn.execute("SELECT * FROM turns").fetchall()
         self.assertEqual(len(rows), 1)
@@ -445,16 +592,21 @@ class TestScanIntegration(unittest.TestCase):
             f.write(_make_user_record(session_id=session_id) + "\n")
             for i in range(num_turns):
                 ts = f"2026-04-08T10:{i:02d}:00Z"
-                f.write(_make_assistant_record(
-                    session_id=session_id,
-                    timestamp=ts,
-                    input_tokens=100 * (i + 1),
-                    output_tokens=50 * (i + 1),
-                ) + "\n")
+                f.write(
+                    _make_assistant_record(
+                        session_id=session_id,
+                        timestamp=ts,
+                        input_tokens=100 * (i + 1),
+                        output_tokens=50 * (i + 1),
+                    )
+                    + "\n"
+                )
 
     def test_scan_new_files(self):
         self._write_project_jsonl("user/myproject", "sess-1", num_turns=3)
-        result = scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir, db_path=self.db_path, verbose=False
+        )
         self.assertEqual(result["new"], 1)
         self.assertEqual(result["turns"], 3)
         self.assertEqual(result["sessions"], 1)
@@ -463,19 +615,25 @@ class TestScanIntegration(unittest.TestCase):
         self._write_project_jsonl("user/myproject", "sess-1")
         scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
         # Second scan should skip
-        result = scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir, db_path=self.db_path, verbose=False
+        )
         self.assertEqual(result["skipped"], 1)
         self.assertEqual(result["new"], 0)
 
     def test_scan_empty_directory(self):
-        result = scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir, db_path=self.db_path, verbose=False
+        )
         self.assertEqual(result["new"], 0)
         self.assertEqual(result["turns"], 0)
 
     def test_scan_multiple_files(self):
         self._write_project_jsonl("user/project-a", "sess-1", num_turns=2)
         self._write_project_jsonl("user/project-b", "sess-2", num_turns=4)
-        result = scan(projects_dir=self.projects_dir, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir, db_path=self.db_path, verbose=False
+        )
         self.assertEqual(result["new"], 2)
         self.assertEqual(result["turns"], 6)
         self.assertEqual(result["sessions"], 2)
@@ -493,31 +651,60 @@ class TestScanIncrementalUpdate(unittest.TestCase):
 
     def _write_initial(self):
         with open(self.filepath, "w") as f:
-            f.write(_make_user_record(session_id="sess-1",
-                                      timestamp="2026-04-08T09:00:00Z") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           timestamp="2026-04-08T09:01:00Z",
-                                           input_tokens=100, output_tokens=50) + "\n")
+            f.write(
+                _make_user_record(session_id="sess-1", timestamp="2026-04-08T09:00:00Z")
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    timestamp="2026-04-08T09:01:00Z",
+                    input_tokens=100,
+                    output_tokens=50,
+                )
+                + "\n"
+            )
 
     def _append_turns(self):
         # Ensure mtime visibly changes (filesystem resolution can be ~10ms)
         import time
+
         time.sleep(0.05)
         with open(self.filepath, "a") as f:
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           timestamp="2026-04-08T09:05:00Z",
-                                           input_tokens=200, output_tokens=100) + "\n")
-            f.write(_make_assistant_record(session_id="sess-1",
-                                           timestamp="2026-04-08T09:10:00Z",
-                                           input_tokens=300, output_tokens=150) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    timestamp="2026-04-08T09:05:00Z",
+                    input_tokens=200,
+                    output_tokens=100,
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    timestamp="2026-04-08T09:10:00Z",
+                    input_tokens=300,
+                    output_tokens=150,
+                )
+                + "\n"
+            )
 
     def test_no_duplicate_turns_on_update(self):
         """Growing a file must add only new turns, not re-insert old ones."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self._append_turns()
-        result = scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self.assertEqual(result["updated"], 1)
         self.assertEqual(result["turns"], 2)  # only the 2 new turns
@@ -530,14 +717,24 @@ class TestScanIncrementalUpdate(unittest.TestCase):
     def test_token_counts_accumulate_correctly(self):
         """Session totals should reflect all turns, not double-count."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self._append_turns()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        session = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-1'").fetchone()
+        session = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-1'"
+        ).fetchone()
         conn.close()
         # 100 + 200 + 300 = 600
         self.assertEqual(session["total_input_tokens"], 600)
@@ -548,14 +745,24 @@ class TestScanIncrementalUpdate(unittest.TestCase):
     def test_session_timestamp_updated(self):
         """Last timestamp should advance after file grows."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         self._append_turns()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        session = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-1'").fetchone()
+        session = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-1'"
+        ).fetchone()
         conn.close()
         self.assertEqual(session["last_timestamp"], "2026-04-08T09:10:00Z")
 
@@ -565,41 +772,73 @@ class TestScanIncrementalUpdate(unittest.TestCase):
         first_timestamp. Regression for the incremental branch only tracking
         last_timestamp (parse_jsonl_file already tracked both)."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         # Append two records for a NEW session 'sess-2' with timestamps in
         # reverse order — later one observed first, earlier one second.
         import time
+
         time.sleep(0.05)
         with open(self.filepath, "a") as f:
-            f.write(_make_assistant_record(session_id="sess-2",
-                                           timestamp="2026-04-08T10:05:00Z",
-                                           input_tokens=50, output_tokens=25,
-                                           message_id="msg-new-2-late") + "\n")
-            f.write(_make_assistant_record(session_id="sess-2",
-                                           timestamp="2026-04-08T09:55:00Z",
-                                           input_tokens=70, output_tokens=35,
-                                           message_id="msg-new-2-early") + "\n")
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-2",
+                    timestamp="2026-04-08T10:05:00Z",
+                    input_tokens=50,
+                    output_tokens=25,
+                    message_id="msg-new-2-late",
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-2",
+                    timestamp="2026-04-08T09:55:00Z",
+                    input_tokens=70,
+                    output_tokens=35,
+                    message_id="msg-new-2-early",
+                )
+                + "\n"
+            )
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        sess2 = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-2'").fetchone()
+        sess2 = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-2'"
+        ).fetchone()
         conn.close()
         self.assertEqual(sess2["first_timestamp"], "2026-04-08T09:55:00Z")
-        self.assertEqual(sess2["last_timestamp"],  "2026-04-08T10:05:00Z")
+        self.assertEqual(sess2["last_timestamp"], "2026-04-08T10:05:00Z")
 
     def test_mtime_change_without_growth_skipped(self):
         """If mtime changes but line count doesn't grow, skip the file."""
         self._write_initial()
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         # Touch the file (change mtime) without adding content
         import time
+
         time.sleep(0.05)
         os.utime(self.filepath, None)
 
-        result = scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        result = scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
         self.assertEqual(result["skipped"], 1)
         self.assertEqual(result["updated"], 0)
         self.assertEqual(result["turns"], 0)
@@ -620,22 +859,50 @@ class TestCrossFileSessionTotals(unittest.TestCase):
         f1 = self.projects_dir / "file1.jsonl"
         with open(f1, "w") as f:
             f.write(_make_user_record(session_id="sess-1") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1", message_id="msg-1",
-                                           input_tokens=100, output_tokens=50,
-                                           cache_read=0, cache_creation=0) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-1",
+                    input_tokens=100,
+                    output_tokens=50,
+                    cache_read=0,
+                    cache_creation=0,
+                )
+                + "\n"
+            )
 
         # File 2: same message msg-1 (duplicate) + new message msg-2
         f2 = self.projects_dir / "file2.jsonl"
         with open(f2, "w") as f:
             f.write(_make_user_record(session_id="sess-1") + "\n")
-            f.write(_make_assistant_record(session_id="sess-1", message_id="msg-1",
-                                           input_tokens=100, output_tokens=50,
-                                           cache_read=0, cache_creation=0) + "\n")
-            f.write(_make_assistant_record(session_id="sess-1", message_id="msg-2",
-                                           input_tokens=200, output_tokens=100,
-                                           cache_read=0, cache_creation=0) + "\n")
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-1",
+                    input_tokens=100,
+                    output_tokens=50,
+                    cache_read=0,
+                    cache_creation=0,
+                )
+                + "\n"
+            )
+            f.write(
+                _make_assistant_record(
+                    session_id="sess-1",
+                    message_id="msg-2",
+                    input_tokens=200,
+                    output_tokens=100,
+                    cache_read=0,
+                    cache_creation=0,
+                )
+                + "\n"
+            )
 
-        scan(projects_dir=self.projects_dir.parent.parent, db_path=self.db_path, verbose=False)
+        scan(
+            projects_dir=self.projects_dir.parent.parent,
+            db_path=self.db_path,
+            verbose=False,
+        )
 
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
@@ -645,7 +912,9 @@ class TestCrossFileSessionTotals(unittest.TestCase):
         self.assertEqual(turns, 2)
 
         # Session totals should match turns table, not be inflated
-        session = conn.execute("SELECT * FROM sessions WHERE session_id = 'sess-1'").fetchone()
+        session = conn.execute(
+            "SELECT * FROM sessions WHERE session_id = 'sess-1'"
+        ).fetchone()
         self.assertEqual(session["total_input_tokens"], 300)  # 100 + 200
         self.assertEqual(session["total_output_tokens"], 150)  # 50 + 100
         self.assertEqual(session["turn_count"], 2)
@@ -669,8 +938,7 @@ class TestParseJsonlFileLineCount(unittest.TestCase):
 
     def test_empty_file_returns_zero(self):
         path = os.path.join(self.tmpdir, "empty.jsonl")
-        with open(path, "w") as f:
-            pass
+        open(path, "w").close()
         _, _, line_count = parse_jsonl_file(path)
         self.assertEqual(line_count, 0)
 

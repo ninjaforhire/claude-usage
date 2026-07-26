@@ -54,9 +54,17 @@ def test_prompt_lists_each_selected_entry():
 def test_prompt_batch_summary_orders_cheapest_first():
     findings = [
         {"label": "com.mighty.pipeline", "reasons": ["last exit code 1"]},  # opus
-        {"label": "com.simple", "reasons": ["last exit code 1"]},           # sonnet
-        {"label": "com.dead", "expected_state": "disabled", "reasons": ["past eol"]},  # haiku
+        {"label": "com.simple", "reasons": ["last exit code 1"]},  # sonnet
+        {
+            "label": "com.dead",
+            "expected_state": "disabled",
+            "reasons": ["past eol"],
+        },  # haiku
     ]
     text = build_prompt(findings)
-    summary_line = next(l for l in text.splitlines() if "Batch by cost" in l)
-    assert summary_line.index("haiku") < summary_line.index("sonnet") < summary_line.index("opus")
+    summary_line = next(line for line in text.splitlines() if "Batch by cost" in line)
+    assert (
+        summary_line.index("haiku")
+        < summary_line.index("sonnet")
+        < summary_line.index("opus")
+    )

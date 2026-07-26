@@ -92,7 +92,9 @@ def classify_daemon(d):
             # VENDOR-IGNORE bucket exists to discourage.
             return (
                 "VENDOR-IGNORE",
-                ["vendor helper loaded despite disabled decl — bootout is cosmetic (its app re-adds it)"],
+                [
+                    "vendor helper loaded despite disabled decl — bootout is cosmetic (its app re-adds it)"
+                ],
                 None,
             )
         return (
@@ -153,7 +155,9 @@ def classify_daemon(d):
     # prefix means the spend lands in the shared _Code bucket and zero measured
     # turns is NOT evidence of death.
     prefix = d.get("cwd_prefix")
-    attributable = prefix not in (None, "", registry_mod.TODO) and not d.get("cost_mixed")
+    attributable = prefix not in (None, "", registry_mod.TODO) and not d.get(
+        "cost_mixed"
+    )
     if (
         d.get("cost_tier") not in (None, "none", registry_mod.TODO)
         and attributable

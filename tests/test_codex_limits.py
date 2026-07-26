@@ -17,9 +17,18 @@ def _rollout(path, snapshots):
 
 def _snap(primary_used, secondary_used):
     return {
-        "limit_id": "codex", "plan_type": "prolite",
-        "primary": {"used_percent": primary_used, "window_minutes": 300, "resets_at": _FUTURE_RESET},
-        "secondary": {"used_percent": secondary_used, "window_minutes": 10080, "resets_at": _FUTURE_RESET + 604800},
+        "limit_id": "codex",
+        "plan_type": "prolite",
+        "primary": {
+            "used_percent": primary_used,
+            "window_minutes": 300,
+            "resets_at": _FUTURE_RESET,
+        },
+        "secondary": {
+            "used_percent": secondary_used,
+            "window_minutes": 10080,
+            "resets_at": _FUTURE_RESET + 604800,
+        },
     }
 
 
@@ -38,7 +47,10 @@ def test_maps_primary_to_5h_and_secondary_to_weekly(tmp_path):
 def test_last_snapshot_in_file_wins(tmp_path):
     d = tmp_path / "2026" / "06" / "15"
     d.mkdir(parents=True)
-    _rollout(d / "rollout-2026-06-15T01-30-08-aaa.jsonl", [_snap(5.0, 11.0), _snap(40.0, 60.0)])
+    _rollout(
+        d / "rollout-2026-06-15T01-30-08-aaa.jsonl",
+        [_snap(5.0, 11.0), _snap(40.0, 60.0)],
+    )
     out = codex_limits.codex_orb_data(sessions_dir=tmp_path)
     assert out["windows"]["five_hour"]["remaining_pct"] == 60
     assert out["windows"]["seven_day"]["remaining_pct"] == 40
@@ -50,13 +62,17 @@ def test_newest_file_wins_across_sessions(tmp_path):
     _rollout(d / "rollout-2026-06-15T01-00-00-aaa.jsonl", [_snap(5.0, 5.0)])
     _rollout(d / "rollout-2026-06-15T09-00-00-bbb.jsonl", [_snap(80.0, 30.0)])
     out = codex_limits.codex_orb_data(sessions_dir=tmp_path)
-    assert out["windows"]["five_hour"]["remaining_pct"] == 20  # 100 - 80, from the newer file
+    assert (
+        out["windows"]["five_hour"]["remaining_pct"] == 20
+    )  # 100 - 80, from the newer file
 
 
 def test_colors_match_remaining_ramp(tmp_path):
     d = tmp_path / "2026" / "06" / "15"
     d.mkdir(parents=True)
-    _rollout(d / "rollout-2026-06-15T01-30-08-aaa.jsonl", [_snap(95.0, 0.0)])  # 5% remaining = red zone
+    _rollout(
+        d / "rollout-2026-06-15T01-30-08-aaa.jsonl", [_snap(95.0, 0.0)]
+    )  # 5% remaining = red zone
     w = codex_limits.codex_orb_data(sessions_dir=tmp_path)["windows"]
     assert w["five_hour"]["color_hi"] == accounts_red()
     assert w["seven_day"]["remaining_pct"] == 100
@@ -64,6 +80,7 @@ def test_colors_match_remaining_ramp(tmp_path):
 
 def accounts_red():
     import accounts
+
     return accounts.remaining_color(5)[0]
 
 
@@ -74,6 +91,7 @@ def test_no_data_returns_error(tmp_path):
 
 
 # ── PLAN_CAPS tests: pro-5x vs chatgpt-pro ────────────────────────────────────
+
 
 def test_plan_caps_has_pro_5x():
     """pro-5x tier must exist in PLAN_CAPS."""
@@ -119,6 +137,7 @@ def test_plan_caps_get_returns_pro_5x_for_current_plan():
 
 
 # ── Orb-wiring tests: the DISPLAYED orb data carries pro-5x caps, not Pro ──────
+
 
 def test_orb_data_attaches_pro_5x_caps_when_plan_passed(tmp_path):
     """codex_orb_data(plan='pro-5x') surfaces the $100 pro-5x caps on the orb.

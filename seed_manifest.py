@@ -22,7 +22,7 @@ def _guess_cwd_prefix(working_dir):
     idx = working_dir.find(marker)
     if idx == -1:
         return None
-    return working_dir[idx + len(marker):].strip("/") or None
+    return working_dir[idx + len(marker) :].strip("/") or None
 
 
 def build_seed_entry(daemon):
@@ -32,7 +32,7 @@ def build_seed_entry(daemon):
         "purpose": registry_mod.TODO,
         "owner": registry_mod.TODO,
         "expected_state": registry_mod.TODO,  # enabled | scheduled | disabled
-        "cost_tier": registry_mod.TODO,        # opus | sonnet | haiku | none
+        "cost_tier": registry_mod.TODO,  # opus | sonnet | haiku | none
         "cwd_prefix": _guess_cwd_prefix(daemon.get("working_dir")),
         "eol_date": None,
         # Non-authoritative hints to make annotation easier (auto-refreshed).

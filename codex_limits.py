@@ -38,16 +38,16 @@ PLAN_CAPS: dict[str, dict] = {
     "chatgpt-plus": {
         "monthly_usd": 20,
         "five_hour_limit_h": 5.0,
-        "seven_day_limit_h": 35.0,   # ~5h/day × 7
+        "seven_day_limit_h": 35.0,  # ~5h/day × 7
     },
     "pro-5x": {
         "monthly_usd": 100,
-        "five_hour_limit_h": 25.0,   # 5× Plus five-hour cap
+        "five_hour_limit_h": 25.0,  # 5× Plus five-hour cap
         "seven_day_limit_h": 175.0,  # 5× Plus weekly cap
     },
     "chatgpt-pro": {
         "monthly_usd": 200,
-        "five_hour_limit_h": None,   # Pro = effectively unlimited (no published hard cap)
+        "five_hour_limit_h": None,  # Pro = effectively unlimited (no published hard cap)
         "seven_day_limit_h": None,
     },
 }
@@ -98,6 +98,7 @@ def _last_rate_limits_in(path: Path) -> dict | None:
 def latest_model(sessions_dir: Path = SESSIONS_DIR) -> str | None:
     """The model of the newest Codex session (e.g. ``gpt-5.6-sol``)."""
     import re
+
     files = sorted(sessions_dir.glob("**/rollout-*.jsonl"))
     for path in reversed(files[-_MAX_FILES_SCANNED:]):
         try:
@@ -113,7 +114,9 @@ def latest_model(sessions_dir: Path = SESSIONS_DIR) -> str | None:
 def latest_rate_limits(sessions_dir: Path = SESSIONS_DIR) -> dict | None:
     """The most recent Codex rate-limit snapshot across all session rollouts."""
     files = sorted(sessions_dir.glob("**/rollout-*.jsonl"))
-    for path in reversed(files[-_MAX_FILES_SCANNED:] if len(files) > _MAX_FILES_SCANNED else files):
+    for path in reversed(
+        files[-_MAX_FILES_SCANNED:] if len(files) > _MAX_FILES_SCANNED else files
+    ):
         rl = _last_rate_limits_in(path)
         if rl:
             return rl
@@ -142,7 +145,12 @@ def _window(part: dict | None) -> dict | None:
         if resets_at
         else None
     )
-    return {"remaining_pct": remaining, "resets_at": iso, "color_hi": hi, "color_lo": lo}
+    return {
+        "remaining_pct": remaining,
+        "resets_at": iso,
+        "color_hi": hi,
+        "color_lo": lo,
+    }
 
 
 def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -> dict:
@@ -162,9 +170,14 @@ def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -
     """
     rl = latest_rate_limits(sessions_dir)
     if not rl:
-        return {"plan_type": None, "plan": plan, "caps": get_plan_caps(plan or ""),
-                "model": latest_model(sessions_dir), "windows": {},
-                "error": "no Codex rate-limit data found"}
+        return {
+            "plan_type": None,
+            "plan": plan,
+            "caps": get_plan_caps(plan or ""),
+            "model": latest_model(sessions_dir),
+            "windows": {},
+            "error": "no Codex rate-limit data found",
+        }
     windows = {}
     five = _window(rl.get("primary"))
     week = _window(rl.get("secondary"))
@@ -172,6 +185,11 @@ def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -
         windows["five_hour"] = five
     if week:
         windows["seven_day"] = week
-    return {"plan_type": rl.get("plan_type"), "plan": plan,
-            "caps": get_plan_caps(plan or ""), "model": latest_model(sessions_dir),
-            "windows": windows, "error": None}
+    return {
+        "plan_type": rl.get("plan_type"),
+        "plan": plan,
+        "caps": get_plan_caps(plan or ""),
+        "model": latest_model(sessions_dir),
+        "windows": windows,
+        "error": None,
+    }

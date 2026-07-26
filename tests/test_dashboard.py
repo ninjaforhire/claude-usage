@@ -32,28 +32,44 @@ class TestGetDashboardData(unittest.TestCase):
         conn = get_db(self.db_path)
         init_db(conn)
         # Insert sample data
-        sessions = [{
-            "session_id": "sess-abc123", "project_name": "user/myproject",
-            "first_timestamp": "2026-04-08T09:00:00Z",
-            "last_timestamp": "2026-04-08T10:00:00Z",
-            "git_branch": "main", "model": "claude-sonnet-4-6",
-            "total_input_tokens": 5000, "total_output_tokens": 2000,
-            "total_cache_read": 500, "total_cache_creation": 200,
-            "turn_count": 10,
-        }]
+        sessions = [
+            {
+                "session_id": "sess-abc123",
+                "project_name": "user/myproject",
+                "first_timestamp": "2026-04-08T09:00:00Z",
+                "last_timestamp": "2026-04-08T10:00:00Z",
+                "git_branch": "main",
+                "model": "claude-sonnet-4-6",
+                "total_input_tokens": 5000,
+                "total_output_tokens": 2000,
+                "total_cache_read": 500,
+                "total_cache_creation": 200,
+                "turn_count": 10,
+            }
+        ]
         upsert_sessions(conn, sessions)
         turns = [
             {
-                "session_id": "sess-abc123", "timestamp": "2026-04-08T09:30:00Z",
-                "model": "claude-sonnet-4-6", "input_tokens": 500,
-                "output_tokens": 200, "cache_read_tokens": 50,
-                "cache_creation_tokens": 20, "tool_name": None, "cwd": "/tmp",
+                "session_id": "sess-abc123",
+                "timestamp": "2026-04-08T09:30:00Z",
+                "model": "claude-sonnet-4-6",
+                "input_tokens": 500,
+                "output_tokens": 200,
+                "cache_read_tokens": 50,
+                "cache_creation_tokens": 20,
+                "tool_name": None,
+                "cwd": "/tmp",
             },
             {
-                "session_id": "sess-abc123", "timestamp": "2026-04-08T14:15:00Z",
-                "model": "claude-sonnet-4-6", "input_tokens": 300,
-                "output_tokens": 150, "cache_read_tokens": 0,
-                "cache_creation_tokens": 0, "tool_name": None, "cwd": "/tmp",
+                "session_id": "sess-abc123",
+                "timestamp": "2026-04-08T14:15:00Z",
+                "model": "claude-sonnet-4-6",
+                "input_tokens": 300,
+                "output_tokens": 150,
+                "cache_read_tokens": 0,
+                "cache_creation_tokens": 0,
+                "tool_name": None,
+                "cwd": "/tmp",
             },
         ]
         insert_turns(conn, turns)
@@ -233,21 +249,40 @@ class TestEmptyStringModelNormalization(unittest.TestCase):
         self.db_path = Path(self.tmpfile.name)
         conn = get_db(self.db_path)
         init_db(conn)
-        upsert_sessions(conn, [{
-            "session_id": "sess-empty", "project_name": "u/p",
-            "first_timestamp": "2026-04-08T09:00:00Z",
-            "last_timestamp": "2026-04-08T09:05:00Z",
-            "git_branch": "", "model": "",
-            "total_input_tokens": 100, "total_output_tokens": 50,
-            "total_cache_read": 0, "total_cache_creation": 0,
-            "turn_count": 1,
-        }])
-        insert_turns(conn, [{
-            "session_id": "sess-empty", "timestamp": "2026-04-08T09:05:00Z",
-            "model": "", "input_tokens": 100, "output_tokens": 50,
-            "cache_read_tokens": 0, "cache_creation_tokens": 0,
-            "tool_name": None, "cwd": "/tmp",
-        }])
+        upsert_sessions(
+            conn,
+            [
+                {
+                    "session_id": "sess-empty",
+                    "project_name": "u/p",
+                    "first_timestamp": "2026-04-08T09:00:00Z",
+                    "last_timestamp": "2026-04-08T09:05:00Z",
+                    "git_branch": "",
+                    "model": "",
+                    "total_input_tokens": 100,
+                    "total_output_tokens": 50,
+                    "total_cache_read": 0,
+                    "total_cache_creation": 0,
+                    "turn_count": 1,
+                }
+            ],
+        )
+        insert_turns(
+            conn,
+            [
+                {
+                    "session_id": "sess-empty",
+                    "timestamp": "2026-04-08T09:05:00Z",
+                    "model": "",
+                    "input_tokens": 100,
+                    "output_tokens": 50,
+                    "cache_read_tokens": 0,
+                    "cache_creation_tokens": 0,
+                    "tool_name": None,
+                    "cwd": "/tmp",
+                }
+            ],
+        )
         conn.commit()
         conn.close()
 
@@ -284,24 +319,43 @@ class TestMixedNullAndEmptyModel(unittest.TestCase):
         self.db_path = Path(self.tmpfile.name)
         conn = get_db(self.db_path)
         init_db(conn)
-        upsert_sessions(conn, [{
-            "session_id": "sess-mix", "project_name": "u/p",
-            "first_timestamp": "2026-04-08T09:00:00Z",
-            "last_timestamp": "2026-04-08T10:00:00Z",
-            "git_branch": "", "model": "",
-            "total_input_tokens": 200, "total_output_tokens": 100,
-            "total_cache_read": 0, "total_cache_creation": 0,
-            "turn_count": 2,
-        }])
+        upsert_sessions(
+            conn,
+            [
+                {
+                    "session_id": "sess-mix",
+                    "project_name": "u/p",
+                    "first_timestamp": "2026-04-08T09:00:00Z",
+                    "last_timestamp": "2026-04-08T10:00:00Z",
+                    "git_branch": "",
+                    "model": "",
+                    "total_input_tokens": 200,
+                    "total_output_tokens": 100,
+                    "total_cache_read": 0,
+                    "total_cache_creation": 0,
+                    "turn_count": 2,
+                }
+            ],
+        )
         # Insert one turn with model='' and one with model=NULL on the same day.
         # Use raw INSERT for the NULL row because insert_turns() requires the
         # model key to exist (would error on missing key, not on None).
-        insert_turns(conn, [{
-            "session_id": "sess-mix", "timestamp": "2026-04-08T09:00:00Z",
-            "model": "", "input_tokens": 100, "output_tokens": 50,
-            "cache_read_tokens": 0, "cache_creation_tokens": 0,
-            "tool_name": None, "cwd": "/tmp",
-        }])
+        insert_turns(
+            conn,
+            [
+                {
+                    "session_id": "sess-mix",
+                    "timestamp": "2026-04-08T09:00:00Z",
+                    "model": "",
+                    "input_tokens": 100,
+                    "output_tokens": 50,
+                    "cache_read_tokens": 0,
+                    "cache_creation_tokens": 0,
+                    "tool_name": None,
+                    "cwd": "/tmp",
+                }
+            ],
+        )
         conn.execute("""
             INSERT INTO turns (session_id, timestamp, model, input_tokens,
                 output_tokens, cache_read_tokens, cache_creation_tokens,
@@ -317,7 +371,9 @@ class TestMixedNullAndEmptyModel(unittest.TestCase):
     def test_all_models_collapses_to_single_unknown(self):
         data = get_dashboard_data(db_path=self.db_path)
         unknowns = [m for m in data["all_models"] if m == "unknown"]
-        self.assertEqual(len(unknowns), 1, f"got duplicate 'unknown' rows: {data['all_models']}")
+        self.assertEqual(
+            len(unknowns), 1, f"got duplicate 'unknown' rows: {data['all_models']}"
+        )
 
     def test_daily_collapses_to_single_unknown(self):
         data = get_dashboard_data(db_path=self.db_path)
@@ -330,8 +386,11 @@ class TestMixedNullAndEmptyModel(unittest.TestCase):
     def test_hourly_collapses_to_single_unknown(self):
         data = get_dashboard_data(db_path=self.db_path)
         # Both turns are in UTC hour 9 — must be one row, not two
-        hour9 = [r for r in data["hourly_by_model"]
-                 if r["hour"] == 9 and r["model"] == "unknown"]
+        hour9 = [
+            r
+            for r in data["hourly_by_model"]
+            if r["hour"] == 9 and r["model"] == "unknown"
+        ]
         self.assertEqual(len(hour9), 1, f"got {hour9}")
         self.assertEqual(hour9[0]["turns"], 2)
 
@@ -357,15 +416,16 @@ class TestDashboardHTTP(unittest.TestCase):
         # real transcript directory during tests.
         import dashboard as _d
         import scanner as _s
+
         cls._tmpdir = tempfile.TemporaryDirectory()
         tmp = Path(cls._tmpdir.name)
         tmp_projects = tmp / "projects"
         tmp_projects.mkdir()
         cls._patches = {
-            (_d, "DB_PATH"):                (_d.DB_PATH,                tmp / "usage.db"),
-            (_s, "DB_PATH"):                (_s.DB_PATH,                tmp / "usage.db"),
-            (_s, "PROJECTS_DIR"):           (_s.PROJECTS_DIR,           tmp_projects),
-            (_s, "DEFAULT_PROJECTS_DIRS"):  (_s.DEFAULT_PROJECTS_DIRS,  [tmp_projects]),
+            (_d, "DB_PATH"): (_d.DB_PATH, tmp / "usage.db"),
+            (_s, "DB_PATH"): (_s.DB_PATH, tmp / "usage.db"),
+            (_s, "PROJECTS_DIR"): (_s.PROJECTS_DIR, tmp_projects),
+            (_s, "DEFAULT_PROJECTS_DIRS"): (_s.DEFAULT_PROJECTS_DIRS, [tmp_projects]),
         }
         for (mod, name), (_orig, new) in cls._patches.items():
             setattr(mod, name, new)
@@ -547,9 +607,15 @@ class TestHTMLTemplate(unittest.TestCase):
             "? [payload.providers[provider], ...cards]",
             HTML_TEMPLATE,
         )
-        self.assertIn("renderProviderAccountGroup(provider, providerCards(payload, provider))", HTML_TEMPLATE)
-        self.assertIn("<h2 class=\"provider-account-group-title\">", HTML_TEMPLATE)
-        self.assertIn("<p class=\"account-name\"><strong>${esc(accountName)}</strong></p>", HTML_TEMPLATE)
+        self.assertIn(
+            "renderProviderAccountGroup(provider, providerCards(payload, provider))",
+            HTML_TEMPLATE,
+        )
+        self.assertIn('<h2 class="provider-account-group-title">', HTML_TEMPLATE)
+        self.assertIn(
+            '<p class="account-name"><strong>${esc(accountName)}</strong></p>',
+            HTML_TEMPLATE,
+        )
 
     def test_seeded_test_mode_omits_unavailable_live_provider_placeholders(self):
         start = HTML_TEMPLATE.index("function providerCards(payload, provider)")
@@ -558,7 +624,9 @@ class TestHTMLTemplate(unittest.TestCase):
         test_mode_branch = provider_cards.index(
             "if (payload.test_mode && cards.length) return cards;"
         )
-        live_card_branch = provider_cards.index("[payload.providers[provider], ...cards]")
+        live_card_branch = provider_cards.index(
+            "[payload.providers[provider], ...cards]"
+        )
         self.assertLess(test_mode_branch, live_card_branch)
 
     def test_template_has_isolated_first_run_preview_controls(self):
@@ -576,8 +644,16 @@ class TestHTMLTemplate(unittest.TestCase):
         self.assertIn("/assets/hfo-icon.png", HTML_TEMPLATE)
         self.assertIn("HOTFIX OPS", HTML_TEMPLATE)
         self.assertEqual(HTML_TEMPLATE.count('href="https://hotfixops.com/"'), 2)
-        self.assertIn(".footer-content .footer-brand { color: var(--accent);", HTML_TEMPLATE)
+        self.assertIn(
+            ".footer-content .footer-brand { color: var(--accent);", HTML_TEMPLATE
+        )
         self.assertNotIn("Created by:", HTML_TEMPLATE)
+
+    def test_fresh_input_remains_visible_and_is_explained(self):
+        self.assertIn("Fresh Input", HTML_TEMPLATE)
+        self.assertIn("cache excluded", HTML_TEMPLATE)
+        self.assertIn("minBarLength: 2", HTML_TEMPLATE)
+        self.assertNotIn("Input Tokens", HTML_TEMPLATE)
 
     def test_template_has_conservative_fable_and_reset_credit_status(self):
         self.assertIn("function fableHeadroom(subscription)", HTML_TEMPLATE)
@@ -604,13 +680,13 @@ class TestHTMLTemplate(unittest.TestCase):
 
     def test_hourly_peak_hour_constants(self):
         """Peak-hour set covers UTC 12–17 (Mon–Fri 05:00–11:00 PT)."""
-        self.assertIn('PEAK_HOURS_UTC', HTML_TEMPLATE)
-        self.assertIn('[12, 13, 14, 15, 16, 17]', HTML_TEMPLATE)
+        self.assertIn("PEAK_HOURS_UTC", HTML_TEMPLATE)
+        self.assertIn("[12, 13, 14, 15, 16, 17]", HTML_TEMPLATE)
 
     def test_today_range_button_present(self):
         """The 'Today' range button is wired into RANGE_LABELS, RANGE_TICKS,
         getRangeBounds, and the filter-bar HTML."""
-        self.assertIn("data-range=\"today\"", HTML_TEMPLATE)
+        self.assertIn('data-range="today"', HTML_TEMPLATE)
         self.assertIn("'today': 'Today'", HTML_TEMPLATE)
         self.assertIn("'today': 1", HTML_TEMPLATE)
         # Bounds case: today returns start === end === today's ISO date
@@ -667,28 +743,36 @@ class TestPricingParity(unittest.TestCase):
     def _extract_js_pricing(self):
         """Extract pricing values from the dashboard JS PRICING object."""
         import re
+
         prices = {}
         for match in re.finditer(
             r"'(claude-[^']+)':\s*\{\s*input:\s*([\d.]+),\s*output:\s*([\d.]+)",
-            HTML_TEMPLATE
+            HTML_TEMPLATE,
         ):
-            model, inp, out = match.group(1), float(match.group(2)), float(match.group(3))
+            model, inp, out = (
+                match.group(1),
+                float(match.group(2)),
+                float(match.group(3)),
+            )
             prices[model] = {"input": inp, "output": out}
         return prices
 
     def test_all_cli_models_in_dashboard(self):
         from cli import PRICING as CLI_PRICING
+
         js_prices = self._extract_js_pricing()
         for model in CLI_PRICING:
             self.assertIn(model, js_prices, f"{model} missing from dashboard JS")
 
     def test_prices_match(self):
         from cli import PRICING as CLI_PRICING
+
         js_prices = self._extract_js_pricing()
         for model in CLI_PRICING:
             self.assertAlmostEqual(
-                CLI_PRICING[model]["input"], js_prices[model]["input"],
-                msg=f"{model} input price mismatch"
+                CLI_PRICING[model]["input"],
+                js_prices[model]["input"],
+                msg=f"{model} input price mismatch",
             )
             self.assertAlmostEqual(
                 CLI_PRICING[model]["output"],

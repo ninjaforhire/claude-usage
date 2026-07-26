@@ -32,9 +32,9 @@ export function renderHtml(
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'none'; frame-src http://127.0.0.1:* http://localhost:*; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';">
-<title>Claude Usage</title>
+<title>HotFix Ops Usage</title>
 <style>
-  html, body { margin: 0; padding: 0; height: 100%; background: #161617; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #10161d; }
   iframe { border: 0; width: 100%; height: 100vh; display: block; }
 </style>
 </head>
@@ -47,28 +47,28 @@ export function renderHtml(
   // Status / loading pane — styled to match the dashboard header (same icon,
   // title, and elevated-palette colors) so the cold-start screen doesn't jar.
   const imgSrc = cspSource ? ` img-src ${cspSource};` : "";
-  const logo = iconUri ? `<span class="logo"></span>` : "";
+  const logo = iconUri ? `<img class="logo" src="${escapeHtml(iconUri)}" alt="">` : "";
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
       content="default-src 'none';${imgSrc} style-src 'unsafe-inline'; script-src 'nonce-${nonce}';">
-<title>Claude Usage</title>
+<title>HotFix Ops Usage</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #BFBFBF; background: #161617; padding: 24px; line-height: 1.5; }
+  body { font-family: 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #f5f5f7; background: #10161d; padding: 24px; line-height: 1.5; }
   .brand { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; }
-  .brand .logo { width: 26px; height: 26px; flex-shrink: 0; background-color: #BFBFBF; -webkit-mask: url("${iconUri}") no-repeat center / contain; mask: url("${iconUri}") no-repeat center / contain; }
-  .brand h1 { font-size: 18px; font-weight: 600; color: #BFBFBF; margin: 0; }
-  p { color: #BFBFBF; font-size: 13px; margin: 0 0 8px; }
-  p.hint { color: #6F6F70; }
-  code { background: #1E1F20; border: 1px solid #2C2D2E; border-radius: 4px; padding: 1px 5px; font-size: 12px; }
+  .brand .logo { width: 34px; height: 34px; flex-shrink: 0; object-fit: contain; filter: drop-shadow(0 0 9px rgba(232,97,27,.28)); }
+  .brand h1 { font-size: 18px; font-weight: 700; color: #f5f5f7; letter-spacing: .06em; margin: 0; text-transform: uppercase; }
+  p { color: #f5f5f7; font-size: 13px; margin: 0 0 8px; }
+  p.hint { color: #9aa8b6; }
+  code { background: #18212b; border: 1px solid #3a4755; border-radius: 4px; color: #e8611b; padding: 1px 5px; font-size: 12px; }
 </style>
 </head>
 <body>
-<div class="brand">${logo}<h1>Claude Code Usage</h1></div>
+<div class="brand">${logo}<h1>HotFix Ops Usage</h1></div>
 <p>${escapeHtml(statusText) || "The dashboard server is not running yet."}</p>
-<p class="hint">Run <code>Claude Usage: Open Dashboard</code> from the command palette to start it.</p>
+<p class="hint">Run <code>HotFix Ops: Open Usage Dashboard</code> from the command palette to start it.</p>
 </body>
 </html>`;
 }
@@ -119,7 +119,7 @@ export class DashboardSidebar implements vscode.WebviewViewProvider {
     // fake view has no asWebviewUri / no vscode.Uri) don't blow up.
     if (this.extensionUri && typeof view.webview.asWebviewUri === "function") {
       this.iconUri = view.webview
-        .asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "resources", "icon.svg"))
+        .asWebviewUri(vscode.Uri.joinPath(this.extensionUri, "resources", "icon.png"))
         .toString();
       this.cspSource = view.webview.cspSource ?? "";
     }

@@ -80,9 +80,13 @@ def test_changed_signature_realerts():
 
 def test_volatile_age_change_is_not_a_new_issue():
     spy = _Spy()
-    rep1 = _report(_d("com.a", "WASTE", ["heartbeat stale (4h old)"], severity="critical"))
+    rep1 = _report(
+        _d("com.a", "WASTE", ["heartbeat stale (4h old)"], severity="critical")
+    )
     state, _ = fw.check_and_alert(rep1, {}, now=1000, notifier=spy)
-    rep2 = _report(_d("com.a", "WASTE", ["heartbeat stale (9h old)"], severity="critical"))
+    rep2 = _report(
+        _d("com.a", "WASTE", ["heartbeat stale (9h old)"], severity="critical")
+    )
     state, events = fw.check_and_alert(rep2, state, now=2000, notifier=spy)
     assert len(spy.calls) == 1
     assert events == []
@@ -158,13 +162,13 @@ def test_build_digest_lines():
     ]
     title, lines = fw.build_digest(rep, state, events, now=7200)
     assert "1 unresolved" in title
-    assert any(l.startswith("UNRESOLVED com.a") and "(2h)" in l for l in lines)
+    assert any(line.startswith("UNRESOLVED com.a") and "(2h)" in line for line in lines)
     assert lines.count("RECOVERED com.b") == 1
-    assert any("MISSION FAIL morning_brief" in l for l in lines)
-    assert any("SELF-REPAIRED com.c" in l for l in lines)
-    assert any("REPAIR PROPOSAL com.d" in l for l in lines)
-    assert any("decoy" in l for l in lines)
-    assert not any(l.startswith("issue") for l in lines)
+    assert any("MISSION FAIL morning_brief" in line for line in lines)
+    assert any("SELF-REPAIRED com.c" in line for line in lines)
+    assert any("REPAIR PROPOSAL com.d" in line for line in lines)
+    assert any("decoy" in line for line in lines)
+    assert not any(line.startswith("issue") for line in lines)
 
 
 def test_build_digest_empty_when_nothing_to_say():
@@ -173,8 +177,12 @@ def test_build_digest_empty_when_nothing_to_say():
 
 
 def test_digest_due_respects_period_and_hour():
-    noon = lambda now: type("t", (), {"tm_hour": 12})()
-    predawn = lambda now: type("t", (), {"tm_hour": 5})()
+    def noon(now):
+        return type("t", (), {"tm_hour": 12})()
+
+    def predawn(now):
+        return type("t", (), {"tm_hour": 5})()
+
     assert fw.digest_due(0, 10**6, localtime=noon)
     assert not fw.digest_due(0, 10**6, localtime=predawn)  # too early locally
     assert not fw.digest_due(10**6 - 100, 10**6, localtime=noon)  # period not elapsed
@@ -194,7 +202,6 @@ def test_decoy_event_fires_on_transition_only(tmp_path):
     assert present is True and events == []  # already noted
 
 
-
 # --- run_once: re-homed launchd tick + heartbeat ---------------------------------
 
 
@@ -210,8 +217,10 @@ def test_run_once_writes_heartbeat_ok(tmp_path, monkeypatch):
 def test_run_once_records_failure_without_raising(tmp_path, monkeypatch):
     hb = tmp_path / "hb.json"
     monkeypatch.setattr(fw, "HEARTBEAT_PATH", hb)
+
     def boom(state_path=None):
         raise RuntimeError("classify down")
+
     monkeypatch.setattr(fw, "_tick", boom)
     assert fw.run_once(state_path=tmp_path / "s.json") is False
     rec = json.loads(hb.read_text())

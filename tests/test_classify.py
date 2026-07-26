@@ -1,6 +1,9 @@
 """Behavior tests for classify.classify_daemon bucketing."""
 
+import json as _json
+import os as _os
 import sys
+import time as _time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -130,7 +133,9 @@ def test_bad_eol_date_ignored():
 
 def test_vendor_helper_is_vendor_ignore():
     bucket, reasons, cmd = classify_daemon(
-        _daemon(label="com.adobe.GC.Scheduler-1.0", expected_state="disabled", loaded=False)
+        _daemon(
+            label="com.adobe.GC.Scheduler-1.0", expected_state="disabled", loaded=False
+        )
     )
     assert bucket == "VENDOR-IGNORE"
     assert cmd is None
@@ -139,7 +144,12 @@ def test_vendor_helper_is_vendor_ignore():
 def test_vendor_helper_loaded_drift_is_still_vendor_ignore():
     # Steam/Samsung/Adobe loaded despite disabled decl → cosmetic, NOT WASTE.
     bucket, reasons, cmd = classify_daemon(
-        _daemon(label="com.valvesoftware.steamclean", expected_state="disabled", loaded=True, last_exit=78)
+        _daemon(
+            label="com.valvesoftware.steamclean",
+            expected_state="disabled",
+            loaded=True,
+            last_exit=78,
+        )
     )
     assert bucket == "VENDOR-IGNORE"
     assert any("cosmetic" in r for r in reasons)
@@ -164,14 +174,11 @@ def test_vendor_prefix_beats_eol():
 
 
 # ── Heartbeat freshness (generic per-run receipt check) ──────────────────────
-import json as _json
-import os as _os
-import time as _time
-
-
 def _heartbeat(tmp_path, ok=True, error=None, age_hours=0.0):
     p = tmp_path / "hb.json"
-    p.write_text(_json.dumps({"ts": "2026-06-09T00:00:00+00:00", "ok": ok, "error": error}))
+    p.write_text(
+        _json.dumps({"ts": "2026-06-09T00:00:00+00:00", "ok": ok, "error": error})
+    )
     if age_hours:
         old = _time.time() - age_hours * 3600
         _os.utime(p, (old, old))
@@ -180,7 +187,9 @@ def _heartbeat(tmp_path, ok=True, error=None, age_hours=0.0):
 
 def test_fresh_ok_heartbeat_is_healthy(tmp_path):
     hb = _heartbeat(tmp_path, ok=True)
-    bucket, reasons, cmd = classify_daemon(_daemon(heartbeat_file=hb, freshness_max_hours=3))
+    bucket, reasons, cmd = classify_daemon(
+        _daemon(heartbeat_file=hb, freshness_max_hours=3)
+    )
     assert bucket == "HEALTHY"
     assert reasons == []
 
@@ -195,14 +204,18 @@ def test_missing_heartbeat_is_broken(tmp_path):
 
 def test_stale_heartbeat_is_broken(tmp_path):
     hb = _heartbeat(tmp_path, ok=True, age_hours=5)
-    bucket, reasons, cmd = classify_daemon(_daemon(heartbeat_file=hb, freshness_max_hours=3))
+    bucket, reasons, cmd = classify_daemon(
+        _daemon(heartbeat_file=hb, freshness_max_hours=3)
+    )
     assert bucket == "BROKEN"
     assert any("stale" in r for r in reasons)
 
 
 def test_failed_run_heartbeat_is_broken(tmp_path):
     hb = _heartbeat(tmp_path, ok=False, error="notion 500")
-    bucket, reasons, cmd = classify_daemon(_daemon(heartbeat_file=hb, freshness_max_hours=3))
+    bucket, reasons, cmd = classify_daemon(
+        _daemon(heartbeat_file=hb, freshness_max_hours=3)
+    )
     assert bucket == "BROKEN"
     assert any("last run failed" in r for r in reasons)
 

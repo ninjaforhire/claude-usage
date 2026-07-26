@@ -11,16 +11,12 @@ from attribution import is_mixed, cost_for_prefix
 
 def _conn():
     conn = sqlite3.connect(":memory:")
-    conn.execute(
-        "CREATE TABLE sessions (session_id TEXT, project_name TEXT)"
-    )
-    conn.execute(
-        """CREATE TABLE turns (
+    conn.execute("CREATE TABLE sessions (session_id TEXT, project_name TEXT)")
+    conn.execute("""CREATE TABLE turns (
             session_id TEXT, timestamp TEXT, model TEXT, cwd TEXT,
             input_tokens INT, output_tokens INT,
             cache_read_tokens INT, cache_creation_tokens INT
-        )"""
-    )
+        )""")
     return conn
 
 
