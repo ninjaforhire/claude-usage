@@ -11,6 +11,9 @@ name: Auto-tag releases from CHANGELOG
 # exists. So this is safe to re-run on force-pushes and amends.
 
 on:
+  # Manual runs are health checks only: without a push `before` SHA, detection
+  # exits without creating a tag.
+  workflow_dispatch:
   push:
     branches: [main]
 

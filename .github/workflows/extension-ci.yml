@@ -1,6 +1,7 @@
 name: VS Code extension tests
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, DEV]
     paths:
