@@ -6,11 +6,13 @@ Guidance for any coding agent (Codex, Claude Code, etc.) working on this reposit
 
 ## Project shape
 
-Three Python files, stdlib only, no `pip install` step. Python 3.8+.
+Python standard library only, no `pip install` step. Python 3.9+.
 
 - [scanner.py](scanner.py) — parses Claude Code JSONL transcripts into a SQLite DB at `~/.claude/usage.db`.
+- [codex_scanner.py](codex_scanner.py) — parses Codex rollout JSONL into `~/.claude-codex-usage/codex.db`.
+- [connectors/](connectors/) — separate, optional, sanitized Claude and Codex account connectors.
 - [cli.py](cli.py) — terminal commands (`scan` / `today` / `week` / `stats` / `dashboard`).
-- [dashboard.py](dashboard.py) — single-file `http.server` serving an embedded HTML/JS SPA on `localhost:8080`.
+- [dashboard.py](dashboard.py) — local-only `http.server` serving an embedded HTML/JS SPA on `localhost:8080`.
 
 Use `python` on Windows, `python3` on macOS/Linux. Both work the same.
 
@@ -23,7 +25,7 @@ python cli.py week                  # last 7 days, per-day + by-model
 python cli.py stats                 # all-time stats
 python cli.py dashboard             # scan + open http://localhost:8080
 python cli.py scan --projects-dir PATH    # scan a custom transcripts dir
-HOST=0.0.0.0 PORT=9000 python cli.py dashboard
+HOST=127.0.0.1 PORT=9000 python cli.py dashboard
 
 python -m unittest discover -s tests -v             # full test suite (CI runs this)
 python -m unittest tests.test_scanner -v            # one file
@@ -37,13 +39,13 @@ CI ([.github/workflows/tests.yml](.github/workflows/tests.yml)) runs the suite o
 ### Data flow
 
 ```
-~/.claude/projects/**/*.jsonl   →   scanner.parse_jsonl_file()
-~/Library/.../Xcode/...                  ↓
-                              aggregate_sessions() → upsert_sessions() + insert_turns()
-                                         ↓
-                              ~/.claude/usage.db (SQLite)
-                                         ↓
-                  cli.py queries   ←──────────→   dashboard.py /api/data
+~/.claude/projects/**/*.jsonl  → scanner.py       → ~/.claude/usage.db
+~/Library/.../Xcode/...                               ↓
+                                                     ├→ dashboard.py /api/overview
+~/.codex/sessions/**/*.jsonl   → codex_scanner.py → ~/.claude-codex-usage/codex.db
+
+claude auth status --json ─┐
+codex app-server --stdio ──┴→ sanitized connector status → /api/overview
 ```
 
 By default the scanner walks both `~/.claude/projects/` and the Xcode coding-assistant directory; missing dirs are silently skipped. Override with `--projects-dir`.

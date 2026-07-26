@@ -441,9 +441,21 @@ def cmd_daemons(prompt=False, labels=None, out=None):
     print()
 
 
-def cmd_dashboard(projects_dir=None, host=None, port=None, no_browser=False):
-    print("Running scan first...")
-    cmd_scan(projects_dir=projects_dir)
+def cmd_dashboard(
+    projects_dir=None, host=None, port=None, no_browser=False, test_mode=False
+):
+    if test_mode:
+        print(
+            "Starting isolated first-run preview "
+            "(real histories and account data are not read)..."
+        )
+    else:
+        print("Scanning Claude history...")
+        cmd_scan(projects_dir=projects_dir)
+        print("\nScanning Codex history...")
+        import codex_scanner
+
+        codex_scanner.scan(verbose=False)
 
     print("\nStarting dashboard server...")
     from dashboard import serve
@@ -464,13 +476,16 @@ def cmd_dashboard(projects_dir=None, host=None, port=None, no_browser=False):
 
         threading.Thread(target=open_browser, daemon=True).start()
 
-    serve(host=host, port=port)
+    serve(host=host, port=port, test_mode=test_mode)
 
 
 # ── Account credential helpers ────────────────────────────────────────────────
 
 KEYCHAIN_SERVICE = "Claude Code-credentials"
-_KEYCHAIN_CMD = ["security", "find-generic-password"]  # list-args; safe from shell injection
+_KEYCHAIN_CMD = [
+    "security",
+    "find-generic-password",
+]  # list-args; safe from shell injection
 
 
 def parse_keychain_credentials(raw: str) -> dict[str, str]:
@@ -501,10 +516,11 @@ def _read_keychain() -> str:
 def cmd_freshness_tick() -> None:
     """Run one daemon-freshness watch cycle + heartbeat (re-homed off :8080)."""
     import freshness_watch  # local import — only needed for this subcommand
+
     freshness_watch.run_once()
 
 
-def cmd_accounts(rest: list[str] | None = None) -> None:
+def cmd_oauth_accounts(rest: list[str] | None = None) -> None:
     """Manage tracked Claude accounts for limit orbs."""
     import accounts as _accts  # local import — only needed for this subcommand
 
@@ -528,7 +544,10 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
                 print(f"Warning: usage fetch failed ({e}); saving credentials anyway.")
         if not email:
             if quiet:
-                print("ERROR: could not detect account email from keychain", file=sys.stderr)
+                print(
+                    "ERROR: could not detect account email from keychain",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
             email = input("Account email for these credentials: ").strip()
         elif not quiet:
@@ -547,8 +566,10 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
         if billing_arg is not None:
             billing = billing_arg
         elif quiet:
-            print(f"ERROR: {email} is new; --billing-day required in --quiet mode",
-                  file=sys.stderr)
+            print(
+                f"ERROR: {email} is new; --billing-day required in --quiet mode",
+                file=sys.stderr,
+            )
             sys.exit(1)
         else:
             billing = input("Billing renewal day-of-month (e.g. 11): ").strip()
@@ -566,17 +587,21 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
             except Exception as e:  # noqa: BLE001
                 print(f"Cannot register new account without usage data: {e}")
                 return
-        _accts.upsert_account({
-            "email": email,
-            "plan": "max_20x",
-            "billing_day": billing_day,
-            "oauth": oauth,
-            "last_usage": {
-                **usage,
-                "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "error": None,
-            },
-        })
+        _accts.upsert_account(
+            {
+                "email": email,
+                "plan": "max_20x",
+                "billing_day": billing_day,
+                "oauth": oauth,
+                "last_usage": {
+                    **usage,
+                    "fetched_at": datetime.now(timezone.utc).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    ),
+                    "error": None,
+                },
+            }
+        )
         print(f"Saved {email}. 5hr utilization: {usage['five_hour']['utilization']}%")
 
     elif sub == "list":
@@ -614,6 +639,69 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
 
     else:
         print("usage: cli.py accounts [add|list|remove <email>|refresh]")
+
+
+def _profile_arguments(rest: list[str]) -> list[str] | None:
+    """Return profile arguments when the credential-free profile surface is selected."""
+    public_actions = {"setup", "snapshot", "reset", "samples"}
+    if "profiles" in rest:
+        index = rest.index("profiles")
+        return rest[:index] + rest[index + 1 :]
+    action = None
+    index = 0
+    while index < len(rest):
+        value = rest[index]
+        if value == "--store":
+            index += 2
+            continue
+        if value == "--testing" or value.startswith("--store="):
+            index += 1
+            continue
+        if not value.startswith("-"):
+            action = value
+            break
+        index += 1
+    return rest if action in public_actions else None
+
+
+def cmd_accounts(rest: list[str] | None = None) -> None:
+    """Route OAuth account-orb operations and credential-free profile operations."""
+    arguments = rest or []
+    profile_arguments = _profile_arguments(arguments)
+    if profile_arguments is not None:
+        from profile_cli import cmd_accounts as cmd_profile_accounts
+
+        cmd_profile_accounts(profile_arguments)
+        return
+    cmd_oauth_accounts(arguments)
+
+
+def _account_parser():
+    """Expose the credential-free parser for integrations and tests."""
+    from profile_cli import _account_parser as account_parser
+
+    return account_parser()
+
+
+def _profile_id_for_label(label: str, registry: dict) -> str:
+    """Expose stable profile ID generation for integrations and tests."""
+    from profile_cli import _profile_id_for_label as profile_id_for_label
+
+    return profile_id_for_label(label, registry)
+
+
+def cmd_profile_fable_next(arguments: list[str]) -> None:
+    """Rank credential-free local Claude profiles."""
+    from profile_cli import cmd_fable_next
+
+    cmd_fable_next(arguments)
+
+
+def cmd_codex_next(arguments: list[str]) -> None:
+    """Rank credential-free Codex profiles without redeeming reset credits."""
+    from profile_cli import cmd_codex_next as rank_codex_next
+
+    rank_codex_next(arguments)
 
 
 # ── Fable-5 account routing ───────────────────────────────────────────────────
@@ -875,7 +963,7 @@ Usage:
   python cli.py today                        Show today's usage summary
   python cli.py week                         Show last 7 days (per-day + by-model)
   python cli.py stats                        Show all-time statistics
-  python cli.py dashboard [--projects-dir PATH] [--host HOST] [--port PORT] [--no-browser]
+  python cli.py dashboard [--projects-dir PATH] [--host HOST] [--port PORT] [--no-browser] [--test-mode]
                                                  Scan + start dashboard (opens a browser unless --no-browser)
   python cli.py daemons [--prompt] [--out FILE] [LABEL ...]
                                                  Daemon health/waste snapshot;
@@ -888,6 +976,8 @@ Usage:
                                                  keychain account, preserving billing history)
                                                  refresh: rotate every account's token now
                                                  (server-independent; no dashboard needed)
+  python cli.py accounts setup --label LABEL  Save a credential-free local account profile
+  python cli.py accounts profiles ...         Manage credential-free local account profiles
   python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
                                                  (runs standalone, independent of the :8080 dashboard)
   python cli.py fable-next [--refresh] [--switch]
@@ -897,6 +987,11 @@ Usage:
                                                  --refresh fetches live usage first;
                                                  --switch snapshots the live keychain as the
                                                  new owner (run after logging into the target)
+  python cli.py fable-next --profiles [--store PATH] [--testing]
+                                                 Rank credential-free local Claude profiles
+  python cli.py codex-next [--store PATH] [--testing]
+                                                 Rank local Codex profiles; report reset
+                                                 credits without redeeming them
   python cli.py fable-cost [PATTERN] [--discount N]
                                                  Price builds at Fable-5 extra-usage rates
                                                  (full + discounted). PATTERN = project
@@ -915,7 +1010,9 @@ COMMANDS = {
     "freshness-tick": cmd_freshness_tick,
     "fable-next": cmd_fable_next,
     "fable-cost": cmd_fable_cost,
+    "codex-next": cmd_codex_next,
 }
+
 
 def parse_named_arg(args, flag):
     """Extract a --flag VALUE pair from an argument list."""
@@ -923,6 +1020,7 @@ def parse_named_arg(args, flag):
         if arg == flag and i + 1 < len(args):
             return args[i + 1]
     return None
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in COMMANDS:
@@ -944,6 +1042,7 @@ if __name__ == "__main__":
             host=parse_named_arg(rest, "--host"),
             port=parse_named_arg(rest, "--port"),
             no_browser="--no-browser" in rest,
+            test_mode="--test-mode" in rest,
         )
     elif command == "scan" and projects_dir:
         cmd_scan(projects_dir=projects_dir)
@@ -978,7 +1077,12 @@ if __name__ == "__main__":
     elif command == "accounts":
         cmd_accounts(rest=rest)
     elif command == "fable-next":
-        cmd_fable_next(refresh="--refresh" in rest, switch="--switch" in rest)
+        if "--profiles" in rest:
+            cmd_profile_fable_next([value for value in rest if value != "--profiles"])
+        else:
+            cmd_fable_next(refresh="--refresh" in rest, switch="--switch" in rest)
+    elif command == "codex-next":
+        cmd_codex_next(rest)
     elif command == "fable-cost":
         pattern = next((a for a in rest if not a.startswith("--")), None)
         cmd_fable_cost(pattern=pattern, discount=parse_named_arg(rest, "--discount"))
