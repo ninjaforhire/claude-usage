@@ -6,7 +6,9 @@ Guidance for any coding agent (Codex, Claude Code, etc.) working on this reposit
 
 ## Project shape
 
-Python standard library only, no `pip install` step. Python 3.9+.
+The runtime uses only the Python standard library and needs no `pip install`
+step. Development and CI use the test-only `pytest>=8,<9` dependency declared
+in `requirements-dev.txt`. Python 3.9+.
 
 - [scanner.py](scanner.py) — parses Claude Code JSONL transcripts into a SQLite DB at `~/.claude/usage.db`.
 - [codex_scanner.py](codex_scanner.py) — parses Codex rollout JSONL into `~/.claude-codex-usage/codex.db`.

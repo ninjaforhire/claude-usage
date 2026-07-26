@@ -34,9 +34,11 @@ macOS/Linux:
 ```bash
 git clone <this-repository-url>
 cd <this-repository-folder>
+python3 cli.py dashboard
+
+# Optional development verification (test-only dependency)
 python3 -m pip install -r requirements-dev.txt
 python3 -m pytest
-python3 cli.py dashboard
 ```
 
 Windows PowerShell:
@@ -44,9 +46,11 @@ Windows PowerShell:
 ```powershell
 git clone <this-repository-url>
 cd <this-repository-folder>
+python cli.py dashboard
+
+# Optional development verification (test-only dependency)
 python -m pip install -r requirements-dev.txt
 python -m pytest
-python cli.py dashboard
 ```
 
 Open <http://localhost:8080> if the browser does not open automatically.
@@ -56,7 +60,7 @@ Open <http://localhost:8080> if the browser does not open automatically.
 - Python 3.9+
 - Claude Code for Claude history/account detection
 - Codex CLI or Codex app for Codex history/account detection
-- No third-party Python packages
+- No third-party runtime Python packages; development tests use `pytest>=8,<9`
 - Internet access only for normal provider CLI operations; Chart.js is vendored
   locally for privacy and offline dashboard rendering
 
