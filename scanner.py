@@ -7,10 +7,17 @@ import os
 import glob
 import sqlite3
 from pathlib import Path
-from datetime import datetime, timezone
 
 PROJECTS_DIR = Path.home() / ".claude" / "projects"
-XCODE_PROJECTS_DIR = Path.home() / "Library" / "Developer" / "Xcode" / "CodingAssistant" / "ClaudeAgentConfig" / "projects"
+XCODE_PROJECTS_DIR = (
+    Path.home()
+    / "Library"
+    / "Developer"
+    / "Xcode"
+    / "CodingAssistant"
+    / "ClaudeAgentConfig"
+    / "projects"
+)
 DB_PATH = Path.home() / ".claude" / "usage.db"
 DEFAULT_PROJECTS_DIRS = [PROJECTS_DIR, XCODE_PROJECTS_DIR]
 
@@ -110,8 +117,8 @@ def parse_jsonl_file(filepath):
     last record per message_id is kept (it has the final usage tallies).
     """
     seen_messages = {}  # message_id -> turn dict (dedup streaming records)
-    turns_no_id = []    # turns without a message_id (kept as-is)
-    session_meta = {}   # session_id -> dict
+    turns_no_id = []  # turns without a message_id (kept as-is)
+    session_meta = {}  # session_id -> dict
     line_count = 0
 
     try:
@@ -149,9 +156,14 @@ def parse_jsonl_file(filepath):
                     }
                 else:
                     meta = session_meta[session_id]
-                    if timestamp and (not meta["first_timestamp"] or timestamp < meta["first_timestamp"]):
+                    if timestamp and (
+                        not meta["first_timestamp"]
+                        or timestamp < meta["first_timestamp"]
+                    ):
                         meta["first_timestamp"] = timestamp
-                    if timestamp and (not meta["last_timestamp"] or timestamp > meta["last_timestamp"]):
+                    if timestamp and (
+                        not meta["last_timestamp"] or timestamp > meta["last_timestamp"]
+                    ):
                         meta["last_timestamp"] = timestamp
                     if git_branch and not meta["git_branch"]:
                         meta["git_branch"] = git_branch
@@ -211,14 +223,16 @@ def aggregate_sessions(session_metas, turns):
     """Aggregate turn data back into session-level stats."""
     from collections import defaultdict, Counter
 
-    session_stats = defaultdict(lambda: {
-        "total_input_tokens": 0,
-        "total_output_tokens": 0,
-        "total_cache_read": 0,
-        "total_cache_creation": 0,
-        "turn_count": 0,
-        "model": None,
-    })
+    session_stats = defaultdict(
+        lambda: {
+            "total_input_tokens": 0,
+            "total_output_tokens": 0,
+            "total_cache_read": 0,
+            "total_cache_creation": 0,
+            "turn_count": 0,
+            "model": None,
+        }
+    )
     session_model_counts = defaultdict(Counter)
 
     for t in turns:
@@ -250,29 +264,37 @@ def upsert_sessions(conn, sessions):
         existing = conn.execute(
             "SELECT total_input_tokens, total_output_tokens, total_cache_read, "
             "total_cache_creation, turn_count FROM sessions WHERE session_id = ?",
-            (s["session_id"],)
+            (s["session_id"],),
         ).fetchone()
 
         if existing is None:
-            conn.execute("""
+            conn.execute(
+                """
                 INSERT INTO sessions
                     (session_id, project_name, first_timestamp, last_timestamp,
                      git_branch, total_input_tokens, total_output_tokens,
                      total_cache_read, total_cache_creation, model, turn_count)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                s["session_id"], s["project_name"], s["first_timestamp"],
-                s["last_timestamp"], s["git_branch"],
-                s["total_input_tokens"], s["total_output_tokens"],
-                s["total_cache_read"], s["total_cache_creation"],
-                s["model"], s["turn_count"]
-            ))
+            """,
+                (
+                    s["session_id"],
+                    s["project_name"],
+                    s["first_timestamp"],
+                    s["last_timestamp"],
+                    s["git_branch"],
+                    s["total_input_tokens"],
+                    s["total_output_tokens"],
+                    s["total_cache_read"],
+                    s["total_cache_creation"],
+                    s["model"],
+                    s["turn_count"],
+                ),
+            )
         else:
             # Update: add new tokens on top of existing (since we only insert new turns)
             # Keep the highest-priority model (e.g. opus over haiku from subagents)
             existing_model = conn.execute(
-                "SELECT model FROM sessions WHERE session_id = ?",
-                (s["session_id"],)
+                "SELECT model FROM sessions WHERE session_id = ?", (s["session_id"],)
             ).fetchone()["model"]
             new_model = s["model"]
             if _model_priority(new_model) > _model_priority(existing_model):
@@ -280,7 +302,8 @@ def upsert_sessions(conn, sessions):
             else:
                 model_to_set = existing_model
 
-            conn.execute("""
+            conn.execute(
+                """
                 UPDATE sessions SET
                     last_timestamp = MAX(last_timestamp, ?),
                     total_input_tokens = total_input_tokens + ?,
@@ -290,28 +313,44 @@ def upsert_sessions(conn, sessions):
                     turn_count = turn_count + ?,
                     model = ?
                 WHERE session_id = ?
-            """, (
-                s["last_timestamp"],
-                s["total_input_tokens"], s["total_output_tokens"],
-                s["total_cache_read"], s["total_cache_creation"],
-                s["turn_count"], model_to_set,
-                s["session_id"]
-            ))
+            """,
+                (
+                    s["last_timestamp"],
+                    s["total_input_tokens"],
+                    s["total_output_tokens"],
+                    s["total_cache_read"],
+                    s["total_cache_creation"],
+                    s["turn_count"],
+                    model_to_set,
+                    s["session_id"],
+                ),
+            )
 
 
 def insert_turns(conn, turns):
-    conn.executemany("""
+    conn.executemany(
+        """
         INSERT OR IGNORE INTO turns
             (session_id, timestamp, model, input_tokens, output_tokens,
              cache_read_tokens, cache_creation_tokens, tool_name, cwd, message_id)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, [
-        (t["session_id"], t["timestamp"], t["model"],
-         t["input_tokens"], t["output_tokens"],
-         t["cache_read_tokens"], t["cache_creation_tokens"],
-         t["tool_name"], t["cwd"], t.get("message_id", ""))
-        for t in turns
-    ])
+    """,
+        [
+            (
+                t["session_id"],
+                t["timestamp"],
+                t["model"],
+                t["input_tokens"],
+                t["output_tokens"],
+                t["cache_read_tokens"],
+                t["cache_creation_tokens"],
+                t["tool_name"],
+                t["cwd"],
+                t.get("message_id", ""),
+            )
+            for t in turns
+        ],
+    )
 
 
 def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
@@ -347,8 +386,7 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
             continue
 
         row = conn.execute(
-            "SELECT mtime, lines FROM processed_files WHERE path = ?",
-            (filepath,)
+            "SELECT mtime, lines FROM processed_files WHERE path = ?", (filepath,)
         ).fetchone()
 
         if row and abs(row["mtime"] - mtime) < 0.01:
@@ -417,9 +455,15 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
                             }
                         else:
                             meta = new_session_metas[session_id]
-                            if timestamp and (not meta["last_timestamp"] or timestamp > meta["last_timestamp"]):
+                            if timestamp and (
+                                not meta["last_timestamp"]
+                                or timestamp > meta["last_timestamp"]
+                            ):
                                 meta["last_timestamp"] = timestamp
-                            if timestamp and (not meta["first_timestamp"] or timestamp < meta["first_timestamp"]):
+                            if timestamp and (
+                                not meta["first_timestamp"]
+                                or timestamp < meta["first_timestamp"]
+                            ):
                                 meta["first_timestamp"] = timestamp
 
                         if rtype == "assistant":
@@ -431,14 +475,25 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
                             input_tokens = usage.get("input_tokens", 0) or 0
                             output_tokens = usage.get("output_tokens", 0) or 0
                             cache_read = usage.get("cache_read_input_tokens", 0) or 0
-                            cache_creation = usage.get("cache_creation_input_tokens", 0) or 0
+                            cache_creation = (
+                                usage.get("cache_creation_input_tokens", 0) or 0
+                            )
 
-                            if input_tokens + output_tokens + cache_read + cache_creation == 0:
+                            if (
+                                input_tokens
+                                + output_tokens
+                                + cache_read
+                                + cache_creation
+                                == 0
+                            ):
                                 continue
 
                             tool_name = None
                             for item in msg.get("content", []):
-                                if isinstance(item, dict) and item.get("type") == "tool_use":
+                                if (
+                                    isinstance(item, dict)
+                                    and item.get("type") == "tool_use"
+                                ):
                                     tool_name = item.get("name")
                                     break
 
@@ -467,8 +522,10 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
 
             if line_count <= old_lines:
                 # File didn't grow (mtime changed but no new content)
-                conn.execute("UPDATE processed_files SET mtime = ? WHERE path = ?",
-                             (mtime, filepath))
+                conn.execute(
+                    "UPDATE processed_files SET mtime = ? WHERE path = ?",
+                    (mtime, filepath),
+                )
                 conn.commit()
                 skipped_files += 1
                 continue
@@ -476,7 +533,9 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
             new_turns = turns_no_id + list(seen_messages.values())
 
             if new_turns or new_session_metas:
-                sessions = aggregate_sessions(list(new_session_metas.values()), new_turns)
+                sessions = aggregate_sessions(
+                    list(new_session_metas.values()), new_turns
+                )
                 upsert_sessions(conn, sessions)
                 insert_turns(conn, new_turns)
                 for s in sessions:
@@ -485,10 +544,13 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
             updated_files += 1
 
         # Record file as processed (line_count already known from the single read)
-        conn.execute("""
+        conn.execute(
+            """
             INSERT OR REPLACE INTO processed_files (path, mtime, lines)
             VALUES (?, ?, ?)
-        """, (filepath, mtime, line_count))
+        """,
+            (filepath, mtime, line_count),
+        )
         conn.commit()
 
     # Recompute session totals from actual turns in DB.
@@ -506,7 +568,7 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
         conn.commit()
 
     if verbose:
-        print(f"\nScan complete:")
+        print("\nScan complete:")
         print(f"  New files:     {new_files}")
         print(f"  Updated files: {updated_files}")
         print(f"  Skipped files: {skipped_files}")
@@ -514,12 +576,18 @@ def scan(projects_dir=None, projects_dirs=None, db_path=DB_PATH, verbose=True):
         print(f"  Sessions seen: {len(total_sessions)}")
 
     conn.close()
-    return {"new": new_files, "updated": updated_files, "skipped": skipped_files,
-            "turns": total_turns, "sessions": len(total_sessions)}
+    return {
+        "new": new_files,
+        "updated": updated_files,
+        "skipped": skipped_files,
+        "turns": total_turns,
+        "sessions": len(total_sessions),
+    }
 
 
 if __name__ == "__main__":
     import sys
+
     projects_dir = None
     for i, arg in enumerate(sys.argv[1:]):
         if arg == "--projects-dir" and i + 1 < len(sys.argv[1:]):

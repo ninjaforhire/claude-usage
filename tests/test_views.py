@@ -4,7 +4,6 @@ import sqlite3
 import unittest
 from unittest.mock import patch
 import io
-import sys
 
 
 def _make_db():
@@ -37,20 +36,79 @@ def _make_db():
     conn.executemany(
         "INSERT INTO sessions VALUES (?,?,?,?,?,?)",
         [
-            ("sess-a", "proj-x", "2026-06-11T10:00:00Z", "2026-06-11T11:00:00Z", "claude-opus-4-8", 3),
-            ("sess-b", "proj-x", "2026-06-11T12:00:00Z", "2026-06-11T13:00:00Z", "claude-sonnet-4-6", 2),
-        ]
+            (
+                "sess-a",
+                "proj-x",
+                "2026-06-11T10:00:00Z",
+                "2026-06-11T11:00:00Z",
+                "claude-opus-4-8",
+                3,
+            ),
+            (
+                "sess-b",
+                "proj-x",
+                "2026-06-11T12:00:00Z",
+                "2026-06-11T13:00:00Z",
+                "claude-sonnet-4-6",
+                2,
+            ),
+        ],
     )
     conn.executemany(
         "INSERT INTO turns (session_id, timestamp, model, input_tokens, output_tokens, "
         "cache_read_tokens, cache_creation_tokens, tool_name) VALUES (?,?,?,?,?,?,?,?)",
         [
-            ("sess-a", "2026-06-11T10:00:00Z", "claude-opus-4-8",   1000, 500, 200, 100, None),
-            ("sess-a", "2026-06-11T10:30:00Z", "claude-opus-4-8",   2000, 800, 0,   0,   None),
-            ("sess-a", "2026-06-11T10:59:00Z", "claude-opus-4-8",   500,  200, 0,   0,   "Workflow"),
-            ("sess-b", "2026-06-11T12:00:00Z", "claude-sonnet-4-6", 800,  300, 100, 50,  None),
-            ("sess-b", "2026-06-11T12:30:00Z", "claude-sonnet-4-6", 600,  200, 0,   0,   None),
-        ]
+            (
+                "sess-a",
+                "2026-06-11T10:00:00Z",
+                "claude-opus-4-8",
+                1000,
+                500,
+                200,
+                100,
+                None,
+            ),
+            (
+                "sess-a",
+                "2026-06-11T10:30:00Z",
+                "claude-opus-4-8",
+                2000,
+                800,
+                0,
+                0,
+                None,
+            ),
+            (
+                "sess-a",
+                "2026-06-11T10:59:00Z",
+                "claude-opus-4-8",
+                500,
+                200,
+                0,
+                0,
+                "Workflow",
+            ),
+            (
+                "sess-b",
+                "2026-06-11T12:00:00Z",
+                "claude-sonnet-4-6",
+                800,
+                300,
+                100,
+                50,
+                None,
+            ),
+            (
+                "sess-b",
+                "2026-06-11T12:30:00Z",
+                "claude-sonnet-4-6",
+                600,
+                200,
+                0,
+                0,
+                None,
+            ),
+        ],
     )
     conn.commit()
     return conn
@@ -65,8 +123,10 @@ class TestFetchPeriodData(unittest.TestCase):
 
     def test_today_returns_correct_session_count(self):
         from views import fetch_period_data
+
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             data = fetch_period_data(self.conn, "today")
@@ -74,8 +134,10 @@ class TestFetchPeriodData(unittest.TestCase):
 
     def test_workflow_sessions_count(self):
         from views import fetch_period_data
+
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             data = fetch_period_data(self.conn, "today")
@@ -83,8 +145,10 @@ class TestFetchPeriodData(unittest.TestCase):
 
     def test_by_model_has_opus_and_sonnet(self):
         from views import fetch_period_data
+
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             data = fetch_period_data(self.conn, "today")
@@ -93,33 +157,41 @@ class TestFetchPeriodData(unittest.TestCase):
         self.assertIn("claude-sonnet-4-6", models)
         # Verify all required keys are present on each row
         for row in data["by_model"]:
-            self.assertEqual(set(row.keys()), {"model", "inp", "out", "cr", "cc", "turns", "cost"})
+            self.assertEqual(
+                set(row.keys()), {"model", "inp", "out", "cr", "cc", "turns", "cost"}
+            )
 
     def test_cache_totals_summed(self):
         from views import fetch_period_data
+
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             data = fetch_period_data(self.conn, "today")
-        self.assertEqual(data["cache_read"], 300)     # 200 + 100
-        self.assertEqual(data["cache_creation"], 150) # 100 + 50
+        self.assertEqual(data["cache_read"], 300)  # 200 + 100
+        self.assertEqual(data["cache_creation"], 150)  # 100 + 50
 
     def test_all_period_has_no_date_filter(self):
         from views import fetch_period_data
+
         data = fetch_period_data(self.conn, "all")
         self.assertEqual(data["total_sessions"], 2)
         self.assertEqual(data["date_range"], (None, None))
 
     def test_by_day_empty_for_all(self):
         from views import fetch_period_data
+
         data = fetch_period_data(self.conn, "all")
         self.assertEqual(data["by_day"], [])
 
     def test_by_day_populated_for_week(self):
         from views import fetch_period_data
+
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             data = fetch_period_data(self.conn, "week")
@@ -128,8 +200,10 @@ class TestFetchPeriodData(unittest.TestCase):
 
     def test_by_day_empty_for_today(self):
         from views import fetch_period_data
+
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             data = fetch_period_data(self.conn, "today")
@@ -139,11 +213,13 @@ class TestFetchPeriodData(unittest.TestCase):
 class TestSparkLine(unittest.TestCase):
     def test_all_zeros_returns_flat(self):
         from views import _spark_line
+
         result = _spark_line([0, 0, 0, 0])
         self.assertEqual(result, "▁▁▁▁")
 
     def test_single_nonzero_returns_max_at_that_position(self):
         from views import _spark_line
+
         result = _spark_line([0, 0, 5.0, 0])
         self.assertIn("█", result)
         self.assertEqual(result[2], "█")
@@ -151,25 +227,30 @@ class TestSparkLine(unittest.TestCase):
 
     def test_all_equal_nonzero_returns_all_max(self):
         from views import _spark_line
+
         result = _spark_line([3.0, 3.0, 3.0])
         self.assertTrue(all(c == "█" for c in result))
 
     def test_length_matches_input(self):
         from views import _spark_line
+
         self.assertEqual(len(_spark_line([1, 2, 3, 4, 5, 6, 7, 8])), 8)
 
     def test_ascending_sequence_is_monotone(self):
         from views import _spark_line
+
         blocks = "▁▂▃▄▅▆▇█"
         result = _spark_line([1, 2, 3, 4, 5, 6, 7, 8])
         for i in range(len(result) - 1):
             self.assertLessEqual(
-                blocks.index(result[i]), blocks.index(result[i + 1]),
-                f"Non-monotone at position {i}: {result}"
+                blocks.index(result[i]),
+                blocks.index(result[i + 1]),
+                f"Non-monotone at position {i}: {result}",
             )
 
     def test_empty_list_returns_empty_string(self):
         from views import _spark_line
+
         self.assertEqual(_spark_line([]), "")
 
 
@@ -182,9 +263,11 @@ class TestTableReport(unittest.TestCase):
 
     def _capture(self, period):
         from views import table_report
+
         buf = io.StringIO()
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             with patch("sys.stdout", buf):
@@ -219,9 +302,11 @@ class TestCardReport(unittest.TestCase):
 
     def _capture(self, period):
         from views import card_report
+
         buf = io.StringIO()
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             with patch("sys.stdout", buf):
@@ -254,9 +339,11 @@ class TestSparkReport(unittest.TestCase):
 
     def _capture(self, period):
         from views import spark_report
+
         buf = io.StringIO()
         with patch("views.date") as mock_date:
             from datetime import date as real_date
+
             mock_date.today.return_value = real_date(2026, 6, 11)
             mock_date.fromisoformat = real_date.fromisoformat
             with patch("sys.stdout", buf):
@@ -287,19 +374,23 @@ class TestModelShort(unittest.TestCase):
 
     def test_single_digit_major_version(self):
         from views import _model_short
+
         self.assertEqual(_model_short("claude-opus-5"), "Opus 5")
         self.assertEqual(_model_short("claude-sonnet-5"), "Sonnet 5")
 
     def test_dotted_version(self):
         from views import _model_short
+
         self.assertEqual(_model_short("claude-opus-4-8"), "Opus 4.8")
         self.assertEqual(_model_short("claude-haiku-4-5-20251001"), "Haiku 4.5")
 
     def test_legacy_name_with_leading_version(self):
         from views import _model_short
+
         self.assertEqual(_model_short("claude-3-5-haiku-20241022"), "Haiku")
 
     def test_premium_families(self):
         from views import _model_short
+
         self.assertEqual(_model_short("claude-fable-5"), "Fable 5")
         self.assertEqual(_model_short("claude-mythos-5"), "Mythos 5")
