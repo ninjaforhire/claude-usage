@@ -116,6 +116,16 @@ def test_error_account_excluded():
     assert r["score"] is None
 
 
+def test_auth_broken_account_keeps_real_cached_fable_value_visible():
+    entry = _entry(weekly_free=60, h5=80, fable_remaining_pct=20)
+    entry.update({"error": "invalid_grant", "error_kind": "auth", "needs_relogin": True})
+    rank = _fable_rank(entry)
+    assert rank["score"] is None
+    assert rank["fable_room"] == 20
+    assert rank["stale"] is True
+    assert "auth-broken" in rank["reasons"][0]
+
+
 def test_reset_formatter_handles_none_and_bad_input():
     assert _fmt_reset_local(None) == "--"
     assert _fmt_reset_local("not-a-date") == "--"
