@@ -305,10 +305,15 @@ def fetch_usage(oauth: dict) -> dict:
 _FETCH_LOCK = threading.Lock()
 
 
-def fetch_all_usage(path: Path = STORE_PATH) -> list[dict]:
-    """Refresh tokens as needed, fetch usage for every account, persist cache."""
+def fetch_all_usage(path: Path = STORE_PATH, *, force: bool = False) -> list[dict]:
+    """Refresh tokens as needed, fetch usage for every account, persist cache.
+
+    ``force`` bypasses a persisted retry cooldown for a decision-time fresh read.
+    It never turns stale windows into a successful response: failures retain the
+    cache only with explicit error metadata.
+    """
     with _FETCH_LOCK, store_lock():
-        return _fetch_all_usage_locked(path)
+        return _fetch_all_usage_locked(path, force=force)
 
 
 def _record_usage_http_error(
@@ -339,13 +344,41 @@ def _record_usage_http_error(
         "last_success_at": last_success_at,
         "error": message,
         "error_kind": error_kind,
+        "needs_relogin": False,
         "retry_until": (now + timedelta(seconds=delay)).strftime(
             "%Y-%m-%dT%H:%M:%SZ"
         ),
     }
 
 
-def _fetch_all_usage_locked(path: Path) -> list[dict]:
+def _record_auth_error(acct: dict, error: Exception, now: datetime) -> None:
+    """Persist terminal OAuth refresh failure while retaining cached windows."""
+    previous = acct.get("last_usage") or {}
+    windows = {
+        key: previous[key]
+        for key in ("five_hour", "seven_day", "fable")
+        if key in previous
+    }
+    last_success_at = previous.get("last_success_at") or (
+        previous.get("fetched_at") if previous and not previous.get("error") else None
+    )
+    acct["last_usage"] = {
+        **windows,
+        "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "last_success_at": last_success_at,
+        "error": str(error),
+        "error_kind": "auth",
+        "needs_relogin": True,
+        "retry_until": None,
+    }
+
+
+def _refresh_error_is_auth(error: Exception) -> bool:
+    """Classify token-endpoint 400/401 as re-login failures, never throttles."""
+    return isinstance(error, urllib.error.HTTPError) and error.code in (400, 401)
+
+
+def _fetch_all_usage_locked(path: Path, *, force: bool = False) -> list[dict]:
     store = load_store(path=path)
     now_dt = datetime.now(timezone.utc)
     now = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -357,7 +390,7 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
     for acct in store["accounts"]:
         previous = acct.get("last_usage") or {}
         retry_until = previous.get("retry_until")
-        if retry_until:
+        if retry_until and not force:
             try:
                 retry_at = datetime.fromisoformat(retry_until.replace("Z", "+00:00"))
                 if retry_at > now_dt:
@@ -382,6 +415,7 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                         "fetched_at": now,
                         "last_success_at": now,
                         "error": None,
+                        "needs_relogin": False,
                     }
                     continue
                 except urllib.error.HTTPError as e:
@@ -394,7 +428,10 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                 try:
                     acct["oauth"] = _refresh(acct["oauth"])
                     save_store(store, path=path)  # persist rotated token even if fetch fails
-                except Exception:  # noqa: BLE001
+                except Exception as refresh_error:  # noqa: BLE001
+                    if _refresh_error_is_auth(refresh_error):
+                        _record_auth_error(acct, refresh_error, now_dt)
+                        continue
                     # Refresh endpoint may be rate-limited or the refresh token
                     # dead while the access token still works — try it anyway.
                     pass
@@ -408,7 +445,13 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                     raise
                 # Access token can be invalidated before expires_at (e.g. the
                 # logged-in Claude Code session rotated it). Force-refresh once.
-                acct["oauth"] = _refresh(acct["oauth"])
+                try:
+                    acct["oauth"] = _refresh(acct["oauth"])
+                except Exception as refresh_error:  # noqa: BLE001
+                    if _refresh_error_is_auth(refresh_error):
+                        _record_auth_error(acct, refresh_error, now_dt)
+                        continue
+                    raise
                 save_store(store, path=path)
                 try:
                     usage = fetch_usage(acct["oauth"])
@@ -422,6 +465,7 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                 "fetched_at": now,
                 "last_success_at": now,
                 "error": None,
+                "needs_relogin": False,
             }
         except Exception as e:  # noqa: BLE001 — any failure grays this orb only
             prev = acct.get("last_usage") or {}
@@ -433,7 +477,8 @@ def _fetch_all_usage_locked(path: Path) -> list[dict]:
                 "fetched_at": now,
                 "last_success_at": last_success_at,
                 "error": str(e),
-                "error_kind": None,
+                "error_kind": "auth" if _refresh_error_is_auth(e) else None,
+                "needs_relogin": _refresh_error_is_auth(e),
                 "retry_until": None,
             }
     save_store(store, path=path)
@@ -475,6 +520,7 @@ def public_view(accts: list[dict]) -> list[dict]:
             "last_success_at": u.get("last_success_at"),
             "error": u.get("error"),
             "error_kind": u.get("error_kind"),
+            "needs_relogin": bool(u.get("needs_relogin")),
             "retry_until": u.get("retry_until"),
             "windows": {},
         }

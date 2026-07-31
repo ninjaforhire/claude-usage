@@ -168,6 +168,27 @@ def test_malformed_usage_response_grays_account(tmp_path):
     assert result[0]["last_usage"]["error"]
 
 
+def test_invalid_grant_refresh_is_loud_auth_failure_with_cached_windows(tmp_path):
+    path = tmp_path / "s.json"
+    account = _expired_acct()
+    account["last_usage"] = {
+        "five_hour": {"utilization": 20, "resets_at": "2026-07-25T22:59:59+00:00"},
+        "seven_day": {"utilization": 40, "resets_at": "2026-07-25T22:59:59+00:00"},
+        "fable": {"utilization": 80, "resets_at": "2026-07-25T22:59:59+00:00"},
+        "fetched_at": "2026-07-25T20:00:00Z", "error": None,
+    }
+    accounts.save_store({"accounts": [account]}, path=path)
+    error = urllib.error.HTTPError(accounts.TOKEN_URL, 400, "Bad Request", None,
+        io.BytesIO(b'{"error":{"message":"invalid_grant"}}'))
+    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
+         patch.object(accounts, "_post_json", side_effect=error):
+        result = accounts.fetch_all_usage(path=path)[0]
+    usage = result["last_usage"]
+    assert usage["error_kind"] == "auth"
+    assert usage["needs_relogin"] is True
+    assert usage["fable"]["utilization"] == 80
+
+
 # ── Task 3: Color ramp, billing countdown, public_view ───────────────────────
 
 
