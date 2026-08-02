@@ -20,7 +20,7 @@ def _registry(path: Path) -> None:
                         "email": "andrew@mightyphotobooths.com",
                         "provider": "claude",
                         "config_dir": str(path.parent / "claude"),
-                        "keychain_slot": "Claude Code-credentials",
+                        "keychain_slot": None,
                         "plan": "max_20x",
                         "caps": ["fable"],
                         "active": True,
@@ -51,7 +51,7 @@ def test_registry_is_static_metadata_not_live_cache(tmp_path: Path) -> None:
     profile = load_registry(registry_path)[0]
 
     assert profile.email == "andrew@mightyphotobooths.com"
-    assert profile.keychain_slot == "Claude Code-credentials"
+    assert profile.keychain_slot is None
     assert not hasattr(profile, "oauth")
 
 
@@ -78,3 +78,33 @@ def test_fable_routing_rejects_auth_broken_cached_window() -> None:
 
     assert decision["recommendation"] is None
     assert "no fresh" in decision["reason"]
+
+
+def test_no_credentials_state_is_distinct_from_stored_auth_failure(
+    tmp_path: Path,
+) -> None:
+    """No usable source must not render as a stale stored refresh token."""
+    registry_path = tmp_path / "accounts_registry.json"
+    _registry(registry_path)
+    with mock.patch.object(
+        aggregator.accounts,
+        "fetch_all_usage",
+        return_value=[
+            {
+                "email": "andrew@mightyphotobooths.com",
+                "last_usage": {
+                    "error": "No usable Claude Code credentials (credentials-file: missing; keychain: scanned=1, empty_rejected=1).",
+                    "error_kind": "no_credentials",
+                    "needs_relogin": False,
+                },
+            }
+        ],
+    ), mock.patch.object(
+        aggregator,
+        "_keychain_health",
+        return_value={"accessible": False, "error": "keychain unavailable"},
+    ):
+        snapshot = aggregator.aggregate_accounts(registry_path, tmp_path / "cache.json")
+
+    assert snapshot["accounts"][0]["state"] == "no-credentials"
+    assert snapshot["accounts"][0]["error_kind"] == "no_credentials"

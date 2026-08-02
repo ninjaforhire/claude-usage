@@ -128,7 +128,9 @@ def test_error_account_excluded():
 
 def test_auth_broken_account_keeps_real_cached_fable_value_visible():
     entry = _entry(weekly_free=60, h5=80, fable_remaining_pct=20)
-    entry.update({"error": "invalid_grant", "error_kind": "auth", "needs_relogin": True})
+    entry.update(
+        {"error": "invalid_grant", "error_kind": "auth", "needs_relogin": True}
+    )
     rank = _fable_rank(entry)
     assert rank["score"] is None
     assert rank["fable_room"] == 20
@@ -142,7 +144,7 @@ def test_reset_formatter_handles_none_and_bad_input():
     assert _fmt_reset_local("2026-07-08T10:00:00Z") != "--"
 
 
-# ── --switch (live keychain snapshot) ─────────────────────────────────────────
+# ── --switch (live credential ownership) ─────────────────────────────────────
 
 
 def _fake_accts(tracked_emails, *, detected_email, oauth=None):
@@ -150,16 +152,16 @@ def _fake_accts(tracked_emails, *, detected_email, oauth=None):
     m = mock.Mock()
     m.keychain_oauth.return_value = oauth or {"access_token": "t"}
     m.fetch_profile_email.return_value = detected_email
-    m.fetch_usage.return_value = {"five_hour": {}, "seven_day": {}}
     m.load_store.return_value = {"accounts": [{"email": e} for e in tracked_emails]}
     return m
 
 
-def test_switch_snapshots_tracked_account():
+def test_switch_records_tracked_account_without_copying_oauth():
     m = _fake_accts(["a@x.com", "b@x.com"], detected_email="b@x.com")
     assert _switch_to_live_keychain(m) == "b@x.com"
-    m.update_oauth.assert_called_once()
+    m.update_oauth.assert_not_called()
     m.set_keychain_owner.assert_called_once_with("b@x.com")
+    m.fetch_all_usage.assert_called_once_with()
 
 
 def test_switch_refuses_untracked_account():
@@ -167,6 +169,7 @@ def test_switch_refuses_untracked_account():
     assert _switch_to_live_keychain(m) is None
     m.update_oauth.assert_not_called()
     m.set_keychain_owner.assert_not_called()
+    m.fetch_all_usage.assert_not_called()
 
 
 def test_switch_handles_unreadable_keychain():
@@ -176,12 +179,9 @@ def test_switch_handles_unreadable_keychain():
     m.set_keychain_owner.assert_not_called()
 
 
-def test_switch_saves_creds_even_when_usage_fetch_fails():
+def test_switch_refreshes_usage_after_recording_owner():
     m = _fake_accts(["a@x.com"], detected_email="a@x.com")
-    m.fetch_usage.side_effect = RuntimeError("429")
     assert _switch_to_live_keychain(m) == "a@x.com"
-    # usage falls back to None, but creds + ownership still persist
-    args, _ = m.update_oauth.call_args
-    assert args[0] == "a@x.com"
-    assert args[2] is None
+    m.update_oauth.assert_not_called()
     m.set_keychain_owner.assert_called_once_with("a@x.com")
+    m.fetch_all_usage.assert_called_once_with()

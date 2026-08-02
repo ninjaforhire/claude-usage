@@ -4,6 +4,7 @@ import datetime as dt
 import io
 import json
 import stat
+import subprocess
 import tempfile
 import unittest
 import urllib.error
@@ -12,6 +13,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import accounts
+import pytest
 
 
 def _acct(email="a@b.com"):
@@ -49,6 +51,309 @@ def test_store_file_mode_600(tmp_path):
 
 def test_load_missing_store_returns_empty(tmp_path):
     assert accounts.load_store(path=tmp_path / "nope.json") == {"accounts": []}
+
+
+# ── Keychain slot resolver ───────────────────────────────────────────────────
+
+
+def _slot_payload(
+    access_token: str = "present",
+    refresh_token: str = "present",
+    expires_at: int | None = None,
+) -> str:
+    """Return a non-secret synthetic Claude Code keychain payload."""
+    if expires_at is None:
+        expires_at = int(
+            (datetime.now(timezone.utc) + timedelta(hours=1)).timestamp() * 1000
+        )
+    return json.dumps(
+        {
+            "claudeAiOauth": {
+                "accessToken": access_token,
+                "refreshToken": refresh_token,
+                "expiresAt": expires_at,
+            }
+        }
+    )
+
+
+def _slot_result(args: list[str], payload: str) -> subprocess.CompletedProcess[str]:
+    """Build a completed synthetic keychain subprocess result."""
+    return subprocess.CompletedProcess(
+        args=args, returncode=0, stdout=payload, stderr=""
+    )
+
+
+def _isolate_keychain_store(monkeypatch, tmp_path) -> None:
+    """Redirect resolver cache persistence away from the real account store."""
+    monkeypatch.setattr(accounts, "STORE_PATH", tmp_path / "usage_accounts.json")
+    monkeypatch.setattr(accounts, "LOCK_PATH", tmp_path / "usage_accounts.lock")
+    monkeypatch.setattr(accounts, "_RESOLVED_KEYCHAIN_SLOT", None)
+
+
+def test_returns_none_for_empty_token_payload() -> None:
+    """The observed empty bare-entry payload is never treated as credentials."""
+    payload = _slot_payload(access_token="", refresh_token="", expires_at=0)
+    with patch(
+        "accounts.subprocess.run",
+        autospec=True,
+        return_value=_slot_result([], payload),
+    ) as run:
+        assert accounts.read_keychain_slot(accounts.KEYCHAIN_SERVICE) is None
+
+    assert run.call_args.kwargs["timeout"] == 10
+
+
+def test_skips_empty_entry_and_selects_valid_one(monkeypatch, tmp_path) -> None:
+    """A valid suffixed service wins after an empty bare entry is rejected."""
+    _isolate_keychain_store(monkeypatch, tmp_path)
+    suffixed = f"{accounts.KEYCHAIN_SERVICE}-1234abcd"
+    monkeypatch.setattr(
+        accounts, "list_keychain_slots", lambda: [accounts.KEYCHAIN_SERVICE, suffixed]
+    )
+    payloads = {
+        accounts.KEYCHAIN_SERVICE: _slot_payload("", "", 0),
+        suffixed: _slot_payload(),
+    }
+
+    def run(args, **kwargs):
+        assert kwargs["timeout"] == 10
+        return _slot_result(args, payloads[args[3]])
+
+    with patch("accounts.subprocess.run", autospec=True, side_effect=run):
+        resolved = accounts.resolve_keychain_slot()
+
+    assert resolved is not None
+    assert resolved[0] == suffixed
+
+
+def test_raises_typed_error_when_no_entry_usable(monkeypatch, tmp_path) -> None:
+    """No usable entry produces a count-carrying failure, never empty OAuth."""
+    _isolate_keychain_store(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        accounts, "list_keychain_slots", lambda: [accounts.KEYCHAIN_SERVICE]
+    )
+    with patch(
+        "accounts.subprocess.run",
+        autospec=True,
+        return_value=_slot_result([], _slot_payload("", "", 0)),
+    ):
+        with pytest.raises(accounts.NoKeychainCredentials) as caught:
+            accounts.resolve_keychain_slot()
+
+    assert caught.value.scanned == 1
+    assert caught.value.empty_rejected == 1
+
+
+def test_prefers_live_token_over_expired_one(monkeypatch, tmp_path) -> None:
+    """A later live access token beats an earlier refresh-only candidate."""
+    _isolate_keychain_store(monkeypatch, tmp_path)
+    expired = f"{accounts.KEYCHAIN_SERVICE}-11111111"
+    live = f"{accounts.KEYCHAIN_SERVICE}-22222222"
+    monkeypatch.setattr(accounts, "list_keychain_slots", lambda: [expired, live])
+    payloads = {
+        expired: _slot_payload(expires_at=1),
+        live: _slot_payload(),
+    }
+
+    def run(args, **kwargs):
+        assert kwargs["timeout"] == 10
+        return _slot_result(args, payloads[args[3]])
+
+    with patch("accounts.subprocess.run", autospec=True, side_effect=run) as run_mock:
+        resolved = accounts.resolve_keychain_slot()
+
+    assert resolved is not None
+    assert resolved[0] == live
+    assert run_mock.call_count == 2
+
+
+def test_resolution_short_circuits_on_first_success(monkeypatch, tmp_path) -> None:
+    """A cold resolver stops after the first live candidate instead of fan-out."""
+    _isolate_keychain_store(monkeypatch, tmp_path)
+    first = f"{accounts.KEYCHAIN_SERVICE}-33333333"
+    later = f"{accounts.KEYCHAIN_SERVICE}-44444444"
+    monkeypatch.setattr(accounts, "list_keychain_slots", lambda: [first, later])
+    calls: list[str] = []
+
+    def run(args, **kwargs):
+        assert kwargs["timeout"] == 10
+        calls.append(args[3])
+        return _slot_result(args, _slot_payload())
+
+    with patch("accounts.subprocess.run", autospec=True, side_effect=run):
+        resolved = accounts.resolve_keychain_slot()
+
+    assert resolved is not None
+    assert resolved[0] == first
+    assert calls == [first]
+
+
+def test_unparseable_secret_is_skipped_not_fatal() -> None:
+    """Malformed keychain text rejects only that entry without surfacing JSON errors."""
+    with patch(
+        "accounts.subprocess.run",
+        autospec=True,
+        return_value=_slot_result([], "not-json"),
+    ):
+        assert accounts.read_keychain_slot(accounts.KEYCHAIN_SERVICE) is None
+
+
+def test_expired_access_token_with_valid_refresh_is_accepted(
+    monkeypatch, tmp_path
+) -> None:
+    """An expired access token remains a valid resolver fallback when refresh exists."""
+    _isolate_keychain_store(monkeypatch, tmp_path)
+    slot = f"{accounts.KEYCHAIN_SERVICE}-55555555"
+    monkeypatch.setattr(accounts, "list_keychain_slots", lambda: [slot])
+    with patch(
+        "accounts.subprocess.run",
+        autospec=True,
+        return_value=_slot_result([], _slot_payload(expires_at=1)),
+    ):
+        resolved = accounts.resolve_keychain_slot()
+
+    assert resolved is not None
+    assert resolved[0] == slot
+
+
+def _credentials_file_payload(
+    access_token: str = "file-access-placeholder",
+    refresh_token: str = "file-refresh-placeholder",
+    expires_at: int | None = None,
+) -> str:
+    """Return a synthetic file-store payload with no real credential material."""
+    if expires_at is None:
+        expires_at = int(
+            (datetime.now(timezone.utc) + timedelta(hours=1)).timestamp() * 1000
+        )
+    return json.dumps(
+        {
+            "claudeAiOauth": {
+                "accessToken": access_token,
+                "refreshToken": refresh_token,
+                "expiresAt": expires_at,
+                "subscriptionType": "max",
+            }
+        }
+    )
+
+
+def test_credentials_file_missing_returns_none(tmp_path: Path) -> None:
+    """A missing live file is a safe fallback condition."""
+    assert accounts.read_credentials_file(tmp_path / "missing.json") is None
+
+
+def test_credentials_file_with_empty_tokens_returns_none(tmp_path: Path) -> None:
+    """Empty file tokens never become half-usable OAuth credentials."""
+    path = tmp_path / "credentials.json"
+    path.write_text(_credentials_file_payload("", ""), encoding="utf-8")
+    assert accounts.read_credentials_file(path) is None
+
+
+def test_credentials_file_unparseable_is_skipped_not_fatal(tmp_path: Path) -> None:
+    """Malformed file JSON does not prevent the legacy fallback."""
+    path = tmp_path / "credentials.json"
+    path.write_text("not-json", encoding="utf-8")
+    assert accounts.read_credentials_file(path) is None
+
+
+def test_file_source_preferred_over_keychain(monkeypatch, tmp_path: Path) -> None:
+    """The live file short-circuits all keychain slot reads."""
+    path = tmp_path / "credentials.json"
+    path.write_text(_credentials_file_payload(), encoding="utf-8")
+    monkeypatch.setattr(accounts, "CREDENTIALS_PATH", path)
+    with patch.object(accounts, "resolve_keychain_slot") as resolve:
+        oauth = accounts.keychain_oauth()
+
+    resolve.assert_not_called()
+    assert oauth["access_token"] == "file-access-placeholder"
+
+
+def test_falls_back_to_keychain_when_file_absent(monkeypatch, tmp_path: Path) -> None:
+    """Legacy slots remain available when the live file has not been created."""
+    monkeypatch.setattr(accounts, "CREDENTIALS_PATH", tmp_path / "missing.json")
+    expected = {
+        "access_token": "keychain-access-placeholder",
+        "refresh_token": "keychain-refresh-placeholder",
+        "expires_at": "2099-01-01T00:00:00Z",
+    }
+    with patch.object(
+        accounts,
+        "resolve_keychain_slot",
+        return_value=(accounts.KEYCHAIN_SERVICE, expected),
+    ) as resolve:
+        assert accounts.keychain_oauth() == expected
+
+    resolve.assert_called_once_with()
+
+
+def test_raises_typed_error_naming_both_sources_when_all_fail(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """The terminal diagnostic preserves both file and keychain failure causes."""
+    monkeypatch.setattr(accounts, "CREDENTIALS_PATH", tmp_path / "missing.json")
+    with patch.object(
+        accounts,
+        "resolve_keychain_slot",
+        side_effect=accounts.NoUsableCredentials.keychain(45, 45),
+    ):
+        with pytest.raises(accounts.NoUsableCredentials) as caught:
+            accounts.keychain_oauth()
+
+    assert "credentials-file: missing" in str(caught.value)
+    assert "keychain: scanned=45, empty_rejected=45" in str(caught.value)
+
+
+def test_recorded_owner_beats_is_main_for_attribution(tmp_path: Path) -> None:
+    """A fable-next switch directs live credentials to the non-main account."""
+    store = {
+        "keychain_owner": "secondary@example.com",
+        "accounts": [
+            {"email": "main@example.com", "is_main": True},
+            {"email": "secondary@example.com", "is_main": False},
+        ],
+    }
+    assert not accounts._is_credentials_owner(
+        {"email": "main@example.com", "is_main": True}, store
+    )
+    assert accounts._is_credentials_owner(
+        {"email": "secondary@example.com", "is_main": False}, store
+    )
+
+    main = _acct("main@example.com")
+    main["is_main"] = True
+    secondary = _acct("secondary@example.com")
+    secondary["is_main"] = False
+    path = tmp_path / "accounts.json"
+    accounts.save_store(
+        {"keychain_owner": "secondary@example.com", "accounts": [main, secondary]},
+        path=path,
+    )
+    live_oauth = {
+        "access_token": "live-access-placeholder",
+        "refresh_token": "live-refresh-placeholder",
+        "expires_at": "2099-01-01T00:00:00Z",
+    }
+    with patch.object(accounts, "fetch_usage", return_value=USAGE_RESPONSE) as fetch:
+        result = accounts._fetch_all_usage_locked(
+            path, force=True, credentials=live_oauth
+        )
+
+    assert fetch.call_args.args[0] == live_oauth
+    by_email = {item["email"]: item for item in result}
+    assert by_email["secondary@example.com"]["oauth"]["access_token"] == "at"
+
+
+def test_auth_error_retains_underlying_detail() -> None:
+    """The display-safe refresh failure retains its raw diagnostic separately."""
+    account = _acct()
+    error = urllib.error.HTTPError(accounts.TOKEN_URL, 400, "Bad Request", None, None)
+    accounts._record_auth_error(account, error, datetime.now(timezone.utc))
+
+    usage = account["last_usage"]
+    assert usage["error"].startswith("Stored refresh token rejected")
+    assert usage["error_detail"] == "HTTP Error 400: Bad Request"
 
 
 def test_upsert_replaces_by_email(tmp_path):
@@ -194,13 +499,20 @@ def test_invalid_grant_refresh_is_loud_auth_failure_with_cached_windows(tmp_path
         "five_hour": {"utilization": 20, "resets_at": "2026-07-25T22:59:59+00:00"},
         "seven_day": {"utilization": 40, "resets_at": "2026-07-25T22:59:59+00:00"},
         "fable": {"utilization": 80, "resets_at": "2026-07-25T22:59:59+00:00"},
-        "fetched_at": "2026-07-25T20:00:00Z", "error": None,
+        "fetched_at": "2026-07-25T20:00:00Z",
+        "error": None,
     }
     accounts.save_store({"accounts": [account]}, path=path)
-    error = urllib.error.HTTPError(accounts.TOKEN_URL, 400, "Bad Request", None,
-        io.BytesIO(b'{"error":{"message":"invalid_grant"}}'))
-    with patch.object(accounts, "keychain_oauth", side_effect=OSError("no keychain")), \
-         patch.object(accounts, "_post_json", side_effect=error):
+    error = urllib.error.HTTPError(
+        accounts.TOKEN_URL,
+        400,
+        "Bad Request",
+        None,
+        io.BytesIO(b'{"error":{"message":"invalid_grant"}}'),
+    )
+    with patch.object(
+        accounts, "keychain_oauth", side_effect=OSError("no keychain")
+    ), patch.object(accounts, "_post_json", side_effect=error):
         result = accounts.fetch_all_usage(path=path)[0]
     usage = result["last_usage"]
     assert usage["error_kind"] == "auth"

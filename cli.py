@@ -636,7 +636,9 @@ def parse_keychain_credentials(raw: str) -> dict[str, str]:
 def _read_keychain() -> str:
     """Read credentials from macOS Keychain; returns raw JSON string."""
     args = _KEYCHAIN_CMD + ["-s", KEYCHAIN_SERVICE, "-w"]
-    result = subprocess.run(args, capture_output=True, text=True, check=True)
+    result = subprocess.run(
+        args, capture_output=True, text=True, check=True, timeout=10
+    )
     return result.stdout.strip()
 
 
@@ -825,7 +827,9 @@ def cmd_accounts_status(dry_run: bool = False) -> int:
     print(
         f"  Fresh: {snapshot['summary']['fresh']}  Degraded: {snapshot['summary']['degraded']}"
     )
-    print("  AUTH-BROKEN entries require /login; cached values are never selected.")
+    print(
+        "  AUTH-BROKEN entries require /login; NO-CREDENTIALS means no usable source."
+    )
     hr("=")
     print()
     return 0 if snapshot["summary"]["degraded"] == 0 or dry_run else 1
@@ -995,34 +999,30 @@ def _fable_rank(entry: dict) -> dict:
 
 
 def _switch_to_live_keychain(_accts) -> str | None:
-    """Snapshot the live Claude Code keychain into the store as the new owner.
+    """Record the live Claude Code credentials owner after an account switch.
 
     Run right after logging Claude Code into a different account: reads the live
-    keychain, refreshes that (already-tracked) account's credentials + usage, and
-    marks it keychain_owner. Returns the detected email, or None if the account
-    could not be read/detected/matched.
+    file-first credential chain, identifies the tracked account, and marks it as
+    owner before fetching usage. OAuth material remains only in Claude Code's
+    credential store.
     """
     try:
         oauth = _accts.keychain_oauth()
         email = _accts.fetch_profile_email(oauth)
     except Exception as e:  # noqa: BLE001 — no keychain / offline / bad token
-        print(f"  Could not read keychain: {e}")
+        print(f"  Could not read Claude Code credentials: {e}")
         return None
     if not email:
-        print("  Could not detect account email from keychain.")
+        print("  Could not detect account email from Claude Code credentials.")
         return None
     tracked = {a["email"] for a in _accts.load_store()["accounts"]}
     if email not in tracked:
         print(f"  {email} is logged in but not tracked. Register it first:")
         print("    python3 ~/tools/claude-usage/cli.py accounts add")
         return None
-    try:
-        usage = _accts.fetch_usage(oauth)
-    except Exception:  # noqa: BLE001 — save creds even if usage fetch fails
-        usage = None
-    _accts.update_oauth(email, oauth, usage)
     _accts.set_keychain_owner(email)
-    print(f"  Snapshotted live keychain -> {email} (now keychain owner).")
+    _accts.fetch_all_usage()
+    print(f"  Recorded live credentials owner -> {email}.")
     return email
 
 
