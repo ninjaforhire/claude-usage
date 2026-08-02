@@ -8,6 +8,8 @@ Public API:
     spark_report(conn, period)
 """
 
+from __future__ import annotations
+
 import re
 import sqlite3
 from datetime import date, timedelta
@@ -34,7 +36,8 @@ def fetch_period_data(conn: sqlite3.Connection, period: str) -> dict:
     where = "WHERE substr(timestamp, 1, 10) BETWEEN ? AND ?" if start else ""
     params = (start, end) if start else ()
 
-    by_model_rows = conn.execute(f"""
+    by_model_rows = conn.execute(
+        f"""
         SELECT
             COALESCE(model, 'unknown') as model,
             SUM(input_tokens)          as inp,
@@ -46,24 +49,31 @@ def fetch_period_data(conn: sqlite3.Connection, period: str) -> dict:
         {where}
         GROUP BY model
         ORDER BY inp + out DESC
-    """, params).fetchall()
+    """,
+        params,
+    ).fetchall()
 
     by_model = []
     for r in by_model_rows:
-        cost = calc_cost(r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0)
-        by_model.append({
-            "model": r["model"],
-            "inp": r["inp"] or 0,
-            "out": r["out"] or 0,
-            "cr": r["cr"] or 0,
-            "cc": r["cc"] or 0,
-            "turns": r["turns"],
-            "cost": cost,
-        })
+        cost = calc_cost(
+            r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0
+        )
+        by_model.append(
+            {
+                "model": r["model"],
+                "inp": r["inp"] or 0,
+                "out": r["out"] or 0,
+                "cr": r["cr"] or 0,
+                "cc": r["cc"] or 0,
+                "turns": r["turns"],
+                "cost": cost,
+            }
+        )
 
     by_day = []
     if period in ("week", "month"):
-        day_rows = conn.execute(f"""
+        day_rows = conn.execute(
+            f"""
             SELECT
                 substr(timestamp, 1, 10)   as day,
                 COUNT(*)                   as turns,
@@ -75,40 +85,51 @@ def fetch_period_data(conn: sqlite3.Connection, period: str) -> dict:
             FROM turns
             {where}
             GROUP BY day, model
-        """, params).fetchall()
+        """,
+            params,
+        ).fetchall()
         per_day: dict = {}
         for r in day_rows:
             d = r["day"]
-            bucket = per_day.setdefault(d, {"day": d, "turns": 0, "inp": 0, "out": 0, "cost": 0.0})
+            bucket = per_day.setdefault(
+                d, {"day": d, "turns": 0, "inp": 0, "out": 0, "cost": 0.0}
+            )
             bucket["turns"] += r["turns"]
-            bucket["inp"]   += r["inp"] or 0
-            bucket["out"]   += r["out"] or 0
-            bucket["cost"]  += calc_cost(r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0)
+            bucket["inp"] += r["inp"] or 0
+            bucket["out"] += r["out"] or 0
+            bucket["cost"] += calc_cost(
+                r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0
+            )
         by_day = sorted(per_day.values(), key=lambda x: x["day"])
 
-    session_row = conn.execute(f"""
+    session_row = conn.execute(
+        f"""
         SELECT COUNT(DISTINCT t.session_id) as cnt
         FROM turns t
         {where}
-    """, params).fetchone()
+    """,
+        params,
+    ).fetchone()
 
     workflow_where = (
         "WHERE tool_name = 'Workflow' AND substr(timestamp, 1, 10) BETWEEN ? AND ?"
-        if start else
-        "WHERE tool_name = 'Workflow'"
+        if start
+        else "WHERE tool_name = 'Workflow'"
     )
     workflow_row = conn.execute(
-        f"SELECT COUNT(DISTINCT session_id) as cnt FROM turns {workflow_where}",
-        params
+        f"SELECT COUNT(DISTINCT session_id) as cnt FROM turns {workflow_where}", params
     ).fetchone()
 
-    cache_row = conn.execute(f"""
+    cache_row = conn.execute(
+        f"""
         SELECT
             SUM(cache_read_tokens)     as cr,
             SUM(cache_creation_tokens) as cc
         FROM turns
         {where}
-    """, params).fetchone()
+    """,
+        params,
+    ).fetchone()
 
     if period == "today":
         label = f"today · {date.today().isoformat()}"
@@ -171,16 +192,20 @@ def table_report(conn: sqlite3.Connection, period: str) -> None:
     total_inp = total_out = total_turns = 0
     total_cost = 0.0
     for r in data["by_model"]:
-        print(f"  {r['model']:<30}  {r['turns']:<5}  {fmt(r['inp']):<8}  "
-              f"{fmt(r['out']):<8}  {fmt_cost(r['cost'])}")
-        total_inp   += r["inp"]
-        total_out   += r["out"]
+        print(
+            f"  {r['model']:<30}  {r['turns']:<5}  {fmt(r['inp']):<8}  "
+            f"{fmt(r['out']):<8}  {fmt_cost(r['cost'])}"
+        )
+        total_inp += r["inp"]
+        total_out += r["out"]
         total_turns += r["turns"]
-        total_cost  += r["cost"]
+        total_cost += r["cost"]
 
     print("  " + "─" * (w - 2))
-    print(f"  {'TOTAL':<30}  {total_turns:<5}  {fmt(total_inp):<8}  "
-          f"{fmt(total_out):<8}  {fmt_cost(total_cost)}")
+    print(
+        f"  {'TOTAL':<30}  {total_turns:<5}  {fmt(total_inp):<8}  "
+        f"{fmt(total_out):<8}  {fmt_cost(total_cost)}"
+    )
 
     savings = _cache_savings(data)
     print()
@@ -196,7 +221,9 @@ def table_report(conn: sqlite3.Connection, period: str) -> None:
 
 # Family + version, e.g. "opus-5" or "sonnet-4-6". The trailing (?!\d) keeps a
 # date suffix ("claude-3-5-haiku-20241022") from being read as a version.
-_MODEL_VER_RE = re.compile(r"(fable|mythos|opus|sonnet|haiku)-(\d{1,2}(?:-\d{1,2})?)(?!\d)")
+_MODEL_VER_RE = re.compile(
+    r"(fable|mythos|opus|sonnet|haiku)-(\d{1,2}(?:-\d{1,2})?)(?!\d)"
+)
 
 
 def _model_short(model: str) -> str:
@@ -217,12 +244,14 @@ def card_report(conn: sqlite3.Connection, period: str) -> None:
     data = fetch_period_data(conn, period)
     w = 59
 
-    total_cost  = sum(r["cost"] for r in data["by_model"])
+    total_cost = sum(r["cost"] for r in data["by_model"])
     total_turns = sum(r["turns"] for r in data["by_model"])
-    savings     = _cache_savings(data)
+    savings = _cache_savings(data)
 
-    header = (f"  Cost {fmt_cost(total_cost)}   Turns {total_turns}   "
-              f"Sessions {data['total_sessions']}   Workflow ⚡{data['workflow_sessions']}")
+    header = (
+        f"  Cost {fmt_cost(total_cost)}   Turns {total_turns}   "
+        f"Sessions {data['total_sessions']}   Workflow ⚡{data['workflow_sessions']}"
+    )
 
     print()
     print("┌" + "─" * w + "┐")
@@ -234,7 +263,7 @@ def card_report(conn: sqlite3.Connection, period: str) -> None:
     while len(top) < 2:
         top.append(None)
 
-    other_cost  = sum(r["cost"] for r in data["by_model"][2:])
+    other_cost = sum(r["cost"] for r in data["by_model"][2:])
     other_turns = sum(r["turns"] for r in data["by_model"][2:])
 
     def pct(cost):
@@ -267,8 +296,10 @@ def card_report(conn: sqlite3.Connection, period: str) -> None:
         cols = [col(top[0]), col(top[1]), cache_col]
 
     for line_idx in range(3):
-        cells = [f"{c[line_idx]:<14}" if i < 2 else f"{c[line_idx]:<{w-30}}"
-                 for i, c in enumerate(cols)]
+        cells = [
+            f"{c[line_idx]:<14}" if i < 2 else f"{c[line_idx]:<{w-30}}"
+            for i, c in enumerate(cols)
+        ]
         print("│" + "│".join(cells) + "│")
 
     print("└" + "─" * 14 + "┴" + "─" * 14 + "┴" + "─" * (w - 30) + "┘")
@@ -277,7 +308,7 @@ def card_report(conn: sqlite3.Connection, period: str) -> None:
 def spark_report(conn: sqlite3.Connection, period: str) -> None:
     """Print a sparkline trend report. Falls back to table for today/all."""
     if period in ("today", "all"):
-        print(f"  (spark view requires week or month period — showing table)")
+        print("  (spark view requires week or month period — showing table)")
         table_report(conn, period)
         return
 
@@ -286,12 +317,12 @@ def spark_report(conn: sqlite3.Connection, period: str) -> None:
         print("  No data for sparkline.")
         return
 
-    costs  = [d["cost"]  for d in data["by_day"]]
-    turns  = [d["turns"] for d in data["by_day"]]
-    days   = [d["day"]   for d in data["by_day"]]
+    costs = [d["cost"] for d in data["by_day"]]
+    turns = [d["turns"] for d in data["by_day"]]
+    days = [d["day"] for d in data["by_day"]]
 
-    start_label = days[0][5:]   # MM-DD
-    end_label   = days[-1][5:]
+    start_label = days[0][5:]  # MM-DD
+    end_label = days[-1][5:]
 
     print()
     print(f"  Daily cost — {data['period_label']}")
@@ -299,7 +330,7 @@ def spark_report(conn: sqlite3.Connection, period: str) -> None:
     print(f"  {fmt_cost(min(costs))}  {cost_spark}  {fmt_cost(max(costs))}")
     print(f"           {start_label} {'─' * max(0, len(cost_spark) - 11)} {end_label}")
     print()
-    print(f"  Daily turns")
+    print("  Daily turns")
     turns_spark = _spark_line([float(t) for t in turns])
     print(f"  {min(turns):<6}  {turns_spark}  {max(turns)}")
     print()

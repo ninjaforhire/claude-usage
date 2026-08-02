@@ -71,16 +71,16 @@ def _is_whitelisted(proc):
 
 # Substrings on a managed claude's own command line (checked first, cheap).
 _MANAGED_CLAUDE_SUBSTR = (
-    " daemon run",     # Claude Code's built-in background daemon supervisor
+    " daemon run",  # Claude Code's built-in background daemon supervisor
     "jimbo-mcp.json",  # Jimbo mission worker (its --mcp-config path)
-    "/jimbo",          # Jimbo-spawned (mcp path or spawned-by cwd)
+    "/jimbo",  # Jimbo-spawned (mcp path or spawned-by cwd)
 )
 
 # Ancestor command substrings that mark a claude as Jimbo-managed (parent walk).
 _MANAGED_PARENT_SUBSTR = (
     "run_mission.py",  # standalone / crontab mission runner
-    "run_server.py",   # jimbo server that spawns mission workers
-    "/jimbo/",         # any jimbo host process
+    "run_server.py",  # jimbo server that spawns mission workers
+    "/jimbo/",  # any jimbo host process
 )
 
 

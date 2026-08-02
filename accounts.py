@@ -33,11 +33,12 @@ COLOR_RAMP = [  # (min_remaining_pct, fill_hi, fill_lo)
     (60, "#39ff6e", "#0fae3e"),
     (35, "#ffe23d", "#c69b08"),
     (15, "#ff9433", "#c45b06"),
-    (0,  "#ff3b3b", "#b30f0f"),
+    (0, "#ff3b3b", "#b30f0f"),
 ]
 
 
 # ── Cross-process store lock ──────────────────────────────────────────────────
+
 
 @contextlib.contextmanager
 def store_lock(path: Path | None = None):
@@ -75,6 +76,7 @@ def store_lock(path: Path | None = None):
 
 # ── Store layer ───────────────────────────────────────────────────────────────
 
+
 def load_store(path: Path = STORE_PATH) -> dict:
     """Load the account store from disk, returning empty store if missing."""
     if not Path(path).exists():
@@ -104,8 +106,9 @@ def upsert_account(acct: dict, path: Path = STORE_PATH) -> None:
         save_store(store, path=path)
 
 
-def update_oauth(email: str, oauth: dict, usage: dict | None = None,
-                 path: Path = STORE_PATH) -> bool:
+def update_oauth(
+    email: str, oauth: dict, usage: dict | None = None, path: Path = STORE_PATH
+) -> bool:
     """Refresh only the OAuth tokens (and optionally usage) of a tracked account.
 
     Re-capturing a logged-in account's live keychain credentials must NOT clobber
@@ -145,7 +148,9 @@ def keychain_oauth() -> dict:
     """Read the live Claude Code keychain credentials as an oauth dict."""
     raw = subprocess.run(
         ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-w"],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
     creds = json.loads(raw)["claudeAiOauth"]
     exp = datetime.fromtimestamp(creds["expiresAt"] / 1000, tz=timezone.utc)
@@ -208,6 +213,7 @@ def _http_error_detail(e: urllib.error.HTTPError) -> tuple[str, int | None]:
 
 # ── Token refresh + usage fetch ───────────────────────────────────────────────
 
+
 def _is_expired(oauth: dict) -> bool:
     """Return True if the access token is expired or expiry is unknown."""
     try:
@@ -219,11 +225,13 @@ def _is_expired(oauth: dict) -> bool:
 
 def _refresh(oauth: dict) -> dict:
     """Exchange a refresh token for a new access token; return updated oauth dict."""
+    # fmt: off
     data = _post_json(TOKEN_URL, {
         "grant_type": "refresh_token",
         "refresh_token": oauth["refresh_token"],
         "client_id": CLIENT_ID,
     })
+    # fmt: on
     exp = datetime.now(timezone.utc) + timedelta(seconds=data["expires_in"])
     return {
         "access_token": data["access_token"],
@@ -283,19 +291,25 @@ PROFILE_URL = "https://api.anthropic.com/api/oauth/profile"
 
 def fetch_profile_email(oauth: dict) -> str | None:
     """Return the account email for an access token (identity check)."""
-    raw = _get_json(PROFILE_URL, {
-        "Authorization": f"Bearer {oauth['access_token']}",
-        "anthropic-beta": "oauth-2025-04-20",
-    })
+    raw = _get_json(
+        PROFILE_URL,
+        {
+            "Authorization": f"Bearer {oauth['access_token']}",
+            "anthropic-beta": "oauth-2025-04-20",
+        },
+    )
     return (raw.get("account") or {}).get("email")
 
 
 def fetch_usage(oauth: dict) -> dict:
     """Fetch current usage for a single account; returns parsed usage dict."""
-    raw = _get_json(USAGE_URL, {
-        "Authorization": f"Bearer {oauth['access_token']}",
-        "anthropic-beta": "oauth-2025-04-20",
-    })
+    raw = _get_json(
+        USAGE_URL,
+        {
+            "Authorization": f"Bearer {oauth['access_token']}",
+            "anthropic-beta": "oauth-2025-04-20",
+        },
+    )
     return _parse_usage(raw)
 
 
@@ -329,9 +343,7 @@ def _record_usage_http_error(
         delay = PERMISSION_BACKOFF
     previous = acct.get("last_usage") or {}
     last_success_at = previous.get("last_success_at") or (
-        previous.get("fetched_at")
-        if previous and not previous.get("error")
-        else None
+        previous.get("fetched_at") if previous and not previous.get("error") else None
     )
     windows = {
         key: previous[key]
@@ -345,9 +357,7 @@ def _record_usage_http_error(
         "error": message,
         "error_kind": error_kind,
         "needs_relogin": False,
-        "retry_until": (now + timedelta(seconds=delay)).strftime(
-            "%Y-%m-%dT%H:%M:%SZ"
-        ),
+        "retry_until": (now + timedelta(seconds=delay)).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 
 
@@ -427,7 +437,9 @@ def _fetch_all_usage_locked(path: Path, *, force: bool = False) -> list[dict]:
             if _is_expired(acct["oauth"]):
                 try:
                     acct["oauth"] = _refresh(acct["oauth"])
-                    save_store(store, path=path)  # persist rotated token even if fetch fails
+                    save_store(
+                        store, path=path
+                    )  # persist rotated token even if fetch fails
                 except Exception as refresh_error:  # noqa: BLE001
                     if _refresh_error_is_auth(refresh_error):
                         _record_auth_error(acct, refresh_error, now_dt)
@@ -487,6 +499,7 @@ def _fetch_all_usage_locked(path: Path, *, force: bool = False) -> list[dict]:
 
 # ── Presentation helpers ──────────────────────────────────────────────────────
 
+
 def remaining_color(pct: int | float) -> tuple[str, str]:
     """Return (color_hi, color_lo) for a given remaining-capacity percentage."""
     for floor, hi, lo in COLOR_RAMP:
@@ -501,7 +514,9 @@ def days_until_renewal(billing_day: int, today: _dt.date | None = None) -> int:
     last = calendar.monthrange(today.year, today.month)[1]
     target = _dt.date(today.year, today.month, min(billing_day, last))
     if target < today:
-        y, m = (today.year + 1, 1) if today.month == 12 else (today.year, today.month + 1)
+        y, m = (
+            (today.year + 1, 1) if today.month == 12 else (today.year, today.month + 1)
+        )
         last = calendar.monthrange(y, m)[1]
         target = _dt.date(y, m, min(billing_day, last))
     return (target - today).days
@@ -515,7 +530,9 @@ def public_view(accts: list[dict]) -> list[dict]:
         entry = {
             "email": a["email"],
             "plan": a.get("plan", ""),
-            "renews_in_days": days_until_renewal(a["billing_day"]) if a.get("billing_day") else None,
+            "renews_in_days": (
+                days_until_renewal(a["billing_day"]) if a.get("billing_day") else None
+            ),
             "fetched_at": u.get("fetched_at"),
             "last_success_at": u.get("last_success_at"),
             "error": u.get("error"),
@@ -624,9 +641,9 @@ def lifetime_spend(account: dict, today: _dt.date | None = None) -> float:
 # use-it-or-lose-it "drain" boost for accounts that renew soon with unused weekly
 # allowance, and a bias toward the main account.
 
-MAIN_BONUS = 8.0          # flat score bump for the main account
-DRAIN_WINDOW_DAYS = 14    # renewal-drain only engages within this many days
-THROTTLE_PCT = 15         # 5hr remaining below this = effectively throttled
+MAIN_BONUS = 8.0  # flat score bump for the main account
+DRAIN_WINDOW_DAYS = 14  # renewal-drain only engages within this many days
+THROTTLE_PCT = 15  # 5hr remaining below this = effectively throttled
 
 
 def _healthy(entry: dict) -> bool:
@@ -675,9 +692,7 @@ def recommend(entries: list[dict]) -> tuple[str | None, dict]:
     for e in entries:
         s, r = account_score(e)
         scored[e["email"]] = {"score": s, "reasons": r}
-        ranking.append(
-            (s, bool(e.get("is_main")), e["email"], bool(e.get("active")))
-        )
+        ranking.append((s, bool(e.get("is_main")), e["email"], bool(e.get("active"))))
 
     healthy = [x for x in ranking if x[0] > 0 and x[3]]
     if healthy:
@@ -715,7 +730,9 @@ def dashboard_payload(accts: list[dict], today: _dt.date | None = None) -> dict:
     summary = {
         "optimal_email": optimal,
         "active_accounts": sum(1 for e in entries if e["active"]),
-        "total_current_monthly": round(sum(e["current_monthly_cost"] for e in entries), 2),
+        "total_current_monthly": round(
+            sum(e["current_monthly_cost"] for e in entries), 2
+        ),
         "total_lifetime": round(sum(e["lifetime_spend"] for e in entries), 2),
     }
     return {"accounts": entries, "summary": summary}

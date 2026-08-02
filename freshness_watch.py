@@ -199,7 +199,11 @@ def build_digest(report, state, events, now):
     worth sending today."""
     lines = []
     waste = sorted(
-        (d for d in report.get("daemons", []) if d.get("bucket") in classify.ALERT_BUCKETS),
+        (
+            d
+            for d in report.get("daemons", [])
+            if d.get("bucket") in classify.ALERT_BUCKETS
+        ),
         key=lambda d: d["label"],
     )
     for d in waste:
@@ -231,11 +235,13 @@ def build_digest(report, state, events, now):
         # "issue" events are already covered by UNRESOLVED (still broken) or
         # RECOVERED (transient) lines — skip to keep the digest tight.
     title = "Daemon digest — %d unresolved" % len(waste)
-    return title, [l for l in lines if l]
+    return title, [line for line in lines if line]
 
 
 def digest_due(last_sent, now, localtime=time.localtime):
-    return (now - last_sent) >= DIGEST_PERIOD_S and localtime(now).tm_hour >= DIGEST_HOUR
+    return (now - last_sent) >= DIGEST_PERIOD_S and localtime(
+        now
+    ).tm_hour >= DIGEST_HOUR
 
 
 def _decoy_events(decoy_prev, now, path=LEGACY_DB_DECOY):
@@ -303,7 +309,9 @@ def start_watcher(interval_s=INTERVAL_S, state_path=DEFAULT_STATE):
     return t
 
 
-HEARTBEAT_PATH = Path.home() / ".claude" / "daemon-registry" / "claude_usage_freshness_health.json"
+HEARTBEAT_PATH = (
+    Path.home() / ".claude" / "daemon-registry" / "claude_usage_freshness_health.json"
+)
 
 
 def run_once(state_path=DEFAULT_STATE):
@@ -323,11 +331,15 @@ def run_once(state_path=DEFAULT_STATE):
         ok, err = False, str(exc)
         print("freshness run_once failed: %s" % exc, file=sys.stderr)
     try:
-        HEARTBEAT_PATH.write_text(json.dumps({
-            "ts": datetime.now(timezone.utc).isoformat(),
-            "ok": ok,
-            "error": err,
-        }))
+        HEARTBEAT_PATH.write_text(
+            json.dumps(
+                {
+                    "ts": datetime.now(timezone.utc).isoformat(),
+                    "ok": ok,
+                    "error": err,
+                }
+            )
+        )
     except OSError:
         pass
     return ok

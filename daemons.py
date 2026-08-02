@@ -93,9 +93,7 @@ def launchctl_state():
 
     pid is None when not running; last_exit is the last exit status int.
     """
-    out = subprocess.run(
-        ["launchctl", "list"], capture_output=True, text=True
-    ).stdout
+    out = subprocess.run(["launchctl", "list"], capture_output=True, text=True).stdout
     state = {}
     for line in out.splitlines()[1:]:  # skip header
         m = _LIST_RE.match(line.strip())

@@ -11,20 +11,27 @@ PAGE = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Daemon Health + Waste</title>
+<title>HotFix Ops Daemon Control</title>
 <style>
   :root {
-    --bg:#0f1115; --card:#171a21; --border:#262b36; --text:#e6e9ef;
-    --muted:#8b93a7; --accent:#5b9bd5; --waste:#f0a020; --rogue:#f87171;
-    --unknown:#a78bfa; --healthy:#34d399; --broken:#fb923c; --drift:#facc15;
+    --bg:#10161d; --card:#18212b; --border:#3a4755; --text:#f5f5f7;
+    --muted:#9aa8b6; --accent:#e8611b; --waste:#f0a020; --rogue:#ff7d67;
+    --unknown:#a78bfa; --healthy:#8cd2b3; --broken:#fb923c; --drift:#facc15;
     --vendor:#64748b;
   }
   * { box-sizing:border-box; }
-  body { margin:0; font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  body { margin:0; font:14px/1.5 "Plus Jakarta Sans","Avenir Next",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
          background:var(--bg); color:var(--text); padding-bottom:90px; }
-  header { display:flex; align-items:center; gap:16px; padding:16px 24px;
-           border-bottom:1px solid var(--border); }
-  header h1 { font-size:18px; margin:0; }
+  header { display:flex; align-items:center; gap:18px; padding:15px 24px;
+           background:linear-gradient(115deg,#18212b,#2d3640);
+           border-bottom:1px solid var(--border); box-shadow:inset 0 -1px rgba(232,97,27,.16); }
+  .brand { display:flex; align-items:center; gap:11px; color:inherit; text-decoration:none; }
+  .brand img { width:38px; height:38px; filter:drop-shadow(0 0 10px rgba(232,97,27,.24)); }
+  .brand-copy { display:grid; gap:2px; }
+  .brand-kicker { color:var(--accent); font:700 10px/1 "SFMono-Regular",Consolas,monospace;
+                  letter-spacing:.16em; text-transform:uppercase; }
+  header h1 { font:700 17px/1.15 "Space Grotesk","Avenir Next",sans-serif;
+              letter-spacing:.09em; margin:0; text-transform:uppercase; }
   nav a { color:var(--muted); text-decoration:none; margin-right:14px; }
   nav a.active, nav a:hover { color:var(--text); }
   .container { padding:20px 24px; }
@@ -37,13 +44,13 @@ PAGE = r"""<!DOCTYPE html>
   .btn { background:var(--card); color:var(--text); border:1px solid var(--border);
          border-radius:6px; padding:6px 12px; cursor:pointer; font-size:13px; }
   .btn:hover { border-color:var(--accent); }
-  .btn.primary { background:var(--accent); border-color:var(--accent); color:#06121f; font-weight:600; }
+  .btn.primary { background:var(--accent); border-color:var(--accent); color:#10161d; font-weight:700; }
   table { width:100%; border-collapse:collapse; background:var(--card);
           border:1px solid var(--border); border-radius:8px; overflow:hidden; }
   th,td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--border);
           font-size:13px; vertical-align:top; }
   th { color:var(--muted); font-weight:600; cursor:pointer; user-select:none; white-space:nowrap; }
-  tr:hover td { background:#1c212b; }
+  tr:hover td { background:#24313e; }
   .badge { padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; }
   .b-WASTE { background:rgba(240,160,32,.18); color:var(--waste); }
   .b-ROGUE { background:rgba(248,113,113,.18); color:var(--rogue); }
@@ -57,14 +64,14 @@ PAGE = r"""<!DOCTYPE html>
   .cmd { color:var(--waste); }
   .fixbtn { margin-top:6px; padding:3px 9px; font-size:12px; }
   .fixbtn:hover { border-color:var(--healthy); color:var(--healthy); }
-  .cart { position:fixed; bottom:0; left:0; right:0; background:#10141c;
+  .cart { position:fixed; bottom:0; left:0; right:0; background:#18212b;
           border-top:1px solid var(--border); padding:12px 24px; display:flex;
           align-items:center; gap:14px; }
   .cart .count { font-weight:600; }
   .seg { display:inline-flex; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
   .seg button { background:var(--card); border:none; color:var(--muted); padding:6px 12px;
                 cursor:pointer; font-size:13px; }
-  .seg button.active { background:var(--accent); color:#06121f; font-weight:600; }
+  .seg button.active { background:var(--accent); color:#10161d; font-weight:700; }
   dialog { background:var(--card); color:var(--text); border:1px solid var(--border);
            border-radius:10px; width:min(820px,92vw); max-height:80vh; }
   dialog textarea { width:100%; height:46vh; background:var(--bg); color:var(--text);
@@ -93,7 +100,13 @@ PAGE = r"""<!DOCTYPE html>
 </head>
 <body>
 <header>
-  <h1>Daemon Health + Waste</h1>
+  <a class="brand" href="/" aria-label="HotFix Ops usage dashboard">
+    <img src="/assets/hfo-icon.png" alt="">
+    <span class="brand-copy">
+      <span class="brand-kicker">HotFix Ops</span>
+      <h1>Daemon Control</h1>
+    </span>
+  </a>
   <nav>
     <a href="/">Usage</a>
     <a href="/daemons" class="active">Daemons</a>

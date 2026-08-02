@@ -10,10 +10,20 @@ import notify
 
 def test_alert_hits_both_sinks(monkeypatch):
     calls = {}
-    monkeypatch.setattr(notify, "_post_jimbo", lambda payload, **k: calls.setdefault("payload", payload) or True)
-    monkeypatch.setattr(notify, "_osascript_notify", lambda title, msg: calls.setdefault("osa", (title, msg)) or True)
+    monkeypatch.setattr(
+        notify,
+        "_post_jimbo",
+        lambda payload, **k: calls.setdefault("payload", payload) or True,
+    )
+    monkeypatch.setattr(
+        notify,
+        "_osascript_notify",
+        lambda title, msg: calls.setdefault("osa", (title, msg)) or True,
+    )
 
-    result = notify.alert("com.test.job", ["heartbeat stale (4h old)"], ts="2026-06-10T00:00:00Z")
+    result = notify.alert(
+        "com.test.job", ["heartbeat stale (4h old)"], ts="2026-06-10T00:00:00Z"
+    )
 
     assert result == {"jimbo": True, "osascript": True}
     assert calls["payload"]["label"] == "com.test.job"
@@ -43,7 +53,9 @@ def test_digest_posts_to_digest_url(monkeypatch):
         return True
 
     monkeypatch.setattr(notify, "_post_jimbo", fake_post)
-    result = notify.digest("Daemon digest — 2 unresolved", ["UNRESOLVED com.a", "RECOVERED com.b"])
+    result = notify.digest(
+        "Daemon digest — 2 unresolved", ["UNRESOLVED com.a", "RECOVERED com.b"]
+    )
     assert result == {"jimbo": True}
     assert seen["url"] == notify.JIMBO_DIGEST_URL
     assert seen["payload"]["title"].startswith("Daemon digest")

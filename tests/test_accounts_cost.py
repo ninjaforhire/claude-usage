@@ -5,7 +5,6 @@ import unittest
 
 import accounts
 
-
 # ── Fixtures / helpers ────────────────────────────────────────────────────────
 
 TODAY = dt.date(2026, 6, 15)
@@ -51,6 +50,7 @@ def _entry(
 
 # ── months_active ─────────────────────────────────────────────────────────────
 
+
 def test_open_interval_counts_through_today():
     iv = [{"start": "2026-04-09", "end": None}]
     months = accounts.months_active(iv, today=TODAY)
@@ -72,7 +72,7 @@ def test_gap_intervals_sum_only_active_days():
 
 def test_future_start_and_inverted_contribute_nothing():
     iv = [
-        {"start": "2027-01-01", "end": None},          # future
+        {"start": "2027-01-01", "end": None},  # future
         {"start": "2026-05-01", "end": "2026-04-01"},  # inverted
     ]
     assert accounts.months_active(iv, today=TODAY) == 0.0
@@ -91,6 +91,7 @@ def test_empty_intervals_zero():
 
 # ── lifetime_spend / is_active / current_monthly_cost ─────────────────────────
 
+
 def test_lifetime_spend_is_cost_times_months():
     a = _acct("a@b.com", cost=200, intervals=[{"start": "2026-04-09", "end": None}])
     expected = round(200 * (TODAY - dt.date(2026, 4, 9)).days / 30.4375, 2)
@@ -108,7 +109,9 @@ def test_is_active_false_when_cancelled():
 
 
 def test_current_monthly_cost_zero_when_inactive():
-    a = _acct("a@b.com", cost=200, intervals=[{"start": "2026-01-01", "end": "2026-02-01"}])
+    a = _acct(
+        "a@b.com", cost=200, intervals=[{"start": "2026-01-01", "end": "2026-02-01"}]
+    )
     assert accounts.current_monthly_cost(a, today=TODAY) == 0.0
 
 
@@ -118,6 +121,7 @@ def test_current_monthly_cost_full_when_active():
 
 
 # ── account_score ─────────────────────────────────────────────────────────────
+
 
 def test_unhealthy_entry_scores_zero():
     assert accounts.account_score(_entry("a@b.com", 90, 90, windows=False))[0] == 0.0
@@ -143,6 +147,7 @@ def test_soon_renewal_with_high_weekly_boosts_score():
 
 # ── recommend ─────────────────────────────────────────────────────────────────
 
+
 def test_main_wins_when_all_have_headroom():
     entries = [
         _entry("main", 85, 85, is_main=True, renews=20),
@@ -155,8 +160,8 @@ def test_main_wins_when_all_have_headroom():
 
 def test_secondary_wins_when_main_throttled():
     entries = [
-        _entry("main", 5, 5, is_main=True, renews=20),    # drained
-        _entry("sec1", 95, 95, renews=20),                # fresh
+        _entry("main", 5, 5, is_main=True, renews=20),  # drained
+        _entry("sec1", 95, 95, renews=20),  # fresh
     ]
     optimal, _ = accounts.recommend(entries)
     assert optimal == "sec1"
@@ -181,15 +186,14 @@ class TestChargeBasedActivityAndRecommendation(unittest.TestCase):
         self.assertTrue(accounts.is_active(account, today=TODAY))
 
     def test_open_interval_is_active_when_receipt_capture_is_stale(self):
-        account = _acct(
-            "a@b.com", intervals=[{"start": "2026-04-09", "end": None}]
-        )
+        account = _acct("a@b.com", intervals=[{"start": "2026-04-09", "end": None}])
         account["charges"] = [{"date": "2026-05-15", "amount": 213.20}]
         self.assertTrue(accounts.is_active(account, today=TODAY))
 
     def test_max_20x_uses_current_public_monthly_rate(self):
         account = _acct(
-            "a@b.com", cost=213.20,
+            "a@b.com",
+            cost=213.20,
             intervals=[{"start": "2026-04-09", "end": None}],
         )
         self.assertEqual(accounts.current_monthly_cost(account, today=TODAY), 200.0)
@@ -203,9 +207,7 @@ class TestChargeBasedActivityAndRecommendation(unittest.TestCase):
         self.assertFalse(accounts.is_active(account, today=dt.date(2026, 6, 15)))
 
     def test_empty_or_missing_charges_fall_back_to_intervals(self):
-        active = _acct(
-            "active", intervals=[{"start": "2026-04-09", "end": None}]
-        )
+        active = _acct("active", intervals=[{"start": "2026-04-09", "end": None}])
         active["charges"] = []
         inactive = _acct(
             "inactive",
@@ -233,26 +235,35 @@ class TestChargeBasedActivityAndRecommendation(unittest.TestCase):
 
 # ── dashboard_payload ─────────────────────────────────────────────────────────
 
+
 def test_dashboard_payload_shape_and_totals(monkeypatch):
     accts = [
         {
-            "email": "main@x.com", "plan": "max_20x", "billing_day": 9, "is_main": True,
+            "email": "main@x.com",
+            "plan": "max_20x",
+            "billing_day": 9,
+            "is_main": True,
             "monthly_cost": 200,
             "subscription_intervals": [{"start": "2026-04-09", "end": None}],
             "last_usage": {
                 "five_hour": {"utilization": 20.0, "resets_at": None},
                 "seven_day": {"utilization": 10.0, "resets_at": None},
-                "fetched_at": "2026-06-15T00:00:00Z", "error": None,
+                "fetched_at": "2026-06-15T00:00:00Z",
+                "error": None,
             },
         },
         {
-            "email": "sec@x.com", "plan": "max_20x", "billing_day": 11, "is_main": False,
+            "email": "sec@x.com",
+            "plan": "max_20x",
+            "billing_day": 11,
+            "is_main": False,
             "monthly_cost": 200,
             "subscription_intervals": [{"start": "2026-06-11", "end": None}],
             "last_usage": {
                 "five_hour": {"utilization": 5.0, "resets_at": None},
                 "seven_day": {"utilization": 5.0, "resets_at": None},
-                "fetched_at": "2026-06-15T00:00:00Z", "error": None,
+                "fetched_at": "2026-06-15T00:00:00Z",
+                "error": None,
             },
         },
     ]
@@ -260,7 +271,14 @@ def test_dashboard_payload_shape_and_totals(monkeypatch):
     assert set(payload) == {"accounts", "summary"}
     assert len(payload["accounts"]) == 2
     a0 = payload["accounts"][0]
-    for key in ("is_main", "monthly_cost", "lifetime_spend", "score", "is_optimal", "active"):
+    for key in (
+        "is_main",
+        "monthly_cost",
+        "lifetime_spend",
+        "score",
+        "is_optimal",
+        "active",
+    ):
         assert key in a0
     s = payload["summary"]
     assert s["active_accounts"] == 2
@@ -272,6 +290,7 @@ def test_dashboard_payload_shape_and_totals(monkeypatch):
 
 
 # ── charges ledger (receipt-accurate lifetime) ────────────────────────────────
+
 
 def test_lifetime_prefers_charges_ledger_over_proration():
     a = _acct("a@b.com", cost=200, intervals=[{"start": "2026-01-01", "end": None}])
@@ -285,5 +304,7 @@ def test_lifetime_prefers_charges_ledger_over_proration():
 
 def test_lifetime_falls_back_to_proration_without_charges():
     a = _acct("a@b.com", cost=213.20, intervals=[{"start": "2026-04-09", "end": None}])
-    expected = round(213.20 * accounts.months_active(a["subscription_intervals"], TODAY), 2)
+    expected = round(
+        213.20 * accounts.months_active(a["subscription_intervals"], TODAY), 2
+    )
     assert accounts.lifetime_spend(a, today=TODAY) == expected

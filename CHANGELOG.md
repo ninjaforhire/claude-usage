@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.3.1 — TBD
+## v1.4.0 — 2026-07-26
 
 ### Pricing
 
@@ -13,12 +13,19 @@
 ### Dashboard
 
 - Rendered cached account-limit orbs as STALE during API errors, surfaced the real error message with error-specific advice, and prevented stale accounts from displaying the USE ME badge.
+- Added a credential-free Claude and Codex provider overview with bold local account cards while preserving the existing OAuth account orbs, daemon health, and reporting surfaces.
+- Added an isolated localhost test mode with fake account samples and reset controls, plus a vendored Chart.js fallback for offline dashboard rendering.
 
 ### Accounts
 
 - Switched account activity to the charge ledger (paid-through-31-days) with interval fallback, excluded inactive accounts from the USE ME pick, and rendered lapsed accounts as quiet INACTIVE cards in both the standalone and Jimbo usage dashboards.
 - Honored usage API 403/429 cooldowns, including `Retry-After`, while preserving last-known usage windows and avoiding duplicate keychain/stored-credential requests.
 - Added UTC timestamps to each account token-refresh maintenance tick for log correlation.
+- Added safe local account profiles, guided `accounts setup`, sanitized Claude and Codex subscription readers, and `codex-next` capacity ranking that reports reset credits without redeeming them.
+
+### Packaging and docs
+
+- Bundled the complete dashboard Python dependency closure and local assets in the VS Code extension, and documented credential-free setup, test mode, and public-dashboard security boundaries.
 
 ## Unreleased
 

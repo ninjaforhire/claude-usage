@@ -2,7 +2,6 @@
 
 import receipts
 
-
 # Real flattened receipt text (from andrew@mightyphotobooths.com, Jun 9 2026).
 RECEIPT_BODY = (
     "Anthropic, PBC Receipt from Anthropic, PBC $213.20 Paid June 9, 2026 "
@@ -14,6 +13,7 @@ OWNER = "andrew@mightyphotobooths.com"
 
 
 # ── parse_amount ──────────────────────────────────────────────────────────────
+
 
 def test_amount_is_total_paid_not_subtotal():
     assert receipts.parse_amount(RECEIPT_BODY) == 213.20
@@ -32,6 +32,7 @@ def test_amount_none_when_absent():
 
 
 # ── parse_plan / parse_email_date / classify ──────────────────────────────────
+
 
 def test_plan_extracts_max_20x():
     assert receipts.parse_plan(RECEIPT_BODY) == "Max plan - 20x"
@@ -59,6 +60,7 @@ def test_classify_kinds():
 
 # ── route_account ─────────────────────────────────────────────────────────────
 
+
 def test_routes_direct_receipt_to_owner():
     assert receipts.route_account({"To": OWNER}, "", KNOWN, OWNER) == OWNER
 
@@ -74,25 +76,43 @@ def test_routes_unknown_to_owner():
 
 # ── parse_receipt ─────────────────────────────────────────────────────────────
 
+
 def test_parse_receipt_charge_event():
-    headers = {"Subject": "Your receipt from Anthropic, PBC #2780",
-               "Date": "Tue, 9 Jun 2026 17:39:51 +0000", "To": OWNER}
+    headers = {
+        "Subject": "Your receipt from Anthropic, PBC #2780",
+        "Date": "Tue, 9 Jun 2026 17:39:51 +0000",
+        "To": OWNER,
+    }
     e = receipts.parse_receipt(headers, RECEIPT_BODY, KNOWN, OWNER)
-    assert e == {"account": OWNER, "date": "2026-06-09", "kind": "charge",
-                 "plan": "Max plan - 20x", "amount": 213.20}
+    assert e == {
+        "account": OWNER,
+        "date": "2026-06-09",
+        "kind": "charge",
+        "plan": "Max plan - 20x",
+        "amount": 213.20,
+    }
 
 
 def test_parse_receipt_ignores_marketing():
-    headers = {"Subject": "Claude Fable 5 is here", "Date": "Tue, 9 Jun 2026 23:01:53 +0000"}
+    headers = {
+        "Subject": "Claude Fable 5 is here",
+        "Date": "Tue, 9 Jun 2026 23:01:53 +0000",
+    }
     assert receipts.parse_receipt(headers, "new model", KNOWN, OWNER) is None
 
 
 # ── apply_event (idempotent ledger) ───────────────────────────────────────────
 
+
 def test_apply_charge_appends_once_and_dedups():
     acct = {"email": OWNER, "charges": []}
-    e = {"account": OWNER, "date": "2026-06-09", "kind": "charge",
-         "plan": "Max plan - 20x", "amount": 213.20}
+    e = {
+        "account": OWNER,
+        "date": "2026-06-09",
+        "kind": "charge",
+        "plan": "Max plan - 20x",
+        "amount": 213.20,
+    }
     assert receipts.apply_event(acct, e) is True
     assert len(acct["charges"]) == 1
     # Re-applying the same charge is a no-op (idempotent).
@@ -103,15 +123,29 @@ def test_apply_charge_appends_once_and_dedups():
 def test_apply_skips_api_paygo_charge_without_plan():
     # API pay-as-you-go receipt: a charge with no recognized subscription plan.
     acct = {"email": OWNER, "charges": []}
-    e = {"account": OWNER, "date": "2026-01-28", "kind": "charge", "plan": "", "amount": 21.32}
+    e = {
+        "account": OWNER,
+        "date": "2026-01-28",
+        "kind": "charge",
+        "plan": "",
+        "amount": 21.32,
+    }
     assert receipts.apply_event(acct, e) is False
     assert acct["charges"] == []
 
 
 def test_apply_charge_dedups_against_hand_seeded_ledger():
-    acct = {"email": OWNER, "charges": [{"date": "2026-06-09", "plan": "Max 20x", "amount": 213.20}]}
-    e = {"account": OWNER, "date": "2026-06-09", "kind": "charge",
-         "plan": "Max plan - 20x", "amount": 213.20}
+    acct = {
+        "email": OWNER,
+        "charges": [{"date": "2026-06-09", "plan": "Max 20x", "amount": 213.20}],
+    }
+    e = {
+        "account": OWNER,
+        "date": "2026-06-09",
+        "kind": "charge",
+        "plan": "Max plan - 20x",
+        "amount": 213.20,
+    }
     assert receipts.apply_event(acct, e) is False
 
 
@@ -125,7 +159,10 @@ def test_apply_start_opens_interval_when_uncovered():
 
 
 def test_apply_cancel_closes_open_interval():
-    acct = {"email": OWNER, "subscription_intervals": [{"start": "2025-12-28", "end": None}]}
+    acct = {
+        "email": OWNER,
+        "subscription_intervals": [{"start": "2025-12-28", "end": None}],
+    }
     e = {"account": OWNER, "date": "2026-04-21", "kind": "cancel", "plan": ""}
     assert receipts.apply_event(acct, e) is True
     assert acct["subscription_intervals"][0]["end"] == "2026-04-21"

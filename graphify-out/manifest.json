@@ -1,362 +1,552 @@
 {
   "CLAUDE.md": {
-    "mtime": 1780768916.5146656,
+    "mtime": 1785044420.8600423,
     "ast_hash": "261ea8ac2a73498b4e9ec366ca59c786",
     "semantic_hash": ""
   },
   "cli.py": {
-    "mtime": 1784821464.6033142,
-    "ast_hash": "4d89190ab22d45af776c64a901a69b22",
+    "mtime": 1785046116.4307425,
+    "ast_hash": "be2a70041c273fc26db21e3bee584de2",
     "semantic_hash": ""
   },
   "dashboard.py": {
-    "mtime": 1783918625.8447,
-    "ast_hash": "5d1c626f0f5a00afa7a29c7d8e745eba",
+    "mtime": 1785046677.1620579,
+    "ast_hash": "b584d9eaeb2e1c60f3b41277d616827f",
     "semantic_hash": ""
   },
   "Formula/claude-usage.rb": {
-    "mtime": 1780768916.5147822,
+    "mtime": 1785044420.8604424,
     "ast_hash": "0f0957872db46dc6320e436d5266857d",
     "semantic_hash": ""
   },
   "accounts.py": {
-    "mtime": 1784821422.6689034,
+    "mtime": 1785044420.8620977,
     "ast_hash": "76ecfe06ce625fd122c3b3435aa82914",
     "semantic_hash": ""
   },
   "attribution.py": {
-    "mtime": 1781794943.8652155,
+    "mtime": 1785044420.8626213,
     "ast_hash": "434f93e362b0b6a6161efc6831cd7e71",
     "semantic_hash": ""
   },
   "classify.py": {
-    "mtime": 1783507859.6647174,
+    "mtime": 1785044420.8631158,
     "ast_hash": "a81ca661c345e7b8f9947a94e59cdfaa",
     "semantic_hash": ""
   },
   "codex_limits.py": {
-    "mtime": 1783852448.6364334,
+    "mtime": 1785044420.8638313,
     "ast_hash": "60ebfa722644ad12df27d37437bd182b",
     "semantic_hash": ""
   },
   "daemon_page.py": {
-    "mtime": 1783507606.647926,
+    "mtime": 1785044420.8642526,
     "ast_hash": "11b70872b4d04d7db656ff41ecaee00b",
     "semantic_hash": ""
   },
   "daemons.py": {
-    "mtime": 1780405520.428603,
+    "mtime": 1785044420.8645978,
     "ast_hash": "c2e001bef32a810154ab59189935a758",
     "semantic_hash": ""
   },
   "freshness_watch.py": {
-    "mtime": 1783507620.577822,
+    "mtime": 1785044420.8754117,
     "ast_hash": "3a5f30d0b4710a5d0ef10b9282989ffe",
     "semantic_hash": ""
   },
   "notify.py": {
-    "mtime": 1781151073.1914115,
+    "mtime": 1785044420.9088,
     "ast_hash": "b0d39de19c8e2dd82e81fe81c7797bb2",
     "semantic_hash": ""
   },
   "processes.py": {
-    "mtime": 1783508883.5660045,
+    "mtime": 1785044420.9091368,
     "ast_hash": "41fd0ec322904bb6fce74b15343cb1df",
     "semantic_hash": ""
   },
   "promptgen.py": {
-    "mtime": 1780768972.7217581,
+    "mtime": 1785044420.9094267,
     "ast_hash": "47a8ad92a96cef621cd2f252d11b5ce5",
     "semantic_hash": ""
   },
   "receipts.py": {
-    "mtime": 1781504173.7342265,
+    "mtime": 1785044420.909745,
     "ast_hash": "6c276cb9e3a394320eda45f414742969",
     "semantic_hash": ""
   },
   "registry.py": {
-    "mtime": 1782096234.7461133,
+    "mtime": 1785044420.9101133,
     "ast_hash": "a9ca578b0dab6416a8f19473078ea041",
     "semantic_hash": ""
   },
   "scanner.py": {
-    "mtime": 1780768916.523188,
+    "mtime": 1785044420.910346,
     "ast_hash": "e63ddf43e49c5807f2890855b6a44b59",
     "semantic_hash": ""
   },
   "scripts/run-triage.ps1": {
-    "mtime": 1780768916.5233974,
+    "mtime": 1785044420.9108894,
     "ast_hash": "cc7ffc6035d7e00d3c0afa1b39e1f547",
     "semantic_hash": ""
   },
   "scripts/setup-weekly-triage.ps1": {
-    "mtime": 1780768916.524169,
+    "mtime": 1785044420.910963,
     "ast_hash": "bbf7940b00b594f38b13e2064b92825c",
     "semantic_hash": ""
   },
   "seed_manifest.py": {
-    "mtime": 1780405638.4868824,
+    "mtime": 1785044420.9117324,
     "ast_hash": "e5de8c8691b4b0686bed93c80f2e18da",
     "semantic_hash": ""
   },
   "tests/__init__.py": {
-    "mtime": 1777374132.0916653,
+    "mtime": 1785044420.911815,
     "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
     "semantic_hash": ""
   },
   "tests/test_accounts.py": {
-    "mtime": 1783918640.9689095,
+    "mtime": 1785044420.9122016,
     "ast_hash": "e1cbd786aabea68559d17bf48a6788a1",
     "semantic_hash": ""
   },
   "tests/test_accounts_cost.py": {
-    "mtime": 1784779302.941181,
+    "mtime": 1785044420.9125397,
     "ast_hash": "dd25d05b3fc9c83c53ef44e540777653",
     "semantic_hash": ""
   },
   "tests/test_accounts_lock.py": {
-    "mtime": 1782770146.017437,
+    "mtime": 1785044420.9129453,
     "ast_hash": "5ccd29a6bc5bb617433bbbcc6f5ee530",
     "semantic_hash": ""
   },
   "tests/test_attribution.py": {
-    "mtime": 1781794943.8713162,
+    "mtime": 1785044420.9133313,
     "ast_hash": "f1f8586be527a0ef2c1e6d5aed82fdcd",
     "semantic_hash": ""
   },
   "tests/test_classify.py": {
-    "mtime": 1783507870.1209044,
+    "mtime": 1785044420.9135704,
     "ast_hash": "24f866dee53f05cdff56a126ba45785f",
     "semantic_hash": ""
   },
   "tests/test_cli.py": {
-    "mtime": 1784776872.2679074,
-    "ast_hash": "b0af4ba4b408a64da8e0e8be53b888aa",
+    "mtime": 1785046116.4311123,
+    "ast_hash": "554f8b3eb8d9be5ec4c28cffc927e104",
     "semantic_hash": ""
   },
   "tests/test_codex_limits.py": {
-    "mtime": 1784776872.2682364,
+    "mtime": 1785044420.9142048,
     "ast_hash": "64b62e3be20e82e6f979db1d8beac08c",
     "semantic_hash": ""
   },
   "tests/test_dashboard.py": {
-    "mtime": 1783918595.9174266,
-    "ast_hash": "98eb2b5726d7e36f12153867f7fc7773",
+    "mtime": 1785046677.1625102,
+    "ast_hash": "bdc5d6642dd08ac1174c5278faa5ee11",
     "semantic_hash": ""
   },
   "tests/test_fable_next.py": {
-    "mtime": 1784821516.35893,
+    "mtime": 1785044420.9148207,
     "ast_hash": "c91e955d93449c0b79a4dedaf388ff0f",
     "semantic_hash": ""
   },
   "tests/test_freshness_watch.py": {
-    "mtime": 1781882957.8003774,
+    "mtime": 1785044420.9151177,
     "ast_hash": "a3ec5d8f036e662b5d3b2fc2e9416e82",
     "semantic_hash": ""
   },
   "tests/test_notify.py": {
-    "mtime": 1781151161.0641158,
+    "mtime": 1785044420.915335,
     "ast_hash": "18614a347207ec95928354675fd630a1",
     "semantic_hash": ""
   },
   "tests/test_promptgen.py": {
-    "mtime": 1780406181.5022106,
+    "mtime": 1785044420.9157903,
     "ast_hash": "5fab5349187b2c32031dec0c75a752c1",
     "semantic_hash": ""
   },
   "tests/test_receipts.py": {
-    "mtime": 1781504181.4298165,
+    "mtime": 1785044420.9160216,
     "ast_hash": "f6e95b245fc4611e8c98a02f4522f9a7",
     "semantic_hash": ""
   },
   "tests/test_scanner.py": {
-    "mtime": 1780768916.524932,
+    "mtime": 1785044420.9161422,
     "ast_hash": "be789ad5c1f09dae0dce545663596edd",
     "semantic_hash": ""
   },
   "tests/test_views.py": {
-    "mtime": 1781237766.812051,
-    "ast_hash": "85f2bfc88954a5f92ce1674424d2c4bf",
+    "mtime": 1785044420.9164596,
+    "ast_hash": "9001f8682fe31bfb4c8acd8a48da7d58",
     "semantic_hash": ""
   },
   "views.py": {
-    "mtime": 1781238603.1333895,
-    "ast_hash": "d333149e867935a9ba8af2fb906044dd",
+    "mtime": 1785044420.9168518,
+    "ast_hash": "a9f7e0384022b316549b38fbd50a8d92",
     "semantic_hash": ""
   },
   "vscode-extension/package.json": {
-    "mtime": 1780768916.5259125,
-    "ast_hash": "65707b9b9161495ae84bcced55a79662",
+    "mtime": 1785045309.6438763,
+    "ast_hash": "271a68937d4e4a88f81ac41889c07ac7",
     "semantic_hash": ""
   },
   "vscode-extension/scripts/copy-python.js": {
-    "mtime": 1780768916.5289695,
-    "ast_hash": "fed4d30f732e0b4fc0481fe531c11fa4",
+    "mtime": 1785046251.4766998,
+    "ast_hash": "14521171cef8e3d1529dc63c50676aa0",
     "semantic_hash": ""
   },
   "vscode-extension/scripts/install.ps1": {
-    "mtime": 1780768916.529057,
+    "mtime": 1785044420.9200644,
     "ast_hash": "eca0048d8ec7a627d76f73366e8ac32d",
     "semantic_hash": ""
   },
   "vscode-extension/scripts/install.sh": {
-    "mtime": 1780768916.5291376,
+    "mtime": 1785044420.9201357,
     "ast_hash": "485d246557d87693af91acda534cdf67",
     "semantic_hash": ""
   },
   "vscode-extension/src/extension.ts": {
-    "mtime": 1780768916.5293136,
-    "ast_hash": "dbdeb41213956e1f5826151de83faf47",
+    "mtime": 1785045309.6443663,
+    "ast_hash": "be8fea940f293f0edd25126aa45feaca",
     "semantic_hash": ""
   },
   "vscode-extension/src/install-mode.ts": {
-    "mtime": 1780768916.529415,
+    "mtime": 1785044420.9204204,
     "ast_hash": "4f4a59e03d7af202167f0b4424c28d6a",
     "semantic_hash": ""
   },
   "vscode-extension/src/port-allocator.ts": {
-    "mtime": 1780768916.529495,
+    "mtime": 1785044420.9204874,
     "ast_hash": "4c5f9bd213ff33eb398582df529e3648",
     "semantic_hash": ""
   },
   "vscode-extension/src/python-locator.ts": {
-    "mtime": 1780768916.52957,
+    "mtime": 1785044420.920554,
     "ast_hash": "431616c5ed37de22285676ee5de2e9ea",
     "semantic_hash": ""
   },
   "vscode-extension/src/server-manager.ts": {
-    "mtime": 1780768916.5296593,
+    "mtime": 1785044420.9206345,
     "ast_hash": "7e3fb372845e8d83a58bc86194b59dce",
     "semantic_hash": ""
   },
   "vscode-extension/src/sidebar.ts": {
-    "mtime": 1780768916.5297549,
+    "mtime": 1785044420.9207327,
     "ast_hash": "60c6443e9015ce2f2ac8d872f71ff7e6",
     "semantic_hash": ""
   },
   "vscode-extension/test/install-mode.test.ts": {
-    "mtime": 1780768916.5299013,
+    "mtime": 1785044420.9209385,
     "ast_hash": "afdc0735f9178a5b279a2180021bd898",
     "semantic_hash": ""
   },
   "vscode-extension/test/port-allocator.test.ts": {
-    "mtime": 1780768916.5299723,
+    "mtime": 1785044420.92102,
     "ast_hash": "8a29bd3d631a235019aaaf4df0b5a437",
     "semantic_hash": ""
   },
   "vscode-extension/test/python-locator.test.ts": {
-    "mtime": 1780768916.530127,
+    "mtime": 1785044420.92111,
     "ast_hash": "7db65cdd5f072934a7180c8ba440a8ef",
     "semantic_hash": ""
   },
   "vscode-extension/test/server-manager.test.ts": {
-    "mtime": 1780768916.5302808,
+    "mtime": 1785044420.9212687,
     "ast_hash": "ac3ac27b5ea223724f8c067d1ecce822",
     "semantic_hash": ""
   },
   "vscode-extension/test/sidebar.test.ts": {
-    "mtime": 1780768916.5303953,
+    "mtime": 1785044420.9213645,
     "ast_hash": "ed623a27823776b2176a16ec1103f1b1",
     "semantic_hash": ""
   },
   "vscode-extension/tsconfig.json": {
-    "mtime": 1780768916.5304828,
+    "mtime": 1785044420.9215941,
     "ast_hash": "05605affc5caf70d9feefbae6ba42b08",
     "semantic_hash": ""
   },
   "vscode-extension/vitest.config.ts": {
-    "mtime": 1780768916.5305598,
+    "mtime": 1785044420.9218476,
     "ast_hash": "2df7f7a77d94583cd4503463b52d7ab5",
     "semantic_hash": ""
   },
   ".claude/commands/triage.md": {
-    "mtime": 1780768916.5139704,
+    "mtime": 1785044420.8577614,
     "ast_hash": "2b435504077e14d07007943f2813a8a6",
     "semantic_hash": ""
   },
   ".github/workflows/extension-ci.yml": {
-    "mtime": 1780768916.5140688,
+    "mtime": 1785044420.857935,
     "ast_hash": "e7f5e0c3774f5e4a16217075b082e4bb",
     "semantic_hash": ""
   },
   ".github/workflows/tag-on-merge.yml": {
-    "mtime": 1780768916.5141652,
+    "mtime": 1785044420.8580263,
     "ast_hash": "552c73757d395d97713fffedc675d297",
     "semantic_hash": ""
   },
   ".github/workflows/tests.yml": {
-    "mtime": 1777374132.08783,
+    "mtime": 1785044420.8582544,
     "ast_hash": "7007adfa82ce9235e47edf1621de3d18",
     "semantic_hash": ""
   },
   "AGENTS.md": {
-    "mtime": 1783732248.9998121,
-    "ast_hash": "56fd0f5ec26d721a2032db4dcbda7371",
+    "mtime": 1785044473.7473378,
+    "ast_hash": "5af14a07bb447b0b2b26cd8a25a89d6b",
     "semantic_hash": ""
   },
   "CHANGELOG.md": {
-    "mtime": 1783911313.2452102,
-    "ast_hash": "6c1ec3b2a9a84de02c853f8c63cb0066",
+    "mtime": 1785044420.8599608,
+    "ast_hash": "f3761618f377880fc764f33350139d5a",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1780768916.514936,
-    "ast_hash": "d2fa556103457ba48fa9c75ecbf342f0",
+    "mtime": 1785045020.1130285,
+    "ast_hash": "ba2327480c7c6f256e843562af08ab7f",
     "semantic_hash": ""
   },
   "mockups/orb-styles.html": {
-    "mtime": 1781290497.1282337,
+    "mtime": 1785044420.9085472,
     "ast_hash": "94173ead0635b40544a940574678c463",
     "semantic_hash": ""
   },
   "vscode-extension/README.md": {
-    "mtime": 1780768916.5253656,
-    "ast_hash": "b5eaa7f3b038e13399efef0462e0b77b",
+    "mtime": 1785045309.6441517,
+    "ast_hash": "b4a0975b104f97b0c92a30bfb9db2096",
     "semantic_hash": ""
   },
   "docs/screenshot.png": {
-    "mtime": 1777374132.0911438,
+    "mtime": 1785044420.868448,
     "ast_hash": "938cc617924dbcbee3502ccbdbd67b9f",
     "semantic_hash": ""
   },
   "docs/usage1.png": {
-    "mtime": 1780768916.5192206,
+    "mtime": 1785044420.8703876,
     "ast_hash": "69d21922ee16c7fd1bd1b439b7f90741",
     "semantic_hash": ""
   },
   "docs/usage2.png": {
-    "mtime": 1780768916.522879,
+    "mtime": 1785044420.8747516,
     "ast_hash": "3173a9c22aa2aa6243f5f97944ce625d",
     "semantic_hash": ""
   },
   "vscode-extension/resources/icon.png": {
-    "mtime": 1780768916.5265238,
+    "mtime": 1785044420.917995,
     "ast_hash": "46f0fad9e1aec8bd2fc36bab43bfa714",
     "semantic_hash": ""
   },
   "vscode-extension/resources/icon.svg": {
-    "mtime": 1780768916.5274642,
+    "mtime": 1785044420.9184945,
     "ast_hash": "451f8f678c462131c7fcb4993ec2c69e",
     "semantic_hash": ""
   },
   "vscode-extension/resources/icon_large.png": {
-    "mtime": 1780768916.5287962,
+    "mtime": 1785044420.919871,
     "ast_hash": "ba1101f7d2a3c9c4a95646a42d78b1fa",
     "semantic_hash": ""
   },
   "tests/test_processes.py": {
-    "mtime": 1783508905.077795,
+    "mtime": 1785044420.9155698,
     "ast_hash": "9644ea099b9779cf7f4540414c7a6a37",
     "semantic_hash": ""
   },
   "PLAN-REVIEW-LOG.md": {
-    "mtime": 1783909001.8218055,
+    "mtime": 1785044420.86109,
     "ast_hash": "718de1ae7ddeba6c4a36bc13fee87919",
     "semantic_hash": ""
   },
   "PLAN.md": {
-    "mtime": 1783910716.0269148,
+    "mtime": 1785044420.8613536,
     "ast_hash": "d2c126edee2a53a8cc5a68506ea5f2fb",
+    "semantic_hash": ""
+  },
+  "account_profiles.py": {
+    "mtime": 1785044473.7482219,
+    "ast_hash": "03bb5cdf6baa74bebc737f1f7b439938",
+    "semantic_hash": ""
+  },
+  "codex_scanner.py": {
+    "mtime": 1785044473.7493157,
+    "ast_hash": "c9f451adaa8a0df0deb5756437a171e4",
+    "semantic_hash": ""
+  },
+  "connectors/__init__.py": {
+    "mtime": 1785044473.7496042,
+    "ast_hash": "1b25a2a7354f019e87056ab8df4c1714",
+    "semantic_hash": ""
+  },
+  "connectors/claude_subscription.py": {
+    "mtime": 1785044473.7498507,
+    "ast_hash": "be5f4afb2f2568912bfe81797cf06ff8",
+    "semantic_hash": ""
+  },
+  "connectors/codex_subscription.py": {
+    "mtime": 1785044473.75055,
+    "ast_hash": "bf780481cffb6b38613e38173bdd1e59",
+    "semantic_hash": ""
+  },
+  "profile_cli.py": {
+    "mtime": 1785045139.0139124,
+    "ast_hash": "6ab85954289b3a6592797e44c37077f0",
+    "semantic_hash": ""
+  },
+  "tests/test_account_profiles.py": {
+    "mtime": 1785044473.7520962,
+    "ast_hash": "6b9911c3b844ec75d76265f4731c4fe4",
+    "semantic_hash": ""
+  },
+  "tests/test_codex_scanner.py": {
+    "mtime": 1785044473.7526205,
+    "ast_hash": "10ee42e549545f9aea3b0b6678e559c6",
+    "semantic_hash": ""
+  },
+  "tests/test_connectors.py": {
+    "mtime": 1785044473.752798,
+    "ast_hash": "757f8624e29834594d339af54512785e",
+    "semantic_hash": ""
+  },
+  "vendor/chart.umd.min.js": {
+    "mtime": 1785044473.7542872,
+    "ast_hash": "07142c7f14613ba78964d2d58775617f",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/account_profiles.py": {
+    "mtime": 1785046758.6275418,
+    "ast_hash": "03bb5cdf6baa74bebc737f1f7b439938",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/accounts.py": {
+    "mtime": 1785046758.6315994,
+    "ast_hash": "76ecfe06ce625fd122c3b3435aa82914",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/attribution.py": {
+    "mtime": 1785046758.6319437,
+    "ast_hash": "434f93e362b0b6a6161efc6831cd7e71",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/classify.py": {
+    "mtime": 1785046758.632265,
+    "ast_hash": "a81ca661c345e7b8f9947a94e59cdfaa",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/cli.py": {
+    "mtime": 1785046758.633041,
+    "ast_hash": "be2a70041c273fc26db21e3bee584de2",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/codex_scanner.py": {
+    "mtime": 1785046758.6333528,
+    "ast_hash": "c9f451adaa8a0df0deb5756437a171e4",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/connectors/__init__.py": {
+    "mtime": 1785046758.6337104,
+    "ast_hash": "1b25a2a7354f019e87056ab8df4c1714",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/connectors/claude_subscription.py": {
+    "mtime": 1785046758.6339943,
+    "ast_hash": "be5f4afb2f2568912bfe81797cf06ff8",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/connectors/codex_subscription.py": {
+    "mtime": 1785046758.63433,
+    "ast_hash": "bf780481cffb6b38613e38173bdd1e59",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/daemon_page.py": {
+    "mtime": 1785046758.6348794,
+    "ast_hash": "11b70872b4d04d7db656ff41ecaee00b",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/daemons.py": {
+    "mtime": 1785046758.6352606,
+    "ast_hash": "c2e001bef32a810154ab59189935a758",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/dashboard.py": {
+    "mtime": 1785046758.6359918,
+    "ast_hash": "b584d9eaeb2e1c60f3b41277d616827f",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/freshness_watch.py": {
+    "mtime": 1785046758.6362932,
+    "ast_hash": "3a5f30d0b4710a5d0ef10b9282989ffe",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/notify.py": {
+    "mtime": 1785046758.6366415,
+    "ast_hash": "b0d39de19c8e2dd82e81fe81c7797bb2",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/processes.py": {
+    "mtime": 1785046758.636902,
+    "ast_hash": "41fd0ec322904bb6fce74b15343cb1df",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/profile_cli.py": {
+    "mtime": 1785046758.6371825,
+    "ast_hash": "6ab85954289b3a6592797e44c37077f0",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/promptgen.py": {
+    "mtime": 1785046758.6374342,
+    "ast_hash": "47a8ad92a96cef621cd2f252d11b5ce5",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/registry.py": {
+    "mtime": 1785046758.6377072,
+    "ast_hash": "a9ca578b0dab6416a8f19473078ea041",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/scanner.py": {
+    "mtime": 1785046758.6381598,
+    "ast_hash": "e63ddf43e49c5807f2890855b6a44b59",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/vendor/chart.umd.min.js": {
+    "mtime": 1785046758.6399505,
+    "ast_hash": "07142c7f14613ba78964d2d58775617f",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/views.py": {
+    "mtime": 1785046758.638514,
+    "ast_hash": "a9f7e0384022b316549b38fbd50a8d92",
+    "semantic_hash": ""
+  },
+  "INSTALL_WITH_AGENT.md": {
+    "mtime": 1785046473.2222037,
+    "ast_hash": "940f8094f339b16cadf6b241f21caf61",
+    "semantic_hash": ""
+  },
+  "docs/public-dashboard-plan.md": {
+    "mtime": 1785044473.7511733,
+    "ast_hash": "93e6f83acf8cd6ddbc79f9ce894584e5",
+    "semantic_hash": ""
+  },
+  "skills/codex-next/SKILL.md": {
+    "mtime": 1785044979.6906543,
+    "ast_hash": "356e038065fe2772ce4444e4ecfaeb32",
+    "semantic_hash": ""
+  },
+  "skills/fable-next/SKILL.md": {
+    "mtime": 1785044979.6902943,
+    "ast_hash": "c9434e5a97e888e4936defa89936dcd6",
+    "semantic_hash": ""
+  },
+  "vendor/README.md": {
+    "mtime": 1785044473.7535233,
+    "ast_hash": "8f003847724f3118bfcc19e98e876394",
+    "semantic_hash": ""
+  },
+  "assets/hfo-icon.png": {
+    "mtime": 1785044473.7487407,
+    "ast_hash": "dee7dce4a0b1a911485e4ecad0530fb0",
+    "semantic_hash": ""
+  },
+  "vscode-extension/python/assets/hfo-icon.png": {
+    "mtime": 1785046758.6390793,
+    "ast_hash": "dee7dce4a0b1a911485e4ecad0530fb0",
     "semantic_hash": ""
   }
 }

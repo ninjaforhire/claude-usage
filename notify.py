@@ -104,7 +104,7 @@ def digest(title, lines):
     Returns:
         dict: ``{"jimbo": bool}``.
     """
-    payload = {"title": str(title), "lines": [str(l) for l in lines]}
+    payload = {"title": str(title), "lines": [str(line) for line in lines]}
     try:
         jimbo_ok = bool(_post_jimbo(payload, url=JIMBO_DIGEST_URL))
     except Exception:

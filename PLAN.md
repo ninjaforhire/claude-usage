@@ -98,5 +98,5 @@ so the two UIs render identically:
 
 ## Proof
 
-`python3 -m unittest discover -s tests -v` in this repo — full suite green
+`python3 -m pytest -v` in this repo — full suite green
 including new tests.

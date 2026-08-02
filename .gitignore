@@ -4,3 +4,5 @@ logs/
 
 .pr-candidates.md
 /tmp/
+*.db
+*.sqlite

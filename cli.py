@@ -21,21 +21,92 @@ from datetime import datetime, date, timedelta, timezone
 DB_PATH = Path.home() / ".claude" / "usage.db"
 
 PRICING = {
-    "claude-fable-5":    {"input": 10.00, "output": 50.00, "cache_read": 1.00, "cache_write": 12.50},
-    "claude-mythos-5":   {"input": 10.00, "output": 50.00, "cache_read": 1.00, "cache_write": 12.50},
-    "claude-opus-5":     {"input":  5.00, "output": 25.00, "cache_read": 0.50, "cache_write":  6.25},
-    "claude-opus-4-8":   {"input":  5.00, "output": 25.00, "cache_read": 0.50, "cache_write":  6.25},
-    "claude-opus-4-7":   {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25},
-    "claude-opus-4-6":   {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25},
-    "claude-opus-4-5":   {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25},
-    "claude-sonnet-5":   {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
-    "claude-sonnet-4-7": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
-    "claude-sonnet-4-6": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
-    "claude-sonnet-4-5": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
-    "claude-haiku-4-7":  {"input": 1.00, "output":  5.00, "cache_read": 0.10, "cache_write": 1.25},
-    "claude-haiku-4-6":  {"input": 1.00, "output":  5.00, "cache_read": 0.10, "cache_write": 1.25},
-    "claude-haiku-4-5":  {"input": 1.00, "output":  5.00, "cache_read": 0.10, "cache_write": 1.25},
+    "claude-fable-5": {
+        "input": 10.00,
+        "output": 50.00,
+        "cache_read": 1.00,
+        "cache_write": 12.50,
+    },
+    "claude-mythos-5": {
+        "input": 10.00,
+        "output": 50.00,
+        "cache_read": 1.00,
+        "cache_write": 12.50,
+    },
+    "claude-opus-5": {
+        "input": 5.00,
+        "output": 25.00,
+        "cache_read": 0.50,
+        "cache_write": 6.25,
+    },
+    "claude-opus-4-8": {
+        "input": 5.00,
+        "output": 25.00,
+        "cache_read": 0.50,
+        "cache_write": 6.25,
+    },
+    "claude-opus-4-7": {
+        "input": 5.00,
+        "output": 25.00,
+        "cache_read": 0.50,
+        "cache_write": 6.25,
+    },
+    "claude-opus-4-6": {
+        "input": 5.00,
+        "output": 25.00,
+        "cache_read": 0.50,
+        "cache_write": 6.25,
+    },
+    "claude-opus-4-5": {
+        "input": 5.00,
+        "output": 25.00,
+        "cache_read": 0.50,
+        "cache_write": 6.25,
+    },
+    "claude-sonnet-5": {
+        "input": 3.00,
+        "output": 15.00,
+        "cache_read": 0.30,
+        "cache_write": 3.75,
+    },
+    "claude-sonnet-4-7": {
+        "input": 3.00,
+        "output": 15.00,
+        "cache_read": 0.30,
+        "cache_write": 3.75,
+    },
+    "claude-sonnet-4-6": {
+        "input": 3.00,
+        "output": 15.00,
+        "cache_read": 0.30,
+        "cache_write": 3.75,
+    },
+    "claude-sonnet-4-5": {
+        "input": 3.00,
+        "output": 15.00,
+        "cache_read": 0.30,
+        "cache_write": 3.75,
+    },
+    "claude-haiku-4-7": {
+        "input": 1.00,
+        "output": 5.00,
+        "cache_read": 0.10,
+        "cache_write": 1.25,
+    },
+    "claude-haiku-4-6": {
+        "input": 1.00,
+        "output": 5.00,
+        "cache_read": 0.10,
+        "cache_write": 1.25,
+    },
+    "claude-haiku-4-5": {
+        "input": 1.00,
+        "output": 5.00,
+        "cache_read": 0.10,
+        "cache_write": 1.25,
+    },
 }
+
 
 def get_pricing(model):
     if not model:
@@ -59,16 +130,18 @@ def get_pricing(model):
         return PRICING["claude-haiku-4-5"]
     return None
 
+
 def calc_cost(model, inp, out, cache_read, cache_creation):
     p = get_pricing(model)
     if not p:
         return 0.0
     return (
-        inp            * p["input"]       / 1_000_000 +
-        out            * p["output"]      / 1_000_000 +
-        cache_read     * p["cache_read"]  / 1_000_000 +
-        cache_creation * p["cache_write"] / 1_000_000
+        inp * p["input"] / 1_000_000
+        + out * p["output"] / 1_000_000
+        + cache_read * p["cache_read"] / 1_000_000
+        + cache_creation * p["cache_write"] / 1_000_000
     )
+
 
 def fmt(n):
     if n >= 1_000_000:
@@ -77,11 +150,14 @@ def fmt(n):
         return f"{n/1_000:.1f}K"
     return str(n)
 
+
 def fmt_cost(c):
     return f"${c:.4f}"
 
+
 def hr(char="-", width=60):
     print(char * width)
+
 
 def require_db():
     if not DB_PATH.exists():
@@ -92,8 +168,10 @@ def require_db():
 
 # ── Commands ──────────────────────────────────────────────────────────────────
 
+
 def cmd_scan(projects_dir=None):
     from scanner import scan
+
     scan(projects_dir=Path(projects_dir) if projects_dir else None)
 
 
@@ -102,7 +180,8 @@ def cmd_today():
     conn.row_factory = sqlite3.Row
     today = date.today().isoformat()
 
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT
             COALESCE(model, 'unknown') as model,
             SUM(input_tokens)          as inp,
@@ -114,13 +193,18 @@ def cmd_today():
         WHERE substr(timestamp, 1, 10) = ?
         GROUP BY model
         ORDER BY inp + out DESC
-    """, (today,)).fetchall()
+    """,
+        (today,),
+    ).fetchall()
 
-    sessions = conn.execute("""
+    sessions = conn.execute(
+        """
         SELECT COUNT(DISTINCT session_id) as cnt
         FROM turns
         WHERE substr(timestamp, 1, 10) = ?
-    """, (today,)).fetchone()
+    """,
+        (today,),
+    ).fetchone()
 
     print()
     hr()
@@ -136,17 +220,23 @@ def cmd_today():
     total_cost = 0.0
 
     for r in rows:
-        cost = calc_cost(r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0)
+        cost = calc_cost(
+            r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0
+        )
         total_cost += cost
         total_inp += r["inp"] or 0
         total_out += r["out"] or 0
-        total_cr  += r["cr"]  or 0
-        total_cc  += r["cc"]  or 0
+        total_cr += r["cr"] or 0
+        total_cc += r["cc"] or 0
         total_turns += r["turns"]
-        print(f"  {r['model']:<30}  turns={r['turns']:<4}  in={fmt(r['inp'] or 0):<8}  out={fmt(r['out'] or 0):<8}  cost={fmt_cost(cost)}")
+        print(
+            f"  {r['model']:<30}  turns={r['turns']:<4}  in={fmt(r['inp'] or 0):<8}  out={fmt(r['out'] or 0):<8}  cost={fmt_cost(cost)}"
+        )
 
     hr()
-    print(f"  {'TOTAL':<30}  turns={total_turns:<4}  in={fmt(total_inp):<8}  out={fmt(total_out):<8}  cost={fmt_cost(total_cost)}")
+    print(
+        f"  {'TOTAL':<30}  turns={total_turns:<4}  in={fmt(total_inp):<8}  out={fmt(total_out):<8}  cost={fmt_cost(total_cost)}"
+    )
     print()
     print(f"  Sessions today:   {sessions['cnt']}")
     print(f"  Cache read:       {fmt(total_cr)}")
@@ -165,7 +255,8 @@ def cmd_week():
     start = start_d.isoformat()
     end = today_d.isoformat()
 
-    by_day_model = conn.execute("""
+    by_day_model = conn.execute(
+        """
         SELECT
             substr(timestamp, 1, 10)   as day,
             COALESCE(model, 'unknown') as model,
@@ -177,9 +268,12 @@ def cmd_week():
         FROM turns
         WHERE substr(timestamp, 1, 10) BETWEEN ? AND ?
         GROUP BY day, model
-    """, (start, end)).fetchall()
+    """,
+        (start, end),
+    ).fetchall()
 
-    by_model = conn.execute("""
+    by_model = conn.execute(
+        """
         SELECT
             COALESCE(model, 'unknown') as model,
             SUM(input_tokens)          as inp,
@@ -191,13 +285,18 @@ def cmd_week():
         WHERE substr(timestamp, 1, 10) BETWEEN ? AND ?
         GROUP BY model
         ORDER BY inp + out DESC
-    """, (start, end)).fetchall()
+    """,
+        (start, end),
+    ).fetchall()
 
-    sessions = conn.execute("""
+    sessions = conn.execute(
+        """
         SELECT COUNT(DISTINCT session_id) as cnt
         FROM turns
         WHERE substr(timestamp, 1, 10) BETWEEN ? AND ?
-    """, (start, end)).fetchone()
+    """,
+        (start, end),
+    ).fetchone()
 
     print()
     hr()
@@ -216,15 +315,19 @@ def cmd_week():
         d = r["day"]
         bucket = per_day.setdefault(d, {"turns": 0, "inp": 0, "out": 0, "cost": 0.0})
         bucket["turns"] += r["turns"]
-        bucket["inp"]   += r["inp"] or 0
-        bucket["out"]   += r["out"] or 0
-        bucket["cost"]  += calc_cost(r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0)
+        bucket["inp"] += r["inp"] or 0
+        bucket["out"] += r["out"] or 0
+        bucket["cost"] += calc_cost(
+            r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0
+        )
 
     print("  By Day:")
     for i in range(7):
         d = (start_d + timedelta(days=i)).isoformat()
         b = per_day.get(d, {"turns": 0, "inp": 0, "out": 0, "cost": 0.0})
-        print(f"    {d}  turns={b['turns']:<4}  in={fmt(b['inp']):<8}  out={fmt(b['out']):<8}  cost={fmt_cost(b['cost'])}")
+        print(
+            f"    {d}  turns={b['turns']:<4}  in={fmt(b['inp']):<8}  out={fmt(b['out']):<8}  cost={fmt_cost(b['cost'])}"
+        )
 
     hr()
     print("  By Model:")
@@ -232,17 +335,23 @@ def cmd_week():
     total_inp = total_out = total_cr = total_cc = total_turns = 0
     total_cost = 0.0
     for r in by_model:
-        cost = calc_cost(r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0)
-        total_cost  += cost
-        total_inp   += r["inp"] or 0
-        total_out   += r["out"] or 0
-        total_cr    += r["cr"]  or 0
-        total_cc    += r["cc"]  or 0
+        cost = calc_cost(
+            r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0
+        )
+        total_cost += cost
+        total_inp += r["inp"] or 0
+        total_out += r["out"] or 0
+        total_cr += r["cr"] or 0
+        total_cc += r["cc"] or 0
         total_turns += r["turns"]
-        print(f"    {r['model']:<30}  turns={r['turns']:<4}  in={fmt(r['inp'] or 0):<8}  out={fmt(r['out'] or 0):<8}  cost={fmt_cost(cost)}")
+        print(
+            f"    {r['model']:<30}  turns={r['turns']:<4}  in={fmt(r['inp'] or 0):<8}  out={fmt(r['out'] or 0):<8}  cost={fmt_cost(cost)}"
+        )
 
     hr()
-    print(f"    {'TOTAL':<30}  turns={total_turns:<4}  in={fmt(total_inp):<8}  out={fmt(total_out):<8}  cost={fmt_cost(total_cost)}")
+    print(
+        f"    {'TOTAL':<30}  turns={total_turns:<4}  in={fmt(total_inp):<8}  out={fmt(total_out):<8}  cost={fmt_cost(total_cost)}"
+    )
     print()
     print(f"  Sessions this week:  {sessions['cnt']}")
     print(f"  Cache read:          {fmt(total_cr)}")
@@ -330,7 +439,7 @@ def cmd_stats():
 
     print()
     hr("=")
-    print("  Claude Code Usage - All-Time Statistics")
+    print("  HotFix Ops Usage - All-Time Statistics")
     hr("=")
 
     first_date = (session_info["first"] or "")[:10]
@@ -339,7 +448,7 @@ def cmd_stats():
     print(f"  Total sessions:   {session_info['sessions'] or 0:,}")
     print(f"  Total turns:      {fmt(totals['turns'] or 0)}")
     print()
-    print(f"  Input tokens:     {fmt(totals['inp'] or 0):<12}  (raw prompt tokens)")
+    print(f"  Fresh input:      {fmt(totals['inp'] or 0):<12}  (cache excluded)")
     print(f"  Output tokens:    {fmt(totals['out'] or 0):<12}  (generated tokens)")
     print(f"  Cache read:       {fmt(totals['cr'] or 0):<12}  (90% cheaper than input)")
     print(f"  Cache creation:   {fmt(totals['cc'] or 0):<12}  (25% premium on input)")
@@ -349,15 +458,21 @@ def cmd_stats():
 
     print("  By Model:")
     for r in by_model:
-        cost = calc_cost(r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0)
-        print(f"    {r['model']:<30}  sessions={r['sessions']:<4}  turns={fmt(r['turns'] or 0):<6}  "
-              f"in={fmt(r['inp'] or 0):<8}  out={fmt(r['out'] or 0):<8}  cost={fmt_cost(cost)}")
+        cost = calc_cost(
+            r["model"], r["inp"] or 0, r["out"] or 0, r["cr"] or 0, r["cc"] or 0
+        )
+        print(
+            f"    {r['model']:<30}  sessions={r['sessions']:<4}  turns={fmt(r['turns'] or 0):<6}  "
+            f"in={fmt(r['inp'] or 0):<8}  out={fmt(r['out'] or 0):<8}  cost={fmt_cost(cost)}"
+        )
 
     hr()
     print("  Top Projects:")
     for r in top_projects:
-        print(f"    {(r['project_name'] or 'unknown'):<40}  sessions={r['sessions']:<3}  "
-              f"turns={fmt(r['turns'] or 0):<6}  tokens={fmt((r['inp'] or 0)+(r['out'] or 0))}")
+        print(
+            f"    {(r['project_name'] or 'unknown'):<40}  sessions={r['sessions']:<3}  "
+            f"turns={fmt(r['turns'] or 0):<6}  tokens={fmt((r['inp'] or 0)+(r['out'] or 0))}"
+        )
 
     if daily_avg["avg_inp"]:
         hr()
@@ -372,6 +487,7 @@ def cmd_stats():
 
 def cmd_report(period: str = "today", view: str = "card") -> None:
     from views import table_report, card_report, spark_report
+
     conn = require_db()
     conn.row_factory = sqlite3.Row
     dispatch = {"table": table_report, "card": card_report, "spark": spark_report}
@@ -386,18 +502,23 @@ def cmd_report(period: str = "today", view: str = "card") -> None:
 
 def cmd_daemons(prompt=False, labels=None, out=None):
     import classify
+
     report = classify.build_report()
     c = report["counts"]
 
     if prompt:
         import promptgen
+
         report_daemons = report["daemons"]
         if labels:
             wanted = set(labels)
             selected = [d for d in report_daemons if d["label"] in wanted]
         else:
-            selected = [d for d in report_daemons
-                        if d["bucket"] in (*classify.ALERT_BUCKETS, "UNDECLARED")]
+            selected = [
+                d
+                for d in report_daemons
+                if d["bucket"] in (*classify.ALERT_BUCKETS, "UNDECLARED")
+            ]
             selected += report["rogues"]
         text = promptgen.build_prompt(selected)
         if out:
@@ -411,10 +532,14 @@ def cmd_daemons(prompt=False, labels=None, out=None):
     hr("=")
     print("  Daemon Health + Waste")
     hr("=")
-    print(f"  HEALTHY={c.get('HEALTHY', 0)}  BROKEN={c.get('BROKEN', 0)}  "
-          f"DISABLED-DRIFT={c.get('DISABLED-DRIFT', 0)}  WASTE={c.get('WASTE', 0)}")
-    print(f"  UNDECLARED={c.get('UNDECLARED', 0)}  "
-          f"VENDOR-IGNORE={c.get('VENDOR-IGNORE', 0)}  ROGUE={c.get('ROGUE', 0)}")
+    print(
+        f"  HEALTHY={c.get('HEALTHY', 0)}  BROKEN={c.get('BROKEN', 0)}  "
+        f"DISABLED-DRIFT={c.get('DISABLED-DRIFT', 0)}  WASTE={c.get('WASTE', 0)}"
+    )
+    print(
+        f"  UNDECLARED={c.get('UNDECLARED', 0)}  "
+        f"VENDOR-IGNORE={c.get('VENDOR-IGNORE', 0)}  ROGUE={c.get('ROGUE', 0)}"
+    )
     print(f"  Registry: {report['registry_path']}")
     hr()
 
@@ -435,15 +560,29 @@ def cmd_daemons(prompt=False, labels=None, out=None):
             print(f"      fix: {r['remediation']}")
     undeclared = sum(1 for d in report["daemons"] if d["bucket"] == "UNDECLARED")
     if undeclared:
-        print(f"  {undeclared} UNDECLARED daemons need annotation in the registry "
-              f"(run seed_manifest.py, then edit daemons.json).")
+        print(
+            f"  {undeclared} UNDECLARED daemons need annotation in the registry "
+            f"(run seed_manifest.py, then edit daemons.json)."
+        )
     hr("=")
     print()
 
 
-def cmd_dashboard(projects_dir=None, host=None, port=None, no_browser=False):
-    print("Running scan first...")
-    cmd_scan(projects_dir=projects_dir)
+def cmd_dashboard(
+    projects_dir=None, host=None, port=None, no_browser=False, test_mode=False
+):
+    if test_mode:
+        print(
+            "Starting isolated first-run preview "
+            "(real histories and account data are not read)..."
+        )
+    else:
+        print("Scanning Claude history...")
+        cmd_scan(projects_dir=projects_dir)
+        print("\nScanning Codex history...")
+        import codex_scanner
+
+        codex_scanner.scan(verbose=False)
 
     print("\nStarting dashboard server...")
     from dashboard import serve
@@ -464,13 +603,16 @@ def cmd_dashboard(projects_dir=None, host=None, port=None, no_browser=False):
 
         threading.Thread(target=open_browser, daemon=True).start()
 
-    serve(host=host, port=port)
+    serve(host=host, port=port, test_mode=test_mode)
 
 
 # ── Account credential helpers ────────────────────────────────────────────────
 
 KEYCHAIN_SERVICE = "Claude Code-credentials"
-_KEYCHAIN_CMD = ["security", "find-generic-password"]  # list-args; safe from shell injection
+_KEYCHAIN_CMD = [
+    "security",
+    "find-generic-password",
+]  # list-args; safe from shell injection
 
 
 def parse_keychain_credentials(raw: str) -> dict[str, str]:
@@ -501,10 +643,11 @@ def _read_keychain() -> str:
 def cmd_freshness_tick() -> None:
     """Run one daemon-freshness watch cycle + heartbeat (re-homed off :8080)."""
     import freshness_watch  # local import — only needed for this subcommand
+
     freshness_watch.run_once()
 
 
-def cmd_accounts(rest: list[str] | None = None) -> int | None:
+def cmd_oauth_accounts(rest: list[str] | None = None) -> int | None:
     """Manage tracked Claude accounts for limit orbs."""
     import accounts as _accts  # local import — only needed for this subcommand
 
@@ -528,7 +671,10 @@ def cmd_accounts(rest: list[str] | None = None) -> int | None:
                 print(f"Warning: usage fetch failed ({e}); saving credentials anyway.")
         if not email:
             if quiet:
-                print("ERROR: could not detect account email from keychain", file=sys.stderr)
+                print(
+                    "ERROR: could not detect account email from keychain",
+                    file=sys.stderr,
+                )
                 sys.exit(1)
             email = input("Account email for these credentials: ").strip()
         elif not quiet:
@@ -547,8 +693,10 @@ def cmd_accounts(rest: list[str] | None = None) -> int | None:
         if billing_arg is not None:
             billing = billing_arg
         elif quiet:
-            print(f"ERROR: {email} is new; --billing-day required in --quiet mode",
-                  file=sys.stderr)
+            print(
+                f"ERROR: {email} is new; --billing-day required in --quiet mode",
+                file=sys.stderr,
+            )
             sys.exit(1)
         else:
             billing = input("Billing renewal day-of-month (e.g. 11): ").strip()
@@ -566,17 +714,21 @@ def cmd_accounts(rest: list[str] | None = None) -> int | None:
             except Exception as e:  # noqa: BLE001
                 print(f"Cannot register new account without usage data: {e}")
                 return
-        _accts.upsert_account({
-            "email": email,
-            "plan": "max_20x",
-            "billing_day": billing_day,
-            "oauth": oauth,
-            "last_usage": {
-                **usage,
-                "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "error": None,
-            },
-        })
+        _accts.upsert_account(
+            {
+                "email": email,
+                "plan": "max_20x",
+                "billing_day": billing_day,
+                "oauth": oauth,
+                "last_usage": {
+                    **usage,
+                    "fetched_at": datetime.now(timezone.utc).strftime(
+                        "%Y-%m-%dT%H:%M:%SZ"
+                    ),
+                    "error": None,
+                },
+            }
+        )
         print(f"Saved {email}. 5hr utilization: {usage['five_hour']['utilization']}%")
 
     elif sub == "list":
@@ -613,10 +765,21 @@ def cmd_accounts(rest: list[str] | None = None) -> int | None:
             err = usage.get("error")
             if err:
                 degraded = True
-                state = "AUTH-BROKEN: login again" if usage.get("needs_relogin") or usage.get("error_kind") == "auth" else "THROTTLED" if usage.get("error_kind") == "rate_limit" else "FAILED"
+                state = (
+                    "AUTH-BROKEN: login again"
+                    if usage.get("needs_relogin") or usage.get("error_kind") == "auth"
+                    else (
+                        "THROTTLED"
+                        if usage.get("error_kind") == "rate_limit"
+                        else "FAILED"
+                    )
+                )
                 print(f"  {state} {a['email']}: {err}", file=sys.stderr)
         if degraded:
-            print("REFRESH DEGRADED: cached windows are diagnostic only, not fresh usage.", file=sys.stderr)
+            print(
+                "REFRESH DEGRADED: cached windows are diagnostic only, not fresh usage.",
+                file=sys.stderr,
+            )
             return 1
         return 0
 
@@ -633,24 +796,35 @@ def _account_window(entry: dict, key: str) -> str:
 def cmd_accounts_status(dry_run: bool = False) -> int:
     """Print the fresh merged Claude/Codex account table."""
     import aggregator
+
     snapshot = aggregator.aggregate_accounts(dry_run=dry_run)
     print()
     hr("=")
     print("  ACCOUNTS — fresh merged Claude Max + Codex profile state")
-    print("  DRY RUN: no Claude keychain/API access" if dry_run else "  LIVE READ: no merged-result cache")
+    print(
+        "  DRY RUN: no Claude keychain/API access"
+        if dry_run
+        else "  LIVE READ: no merged-result cache"
+    )
     hr("=")
-    print(f"  {'PROFILE':<30}{'PROVIDER':<9}{'STATE':<17}{'FABLE':<8}{'WEEK':<8}{'5H':<8}{'PLAN':<10}")
+    print(
+        f"  {'PROFILE':<30}{'PROVIDER':<9}{'STATE':<17}{'FABLE':<8}{'WEEK':<8}{'5H':<8}{'PLAN':<10}"
+    )
     for entry in snapshot["accounts"]:
         label = entry.get("email") or entry["id"]
         state = entry["state"]
         fable = _account_window(entry, "fable")
         if state != "fresh" and fable != "--":
             fable = f"{fable}⚠"
-        print(f"  {label:<30}{entry['provider']:<9}{state:<17}{fable:<8}{_account_window(entry, 'seven_day'):<8}{_account_window(entry, 'five_hour'):<8}{entry['plan']:<10}")
+        print(
+            f"  {label:<30}{entry['provider']:<9}{state:<17}{fable:<8}{_account_window(entry, 'seven_day'):<8}{_account_window(entry, 'five_hour'):<8}{entry['plan']:<10}"
+        )
         if entry.get("error"):
             print(f"    ! {entry['error']}")
     hr()
-    print(f"  Fresh: {snapshot['summary']['fresh']}  Degraded: {snapshot['summary']['degraded']}")
+    print(
+        f"  Fresh: {snapshot['summary']['fresh']}  Degraded: {snapshot['summary']['degraded']}"
+    )
     print("  AUTH-BROKEN entries require /login; cached values are never selected.")
     hr("=")
     print()
@@ -660,6 +834,7 @@ def cmd_accounts_status(dry_run: bool = False) -> int:
 def cmd_accounts_for(model: str, dry_run: bool = False) -> int:
     """Recommend the account/profile that can run ``model`` now."""
     import aggregator
+
     snapshot = aggregator.aggregate_accounts(dry_run=dry_run)
     decision = aggregator.choose_account(snapshot, model)
     print()
@@ -681,6 +856,69 @@ def cmd_accounts_for(model: str, dry_run: bool = False) -> int:
     return 0
 
 
+def _profile_arguments(rest: list[str]) -> list[str] | None:
+    """Return profile arguments when the credential-free profile surface is selected."""
+    public_actions = {"setup", "snapshot", "reset", "samples"}
+    if "profiles" in rest:
+        index = rest.index("profiles")
+        return rest[:index] + rest[index + 1 :]
+    action = None
+    index = 0
+    while index < len(rest):
+        value = rest[index]
+        if value == "--store":
+            index += 2
+            continue
+        if value == "--testing" or value.startswith("--store="):
+            index += 1
+            continue
+        if not value.startswith("-"):
+            action = value
+            break
+        index += 1
+    return rest if action in public_actions else None
+
+
+def cmd_accounts(rest: list[str] | None = None) -> int | None:
+    """Route OAuth account-orb operations and credential-free profile operations."""
+    arguments = rest or []
+    profile_arguments = _profile_arguments(arguments)
+    if profile_arguments is not None:
+        from profile_cli import cmd_accounts as cmd_profile_accounts
+
+        cmd_profile_accounts(profile_arguments)
+        return None
+    return cmd_oauth_accounts(arguments)
+
+
+def _account_parser():
+    """Expose the credential-free parser for integrations and tests."""
+    from profile_cli import _account_parser as account_parser
+
+    return account_parser()
+
+
+def _profile_id_for_label(label: str, registry: dict) -> str:
+    """Expose stable profile ID generation for integrations and tests."""
+    from profile_cli import _profile_id_for_label as profile_id_for_label
+
+    return profile_id_for_label(label, registry)
+
+
+def cmd_profile_fable_next(arguments: list[str]) -> None:
+    """Rank credential-free local Claude profiles."""
+    from profile_cli import cmd_fable_next
+
+    cmd_fable_next(arguments)
+
+
+def cmd_codex_next(arguments: list[str]) -> None:
+    """Rank credential-free Codex profiles without redeeming reset credits."""
+    from profile_cli import cmd_codex_next as rank_codex_next
+
+    rank_codex_next(arguments)
+
+
 # ── Fable-5 account routing ───────────────────────────────────────────────────
 # The usage API reports a real per-model weekly limit for Fable 5 (a
 # `weekly_scoped` entry in raw["limits"] with scope.model.display_name ==
@@ -693,8 +931,8 @@ def cmd_accounts_for(model: str, dry_run: bool = False) -> int:
 # (weekly_remaining - 50%) in that case so routing degrades gracefully instead
 # of crashing.
 
-FABLE_CAP_PCT = 50        # fallback cap when the real per-model window is unavailable
-DRAIN_BOOST = 100.0       # running-window bonus: burn a ticking clock before a reserve
+FABLE_CAP_PCT = 50  # fallback cap when the real per-model window is unavailable
+DRAIN_BOOST = 100.0  # running-window bonus: burn a ticking clock before a reserve
 
 
 def _fmt_reset_local(iso: str | None) -> str:
@@ -727,8 +965,17 @@ def _fable_rank(entry: dict) -> dict:
     else:
         fable_room = max(0, weekly_free - FABLE_CAP_PCT)
     if entry.get("error"):
-        marker = "auth-broken cached value" if entry.get("needs_relogin") or entry.get("error_kind") == "auth" else "stale cached value"
-        return {"score": None, "fable_room": fable_room, "reasons": [marker], "stale": True}
+        marker = (
+            "auth-broken cached value"
+            if entry.get("needs_relogin") or entry.get("error_kind") == "auth"
+            else "stale cached value"
+        )
+        return {
+            "score": None,
+            "fable_room": fable_room,
+            "reasons": [marker],
+            "stale": True,
+        }
     running = bool(w["seven_day"]["resets_at"])
     throttled = h5 < 15
 
@@ -805,7 +1052,8 @@ def cmd_fable_cost(pattern: str | None = None, discount: str | None = None) -> N
     frac = _norm_discount(discount)
 
     like = f"%{pattern}%" if pattern else "%"
-    rows = conn.execute("""
+    rows = conn.execute(
+        """
         SELECT COALESCE(s.project_name, 'unknown') as proj,
                SUM(t.input_tokens)          as inp,
                SUM(t.output_tokens)         as out,
@@ -817,37 +1065,47 @@ def cmd_fable_cost(pattern: str | None = None, discount: str | None = None) -> N
         WHERE COALESCE(s.project_name, 'unknown') LIKE ?
         GROUP BY proj
         ORDER BY (SUM(t.input_tokens) + SUM(t.cache_read_tokens)) DESC
-    """, (like,)).fetchall()
+    """,
+        (like,),
+    ).fetchall()
     conn.close()
 
     def fcost(r) -> float:
         return (
-            (r["inp"] or 0) * fab["input"]       / 1_000_000 +
-            (r["out"] or 0) * fab["output"]      / 1_000_000 +
-            (r["cr"]  or 0) * fab["cache_read"]  / 1_000_000 +
-            (r["cc"]  or 0) * fab["cache_write"] / 1_000_000
+            (r["inp"] or 0) * fab["input"] / 1_000_000
+            + (r["out"] or 0) * fab["output"] / 1_000_000
+            + (r["cr"] or 0) * fab["cache_read"] / 1_000_000
+            + (r["cc"] or 0) * fab["cache_write"] / 1_000_000
         )
 
     print()
     hr("=")
-    print(f"  Fable-5 extra-usage cost  ·  match '{pattern or '*'}'  ·  {round(frac*100)}% off")
+    print(
+        f"  Fable-5 extra-usage cost  ·  match '{pattern or '*'}'  ·  {round(frac*100)}% off"
+    )
     hr("=")
     if not rows:
         print(f"  No projects match '{pattern}'.")
         hr("=")
         print()
         return
-    print(f"  {'PROJECT':<40}{'sess':>5}{'in':>8}{'out':>8}{'cacheR':>9}{'FULL':>11}{'DISC':>11}")
+    print(
+        f"  {'PROJECT':<40}{'sess':>5}{'in':>8}{'out':>8}{'cacheR':>9}{'FULL':>11}{'DISC':>11}"
+    )
     total = 0.0
     for r in rows:
         c = fcost(r)
         total += c
-        print(f"  {r['proj'][:39]:<40}{r['sess']:>5}{fmt(r['inp'] or 0):>8}"
-              f"{fmt(r['out'] or 0):>8}{fmt(r['cr'] or 0):>9}"
-              f"{'$'+format(c, ',.2f'):>11}{'$'+format(c*(1-frac), ',.2f'):>11}")
+        print(
+            f"  {r['proj'][:39]:<40}{r['sess']:>5}{fmt(r['inp'] or 0):>8}"
+            f"{fmt(r['out'] or 0):>8}{fmt(r['cr'] or 0):>9}"
+            f"{'$'+format(c, ',.2f'):>11}{'$'+format(c*(1-frac), ',.2f'):>11}"
+        )
     hr()
-    print(f"  {'TOTAL':<40}{'':>5}{'':>8}{'':>8}{'':>9}"
-          f"{'$'+format(total, ',.2f'):>11}{'$'+format(total*(1-frac), ',.2f'):>11}")
+    print(
+        f"  {'TOTAL':<40}{'':>5}{'':>8}{'':>8}{'':>9}"
+        f"{'$'+format(total, ',.2f'):>11}{'$'+format(total*(1-frac), ',.2f'):>11}"
+    )
     hr("=")
     print()
 
@@ -895,7 +1153,9 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
     print(f"  Keychain now: {owner or 'unknown'}")
     print("  FABLE = real per-model weekly usage from the API")
     hr()
-    print(f"  {'#':<3}{'ACCOUNT':<34}{'FABLE':<8}{'WEEK':<7}{'5H':<7}{'WKLY RESET':<14}")
+    print(
+        f"  {'#':<3}{'ACCOUNT':<34}{'FABLE':<8}{'WEEK':<7}{'5H':<7}{'WKLY RESET':<14}"
+    )
     pick = None
     for i, (e, r) in enumerate(ranked, 1):
         w = e.get("windows") or {}
@@ -903,7 +1163,11 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
         h5 = f"{w['five_hour']['remaining_pct']}%" if "five_hour" in w else "--"
         reset_src = w.get("fable") or w.get("seven_day") or {}
         reset = _fmt_reset_local(reset_src.get("resets_at")) if reset_src else "--"
-        fable = f"{r['fable_room']}%⚠" if r.get("stale") else f"{r['fable_room']}%" if r["score"] is not None else "n/a"
+        fable = (
+            f"{r['fable_room']}%⚠"
+            if r.get("stale")
+            else f"{r['fable_room']}%" if r["score"] is not None else "n/a"
+        )
         usable = r["score"] is not None and r["score"] > 0
         if pick is None and usable:
             pick = e
@@ -936,14 +1200,14 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
 # ── Entry point ───────────────────────────────────────────────────────────────
 
 USAGE = """
-Claude Code Usage Dashboard
+HotFix Ops Usage Dashboard
 
 Usage:
   python cli.py scan [--projects-dir PATH]   Scan JSONL files and update database
   python cli.py today                        Show today's usage summary
   python cli.py week                         Show last 7 days (per-day + by-model)
   python cli.py stats                        Show all-time statistics
-  python cli.py dashboard [--projects-dir PATH] [--host HOST] [--port PORT] [--no-browser]
+  python cli.py dashboard [--projects-dir PATH] [--host HOST] [--port PORT] [--no-browser] [--test-mode]
                                                  Scan + start dashboard (opens a browser unless --no-browser)
   python cli.py daemons [--prompt] [--out FILE] [LABEL ...]
                                                  Daemon health/waste snapshot;
@@ -958,6 +1222,8 @@ Usage:
                                                  (server-independent; no dashboard needed)
   python cli.py accounts-status [--dry-run]      Print fresh merged Claude/Codex account state
   python cli.py accounts-for MODEL [--dry-run]   Recommend a fresh profile for MODEL
+  python cli.py accounts setup --label LABEL  Save a credential-free local account profile
+  python cli.py accounts profiles ...         Manage credential-free local account profiles
   python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
                                                  (runs standalone, independent of the :8080 dashboard)
   python cli.py fable-next [--refresh] [--switch]
@@ -967,6 +1233,11 @@ Usage:
                                                  --refresh fetches live usage first;
                                                  --switch snapshots the live keychain as the
                                                  new owner (run after logging into the target)
+  python cli.py fable-next --profiles [--store PATH] [--testing]
+                                                 Rank credential-free local Claude profiles
+  python cli.py codex-next [--store PATH] [--testing]
+                                                 Rank local Codex profiles; report reset
+                                                 credits without redeeming them
   python cli.py fable-cost [PATTERN] [--discount N]
                                                  Price builds at Fable-5 extra-usage rates
                                                  (full + discounted). PATTERN = project
@@ -987,7 +1258,9 @@ COMMANDS = {
     "freshness-tick": cmd_freshness_tick,
     "fable-next": cmd_fable_next,
     "fable-cost": cmd_fable_cost,
+    "codex-next": cmd_codex_next,
 }
+
 
 def parse_named_arg(args, flag):
     """Extract a --flag VALUE pair from an argument list."""
@@ -995,6 +1268,7 @@ def parse_named_arg(args, flag):
         if arg == flag and i + 1 < len(args):
             return args[i + 1]
     return None
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in COMMANDS:
@@ -1016,6 +1290,7 @@ if __name__ == "__main__":
             host=parse_named_arg(rest, "--host"),
             port=parse_named_arg(rest, "--port"),
             no_browser="--no-browser" in rest,
+            test_mode="--test-mode" in rest,
         )
     elif command == "scan" and projects_dir:
         cmd_scan(projects_dir=projects_dir)
@@ -1060,7 +1335,12 @@ if __name__ == "__main__":
             raise SystemExit(2)
         raise SystemExit(cmd_accounts_for(model, dry_run="--dry-run" in rest))
     elif command == "fable-next":
-        cmd_fable_next(refresh="--refresh" in rest, switch="--switch" in rest)
+        if "--profiles" in rest:
+            cmd_profile_fable_next([value for value in rest if value != "--profiles"])
+        else:
+            cmd_fable_next(refresh="--refresh" in rest, switch="--switch" in rest)
+    elif command == "codex-next":
+        cmd_codex_next(rest)
     elif command == "fable-cost":
         pattern = next((a for a in rest if not a.startswith("--")), None)
         cmd_fable_cost(pattern=pattern, discount=parse_named_arg(rest, "--discount"))

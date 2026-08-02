@@ -24,7 +24,7 @@ class Extension {
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context;
-    this.output = vscode.window.createOutputChannel("Claude Usage");
+    this.output = vscode.window.createOutputChannel("HotFix Ops Usage");
     // The sidebar invokes onShow when VS Code reveals the webview — that's
     // when the user clicked the activity-bar icon, so it's the right moment
     // to spawn the server. openDashboard() coalesces repeat calls.
@@ -101,7 +101,7 @@ class Extension {
       this.output.appendLine(msg);
       this.sidebar.setStatus(msg);
       vscode.window.showErrorMessage(
-        "Claude Usage needs Python 3.8+ on PATH. See the dashboard panel for install links.",
+        "HotFix Ops Usage needs Python 3.9+ on PATH. See the dashboard panel for install links.",
       );
       return;
     }
@@ -197,7 +197,7 @@ export function noInstallMessage(): string {
   return [
     "Could not find a claude-usage install. This is unexpected for a marketplace install.",
     "Check your claudeUsage.cliPath setting (clear it to fall back to the bundled sources),",
-    "and use Claude Usage: Show Logs to see what was tried.",
+    "and use HotFix Ops: Show Usage Logs to see what was tried.",
   ].join("\n");
 }
 
@@ -209,12 +209,12 @@ export function noInstallMessage(): string {
 export function noPythonMessage(platform: NodeJS.Platform = process.platform): string {
   const installHint =
     platform === "win32"
-      ? "Install Python 3.8+ from https://www.python.org/downloads/windows/ (make sure to check 'Add Python to PATH' during install)."
+      ? "Install Python 3.9+ from https://www.python.org/downloads/windows/ (make sure to check 'Add Python to PATH' during install)."
       : platform === "darwin"
-      ? "Install Python 3.8+ with: brew install python  (or from https://www.python.org/downloads/macos/)."
-      : "Install Python 3.8+ via your distro's package manager (e.g. apt install python3).";
+      ? "Install Python 3.9+ with: brew install python  (or from https://www.python.org/downloads/macos/)."
+      : "Install Python 3.9+ via your distro's package manager (e.g. apt install python3).";
   return [
-    "Claude Usage needs Python 3.8 or newer on your PATH.",
+    "HotFix Ops Usage needs Python 3.9 or newer on your PATH.",
     "",
     installHint,
     "",

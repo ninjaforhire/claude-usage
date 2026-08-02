@@ -94,9 +94,7 @@ def build_prompt(findings, generated_at=None):
         by_model[model] = by_model.get(model, 0) + 1
 
     ts = (generated_at or datetime.now()).strftime("%Y-%m-%d %H:%M")
-    summary = ", ".join(
-        f"{by_model[m]} {m}" for m in MODEL_ORDER if by_model.get(m)
-    )
+    summary = ", ".join(f"{by_model[m]} {m}" for m in MODEL_ORDER if by_model.get(m))
 
     header = [
         f"# launchd daemon repair request  ({ts})",

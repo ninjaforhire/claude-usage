@@ -11,8 +11,8 @@ from cli import (
     DRAIN_BOOST,
 )
 
-
 # ── fable-cost discount parsing ───────────────────────────────────────────────
+
 
 def test_discount_default_is_30pct():
     assert _norm_discount(None) == 0.30
@@ -35,9 +35,17 @@ def test_discount_bad_input_falls_back():
     assert _norm_discount("free") == 0.30
 
 
-def _entry(weekly_free, h5, *, resets_at="2026-07-08T10:00:00Z",
-           active=True, error=None, is_main=False, fable_remaining_pct=None,
-           fable_resets_at=None):
+def _entry(
+    weekly_free,
+    h5,
+    *,
+    resets_at="2026-07-08T10:00:00Z",
+    active=True,
+    error=None,
+    is_main=False,
+    fable_remaining_pct=None,
+    fable_resets_at=None
+):
     """Build a dashboard-payload-shaped entry for the ranker."""
     windows = {}
     if error is None:
@@ -87,7 +95,9 @@ def test_full_weekly_gives_full_cap_room():
 
 def test_running_window_beats_fresh_reserve_despite_less_room():
     # 48% room but a ticking clock should outrank 50% room with no clock.
-    running = _fable_rank(_entry(weekly_free=98, h5=90, resets_at="2026-07-08T10:00:00Z"))
+    running = _fable_rank(
+        _entry(weekly_free=98, h5=90, resets_at="2026-07-08T10:00:00Z")
+    )
     reserve = _fable_rank(_entry(weekly_free=100, h5=100, resets_at=None))
     assert running["score"] > reserve["score"]
     assert running["score"] == 48 + DRAIN_BOOST
@@ -133,6 +143,7 @@ def test_reset_formatter_handles_none_and_bad_input():
 
 
 # ── --switch (live keychain snapshot) ─────────────────────────────────────────
+
 
 def _fake_accts(tracked_emails, *, detected_email, oauth=None):
     """Build a stand-in accounts module for _switch_to_live_keychain."""
