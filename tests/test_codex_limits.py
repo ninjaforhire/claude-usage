@@ -6,6 +6,15 @@ import codex_limits
 
 _FUTURE_RESET = 4_102_444_800  # 2100-01-01; stable as wall time advances
 
+LIVE_PRO_RATE_LIMITS = {
+    "limit_id": "codex", "limit_name": None,
+    "primary": {"used_percent": 38.0, "window_minutes": 10080, "resets_at": 1785932311},
+    "secondary": None,
+    "credits": {"has_credits": False, "unlimited": False, "balance": "0"},
+    "individual_limit": None, "spend_control_reached": None,
+    "plan_type": "pro", "rate_limit_reached_type": None,
+}
+
 
 def _rollout(path, snapshots):
     """Write a rollout JSONL with rate_limits records (+ noise lines)."""
@@ -42,6 +51,17 @@ def test_maps_primary_to_5h_and_secondary_to_weekly(tmp_path):
     assert out["windows"]["five_hour"]["remaining_pct"] == 95
     assert out["windows"]["seven_day"]["remaining_pct"] == 89
     assert out["windows"]["five_hour"]["resets_at"].startswith("2100-")
+
+
+def test_live_pro_payload_maps_by_window_minutes_when_secondary_is_null(tmp_path):
+    d = tmp_path / "2026" / "07" / "31"
+    d.mkdir(parents=True)
+    _rollout(d / "rollout-2026-07-31T07-48-31-live.jsonl", [LIVE_PRO_RATE_LIMITS])
+    out = codex_limits.codex_orb_data(sessions_dir=tmp_path, plan="pro")
+    assert out["plan_type"] == "pro"
+    assert set(out["windows"]) == {"seven_day"}
+    assert out["windows"]["seven_day"]["remaining_pct"] == 62
+    assert out["credits"] == LIVE_PRO_RATE_LIMITS["credits"]
 
 
 def test_last_snapshot_in_file_wins(tmp_path):

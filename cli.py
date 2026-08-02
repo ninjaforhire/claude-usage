@@ -647,7 +647,7 @@ def cmd_freshness_tick() -> None:
     freshness_watch.run_once()
 
 
-def cmd_oauth_accounts(rest: list[str] | None = None) -> None:
+def cmd_oauth_accounts(rest: list[str] | None = None) -> int | None:
     """Manage tracked Claude accounts for limit orbs."""
     import accounts as _accts  # local import — only needed for this subcommand
 
@@ -759,13 +759,101 @@ def cmd_oauth_accounts(rest: list[str] | None = None) -> None:
         accts = _accts.fetch_all_usage()
         healthy = sum(1 for a in accts if not (a.get("last_usage") or {}).get("error"))
         print(f"Refreshed {len(accts)} account(s); {healthy} healthy.")
+        degraded = False
         for a in accts:
-            err = (a.get("last_usage") or {}).get("error")
+            usage = a.get("last_usage") or {}
+            err = usage.get("error")
             if err:
-                print(f"  {a['email']}: {err}", file=sys.stderr)
+                degraded = True
+                state = (
+                    "AUTH-BROKEN: login again"
+                    if usage.get("needs_relogin") or usage.get("error_kind") == "auth"
+                    else (
+                        "THROTTLED"
+                        if usage.get("error_kind") == "rate_limit"
+                        else "FAILED"
+                    )
+                )
+                print(f"  {state} {a['email']}: {err}", file=sys.stderr)
+        if degraded:
+            print(
+                "REFRESH DEGRADED: cached windows are diagnostic only, not fresh usage.",
+                file=sys.stderr,
+            )
+            return 1
+        return 0
 
     else:
         print("usage: cli.py accounts [add|list|remove <email>|refresh]")
+
+
+def _account_window(entry: dict, key: str) -> str:
+    """Format an account window without pretending missing data is zero."""
+    window = (entry.get("windows") or {}).get(key)
+    return f"{window['remaining_pct']}%" if window else "--"
+
+
+def cmd_accounts_status(dry_run: bool = False) -> int:
+    """Print the fresh merged Claude/Codex account table."""
+    import aggregator
+
+    snapshot = aggregator.aggregate_accounts(dry_run=dry_run)
+    print()
+    hr("=")
+    print("  ACCOUNTS — fresh merged Claude Max + Codex profile state")
+    print(
+        "  DRY RUN: no Claude keychain/API access"
+        if dry_run
+        else "  LIVE READ: no merged-result cache"
+    )
+    hr("=")
+    print(
+        f"  {'PROFILE':<30}{'PROVIDER':<9}{'STATE':<17}{'FABLE':<8}{'WEEK':<8}{'5H':<8}{'PLAN':<10}"
+    )
+    for entry in snapshot["accounts"]:
+        label = entry.get("email") or entry["id"]
+        state = entry["state"]
+        fable = _account_window(entry, "fable")
+        if state != "fresh" and fable != "--":
+            fable = f"{fable}⚠"
+        print(
+            f"  {label:<30}{entry['provider']:<9}{state:<17}{fable:<8}{_account_window(entry, 'seven_day'):<8}{_account_window(entry, 'five_hour'):<8}{entry['plan']:<10}"
+        )
+        if entry.get("error"):
+            print(f"    ! {entry['error']}")
+    hr()
+    print(
+        f"  Fresh: {snapshot['summary']['fresh']}  Degraded: {snapshot['summary']['degraded']}"
+    )
+    print("  AUTH-BROKEN entries require /login; cached values are never selected.")
+    hr("=")
+    print()
+    return 0 if snapshot["summary"]["degraded"] == 0 or dry_run else 1
+
+
+def cmd_accounts_for(model: str, dry_run: bool = False) -> int:
+    """Recommend the account/profile that can run ``model`` now."""
+    import aggregator
+
+    snapshot = aggregator.aggregate_accounts(dry_run=dry_run)
+    decision = aggregator.choose_account(snapshot, model)
+    print()
+    hr("=")
+    print(f"  ACCOUNTS FOR {model}")
+    hr("=")
+    selected = decision.get("recommendation")
+    if selected is None:
+        print(f"  NO FRESH PROFILE: {decision.get('reason', 'unavailable')}")
+        hr("=")
+        print()
+        return 1
+    print(f"  USE: {selected.get('email') or selected['id']}")
+    print(f"  PROFILE: {selected['id']}")
+    for reason in decision.get("reasons", []):
+        print(f"  - {reason}")
+    hr("=")
+    print()
+    return 0
 
 
 def _profile_arguments(rest: list[str]) -> list[str] | None:
@@ -791,7 +879,7 @@ def _profile_arguments(rest: list[str]) -> list[str] | None:
     return rest if action in public_actions else None
 
 
-def cmd_accounts(rest: list[str] | None = None) -> None:
+def cmd_accounts(rest: list[str] | None = None) -> int | None:
     """Route OAuth account-orb operations and credential-free profile operations."""
     arguments = rest or []
     profile_arguments = _profile_arguments(arguments)
@@ -799,8 +887,8 @@ def cmd_accounts(rest: list[str] | None = None) -> None:
         from profile_cli import cmd_accounts as cmd_profile_accounts
 
         cmd_profile_accounts(profile_arguments)
-        return
-    cmd_oauth_accounts(arguments)
+        return None
+    return cmd_oauth_accounts(arguments)
 
 
 def _account_parser():
@@ -867,7 +955,7 @@ def _fable_rank(entry: dict) -> dict:
     if not entry.get("active"):
         return {"score": None, "fable_room": 0, "reasons": ["subscription inactive"]}
     w = entry.get("windows") or {}
-    if entry.get("error") or "seven_day" not in w or "five_hour" not in w:
+    if "seven_day" not in w or "five_hour" not in w:
         return {"score": None, "fable_room": 0, "reasons": ["usage unavailable"]}
 
     weekly_free = w["seven_day"]["remaining_pct"]
@@ -876,6 +964,18 @@ def _fable_rank(entry: dict) -> dict:
         fable_room = w["fable"]["remaining_pct"]
     else:
         fable_room = max(0, weekly_free - FABLE_CAP_PCT)
+    if entry.get("error"):
+        marker = (
+            "auth-broken cached value"
+            if entry.get("needs_relogin") or entry.get("error_kind") == "auth"
+            else "stale cached value"
+        )
+        return {
+            "score": None,
+            "fable_room": fable_room,
+            "reasons": [marker],
+            "stale": True,
+        }
     running = bool(w["seven_day"]["resets_at"])
     throttled = h5 < 15
 
@@ -1063,7 +1163,11 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
         h5 = f"{w['five_hour']['remaining_pct']}%" if "five_hour" in w else "--"
         reset_src = w.get("fable") or w.get("seven_day") or {}
         reset = _fmt_reset_local(reset_src.get("resets_at")) if reset_src else "--"
-        fable = f"{r['fable_room']}%" if r["score"] is not None else "n/a"
+        fable = (
+            f"{r['fable_room']}%⚠"
+            if r.get("stale")
+            else f"{r['fable_room']}%" if r["score"] is not None else "n/a"
+        )
         usable = r["score"] is not None and r["score"] > 0
         if pick is None and usable:
             pick = e
@@ -1116,6 +1220,8 @@ Usage:
                                                  keychain account, preserving billing history)
                                                  refresh: rotate every account's token now
                                                  (server-independent; no dashboard needed)
+  python cli.py accounts-status [--dry-run]      Print fresh merged Claude/Codex account state
+  python cli.py accounts-for MODEL [--dry-run]   Recommend a fresh profile for MODEL
   python cli.py accounts setup --label LABEL  Save a credential-free local account profile
   python cli.py accounts profiles ...         Manage credential-free local account profiles
   python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
@@ -1147,6 +1253,8 @@ COMMANDS = {
     "daemons": cmd_daemons,
     "report": cmd_report,
     "accounts": cmd_accounts,
+    "accounts-status": cmd_accounts_status,
+    "accounts-for": cmd_accounts_for,
     "freshness-tick": cmd_freshness_tick,
     "fable-next": cmd_fable_next,
     "fable-cost": cmd_fable_cost,
@@ -1215,7 +1323,17 @@ if __name__ == "__main__":
                 i += 1
         cmd_report(period=period_arg, view=view_arg)
     elif command == "accounts":
-        cmd_accounts(rest=rest)
+        result = cmd_accounts(rest=rest)
+        if result is not None:
+            raise SystemExit(result)
+    elif command == "accounts-status":
+        raise SystemExit(cmd_accounts_status(dry_run="--dry-run" in rest))
+    elif command == "accounts-for":
+        model = next((item for item in rest if not item.startswith("--")), None)
+        if model is None:
+            print("usage: cli.py accounts-for MODEL [--dry-run]", file=sys.stderr)
+            raise SystemExit(2)
+        raise SystemExit(cmd_accounts_for(model, dry_run="--dry-run" in rest))
     elif command == "fable-next":
         if "--profiles" in rest:
             cmd_profile_fable_next([value for value in rest if value != "--profiles"])

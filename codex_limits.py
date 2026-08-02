@@ -9,8 +9,8 @@ The Codex CLI records a ``rate_limits`` snapshot in each session rollout JSONL a
         "plan_type": "prolite", ...
     }
 
-primary = the 5-hour window, secondary = the weekly window. The newest snapshot is
-the current limit state. ``codex_orb_data`` maps it to the same shape the Claude
+Map each part by ``window_minutes`` (300 or 10080), not by primary/secondary
+position. The newest snapshot is the current limit state. ``codex_orb_data`` maps it to the same shape the Claude
 account orbs use (``windows.five_hour`` / ``windows.seven_day`` with remaining_pct,
 resets_at, color_hi/lo), so the dashboard renders Codex orbs identically.
 """
@@ -153,6 +153,22 @@ def _window(part: dict | None) -> dict | None:
     }
 
 
+def _windows_from_rate_limits(rate_limits: dict) -> dict[str, dict]:
+    """Map known limit parts by the server-provided window duration."""
+    windows = {}
+    for part in (rate_limits.get("primary"), rate_limits.get("secondary")):
+        if not isinstance(part, dict):
+            continue
+        mapped = _window(part)
+        if mapped is None:
+            continue
+        if part.get("window_minutes") == 300:
+            windows["five_hour"] = mapped
+        elif part.get("window_minutes") == 10080:
+            windows["seven_day"] = mapped
+    return windows
+
+
 def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -> dict:
     """Codex 5h + weekly orbs in the same shape as a Claude account entry.
 
@@ -176,20 +192,24 @@ def codex_orb_data(sessions_dir: Path = SESSIONS_DIR, plan: str | None = None) -
             "caps": get_plan_caps(plan or ""),
             "model": latest_model(sessions_dir),
             "windows": {},
-            "error": "no Codex rate-limit data found",
+            "credits": None,
+            "state": (
+                "no_session_data" if not sessions_dir.is_dir() else "no_rate_limit_data"
+            ),
+            "error": (
+                "no Codex session data found"
+                if not sessions_dir.is_dir()
+                else "no Codex rate-limit data found"
+            ),
         }
-    windows = {}
-    five = _window(rl.get("primary"))
-    week = _window(rl.get("secondary"))
-    if five:
-        windows["five_hour"] = five
-    if week:
-        windows["seven_day"] = week
+    windows = _windows_from_rate_limits(rl)
     return {
         "plan_type": rl.get("plan_type"),
         "plan": plan,
         "caps": get_plan_caps(plan or ""),
         "model": latest_model(sessions_dir),
         "windows": windows,
+        "credits": rl.get("credits"),
+        "state": "ok",
         "error": None,
     }
