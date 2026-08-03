@@ -7,12 +7,14 @@ import contextlib
 import datetime as _dt
 import json
 import os
+import re
 import subprocess
 import threading
 import urllib.error
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Any
 
 try:
     import fcntl  # POSIX-only; the accounts/orbs feature is macOS-only anyway
@@ -21,6 +23,7 @@ except ImportError:  # pragma: no cover — Windows scanner imports accounts.py 
 
 STORE_PATH = Path.home() / ".claude" / "usage_accounts.json"
 LOCK_PATH = Path.home() / ".claude" / "usage_accounts.lock"
+CREDENTIALS_PATH = Path.home() / ".claude" / ".credentials.json"
 
 TOKEN_URL = "https://platform.claude.com/v1/oauth/token"
 USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
@@ -136,29 +139,240 @@ def update_oauth(
 
 def set_keychain_owner(email: str, path: Path = STORE_PATH) -> None:
     """Mark which account currently owns the Claude Code keychain credentials."""
-    store = load_store(path=path)
-    store["keychain_owner"] = email
-    save_store(store, path=path)
+    with store_lock():
+        store = load_store(path=path)
+        store["keychain_owner"] = email
+        save_store(store, path=path)
 
 
 KEYCHAIN_SERVICE = "Claude Code-credentials"
+_KEYCHAIN_FIND_COMMAND = ["security", "find-generic-password"]
+_KEYCHAIN_DUMP_COMMAND = ["security", "dump-keychain"]
+_KEYCHAIN_SLOT_PATTERN = re.compile(r'"(Claude Code-credentials(?:-[0-9a-f]{8})?)"')
+_RESOLVED_KEYCHAIN_SLOT: str | None = None
 
 
-def keychain_oauth() -> dict:
-    """Read the live Claude Code keychain credentials as an oauth dict."""
-    raw = subprocess.run(
-        ["security", "find-generic-password", "-s", KEYCHAIN_SERVICE, "-w"],
+class NoUsableCredentials(RuntimeError):
+    """Raised when no supported Claude Code credential store is usable."""
+
+    def __init__(
+        self,
+        sources: dict[str, str],
+        *,
+        scanned: int = 0,
+        empty_rejected: int = 0,
+    ) -> None:
+        self.sources = sources
+        self.scanned = scanned
+        self.empty_rejected = empty_rejected
+        detail = "; ".join(f"{source}: {reason}" for source, reason in sources.items())
+        super().__init__(f"No usable Claude Code credentials ({detail}).")
+
+    @classmethod
+    def keychain(cls, scanned: int, empty_rejected: int) -> "NoUsableCredentials":
+        """Create a diagnostic failure for the keychain fallback alone."""
+        return cls(
+            {"keychain": f"scanned={scanned}, empty_rejected={empty_rejected}"},
+            scanned=scanned,
+            empty_rejected=empty_rejected,
+        )
+
+
+# Public compatibility name retained for callers that imported the round-1 type.
+NoKeychainCredentials = NoUsableCredentials
+
+
+def _normalise_oauth(credentials: Any) -> tuple[dict[str, str] | None, str]:
+    """Validate Claude Code's persisted OAuth object without exposing values."""
+    if not isinstance(credentials, dict):
+        return None, "expected structure absent"
+    access_token = credentials.get("accessToken")
+    refresh_token = credentials.get("refreshToken")
+    expires_at = credentials.get("expiresAt")
+    if not isinstance(access_token, str) or not access_token:
+        return None, "access token empty or absent"
+    if not isinstance(refresh_token, str) or not refresh_token:
+        return None, "refresh token empty or absent"
+    if (
+        isinstance(expires_at, bool)
+        or not isinstance(expires_at, (int, float))
+        or expires_at <= 0
+    ):
+        return None, "expiry missing or invalid"
+    try:
+        expiry = datetime.fromtimestamp(expires_at / 1000, tz=timezone.utc)
+    except (OverflowError, OSError, TypeError, ValueError):
+        return None, "expiry unparseable"
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "expires_at": expiry.strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }, "usable"
+
+
+def _read_credentials_file_with_reason(path: Path) -> tuple[dict[str, str] | None, str]:
+    """Read the live Claude Code file store with a safe rejection reason."""
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return None, "missing"
+    except PermissionError:
+        return None, "unreadable"
+    except (IsADirectoryError, OSError, UnicodeDecodeError):
+        return None, "unreadable"
+    except json.JSONDecodeError:
+        return None, "invalid JSON"
+    if not isinstance(raw, dict):
+        return None, "expected structure absent"
+    return _normalise_oauth(raw.get("claudeAiOauth"))
+
+
+def read_credentials_file(
+    path: Path = CREDENTIALS_PATH,
+) -> dict[str, str] | None:
+    """Return valid normalized OAuth from Claude Code's file store, else ``None``.
+
+    The live file has one ``claudeAiOauth`` account object, not an account map.
+    """
+    oauth, _ = _read_credentials_file_with_reason(path)
+    return oauth
+
+
+def list_keychain_slots() -> list[str]:
+    """Return candidate Claude Code keychain service names, suffixed first."""
+    result = subprocess.run(
+        _KEYCHAIN_DUMP_COMMAND,
         capture_output=True,
         text=True,
         check=True,
-    ).stdout.strip()
-    creds = json.loads(raw)["claudeAiOauth"]
-    exp = datetime.fromtimestamp(creds["expiresAt"] / 1000, tz=timezone.utc)
-    return {
-        "access_token": creds["accessToken"],
-        "refresh_token": creds["refreshToken"],
-        "expires_at": exp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-    }
+        timeout=10,
+    )
+    slots = set(_KEYCHAIN_SLOT_PATTERN.findall(result.stdout + result.stderr))
+    return sorted(slots, key=lambda name: (name == KEYCHAIN_SERVICE, name))
+
+
+def _read_keychain_slot_with_reason(name: str) -> tuple[dict[str, str] | None, str]:
+    """Read one slot and return either normalized OAuth or a safe rejection reason."""
+    try:
+        result = subprocess.run(
+            _KEYCHAIN_FIND_COMMAND + ["-s", name, "-w"],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=10,
+        )
+        raw = json.loads(result.stdout.strip())
+        oauth, reason = _normalise_oauth(raw.get("claudeAiOauth"))
+    except subprocess.TimeoutExpired:
+        return None, "timeout"
+    except subprocess.CalledProcessError:
+        return None, "read-failed"
+    except (json.JSONDecodeError, OSError, OverflowError, TypeError, ValueError):
+        return None, "invalid"
+    if oauth is None:
+        return None, "empty" if reason.startswith(("access", "refresh")) else "invalid"
+    return oauth, "usable"
+
+
+def read_keychain_slot(name: str) -> dict[str, str] | None:
+    """Return usable normalized OAuth credentials for one service, else ``None``."""
+    oauth, _ = _read_keychain_slot_with_reason(name)
+    return oauth
+
+
+def _persist_resolved_keychain_slot(name: str, path: Path) -> None:
+    """Persist a resolved service name without touching credential material."""
+    with store_lock():
+        store = load_store(path=path)
+        store["keychain_slot_resolved"] = name
+        save_store(store, path=path)
+
+
+def _cached_store_slot(path: Path) -> str | None:
+    """Read the prior resolved service name, if it has the expected shape."""
+    slot = load_store(path=path).get("keychain_slot_resolved")
+    return slot if isinstance(slot, str) and slot else None
+
+
+def _resolve_keychain_slot(
+    *, verify: bool, store_path: Path
+) -> tuple[str, dict[str, str]]:
+    """Resolve one usable slot, preferring a live access token over an expired one."""
+    global _RESOLVED_KEYCHAIN_SLOT
+
+    scanned = 0
+    empty_rejected = 0
+    seen: set[str] = set()
+    expired_candidate: tuple[str, dict[str, str]] | None = None
+
+    def consider(name: str) -> tuple[str, dict[str, str]] | None:
+        nonlocal scanned, empty_rejected, expired_candidate
+        if name in seen:
+            return None
+        seen.add(name)
+        scanned += 1
+        oauth, reason = _read_keychain_slot_with_reason(name)
+        if oauth is None:
+            if reason == "empty":
+                empty_rejected += 1
+            return None
+        if verify:
+            try:
+                if not fetch_profile_email(oauth):
+                    return None
+            except (OSError, urllib.error.URLError, urllib.error.HTTPError, ValueError):
+                return None
+        if not _is_expired(oauth):
+            return name, oauth
+        if expired_candidate is None:
+            expired_candidate = (name, oauth)
+        return None
+
+    for cached_slot in (_RESOLVED_KEYCHAIN_SLOT, _cached_store_slot(store_path)):
+        if cached_slot is None:
+            continue
+        resolved = consider(cached_slot)
+        if resolved is not None:
+            _RESOLVED_KEYCHAIN_SLOT = resolved[0]
+            return resolved
+
+    try:
+        slots = list_keychain_slots()
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        raise NoUsableCredentials.keychain(scanned, empty_rejected) from None
+
+    for slot in slots:
+        resolved = consider(slot)
+        if resolved is not None:
+            _RESOLVED_KEYCHAIN_SLOT = resolved[0]
+            _persist_resolved_keychain_slot(resolved[0], store_path)
+            return resolved
+
+    if expired_candidate is not None:
+        _RESOLVED_KEYCHAIN_SLOT = expired_candidate[0]
+        _persist_resolved_keychain_slot(expired_candidate[0], store_path)
+        return expired_candidate
+    raise NoUsableCredentials.keychain(scanned, empty_rejected)
+
+
+def resolve_keychain_slot(*, verify: bool = False) -> tuple[str, dict[str, str]]:
+    """Resolve and cache the live Claude Code keychain credential service."""
+    return _resolve_keychain_slot(verify=verify, store_path=STORE_PATH)
+
+
+def keychain_oauth() -> dict[str, str]:
+    """Return live file OAuth, then legacy keychain OAuth, or a typed failure."""
+    oauth, file_reason = _read_credentials_file_with_reason(CREDENTIALS_PATH)
+    if oauth is not None:
+        return oauth
+    try:
+        return resolve_keychain_slot()[1]
+    except NoUsableCredentials as error:
+        raise NoUsableCredentials(
+            {"credentials-file": file_reason, **error.sources},
+            scanned=error.scanned,
+            empty_rejected=error.empty_rejected,
+        ) from None
 
 
 # ── HTTP helpers ──────────────────────────────────────────────────────────────
@@ -326,8 +540,58 @@ def fetch_all_usage(path: Path = STORE_PATH, *, force: bool = False) -> list[dic
     It never turns stale windows into a successful response: failures retain the
     cache only with explicit error metadata.
     """
-    with _FETCH_LOCK, store_lock():
-        return _fetch_all_usage_locked(path, force=force)
+    with _FETCH_LOCK:
+        credentials: dict[str, str] | None = None
+        credentials_email: str | None = None
+        credentials_error: NoUsableCredentials | None = None
+        if _has_eligible_account(path, force=force):
+            try:
+                credentials = keychain_oauth()
+            except NoUsableCredentials as error:
+                credentials_error = error
+            except (OSError, ValueError, KeyError, subprocess.CalledProcessError):
+                # Preserve the established stored-token path for a transient
+                # local reader failure. Typed no-credential failures above are
+                # the explicit all-sources-empty state.
+                credentials = None
+            else:
+                try:
+                    credentials_email = fetch_profile_email(credentials)
+                except (
+                    OSError,
+                    urllib.error.URLError,
+                    urllib.error.HTTPError,
+                    ValueError,
+                ):
+                    # A verified source email is strongest, but an explicit
+                    # switch owner remains a valid attribution fallback.
+                    credentials_email = None
+        with store_lock():
+            return _fetch_all_usage_locked(
+                path,
+                force=force,
+                credentials=credentials,
+                credentials_email=credentials_email,
+                credentials_error=credentials_error,
+            )
+
+
+def _has_eligible_account(path: Path, *, force: bool) -> bool:
+    """Return whether any account can need a live keychain read this cycle."""
+    if force:
+        return True
+    now = datetime.now(timezone.utc)
+    for account in load_store(path=path).get("accounts", []):
+        retry_until = (account.get("last_usage") or {}).get("retry_until")
+        if not retry_until:
+            return True
+        try:
+            retry_at = datetime.fromisoformat(retry_until.replace("Z", "+00:00"))
+        except (AttributeError, TypeError, ValueError):
+            return True
+        if retry_at <= now:
+            return True
+    return False
 
 
 def _record_usage_http_error(
@@ -362,7 +626,37 @@ def _record_usage_http_error(
 
 
 def _record_auth_error(acct: dict, error: Exception, now: datetime) -> None:
-    """Persist terminal OAuth refresh failure while retaining cached windows."""
+    """Persist a rejected stored refresh token while retaining cached windows."""
+    previous = acct.get("last_usage") or {}
+    windows = {
+        key: previous[key]
+        for key in ("five_hour", "seven_day", "fable")
+        if key in previous
+    }
+    last_success_at = previous.get("last_success_at") or (
+        previous.get("fetched_at") if previous and not previous.get("error") else None
+    )
+    acct["last_usage"] = {
+        **windows,
+        "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "last_success_at": last_success_at,
+        "error": "Stored refresh token rejected; needs /login then fable-next --switch.",
+        "error_detail": str(error),
+        "error_kind": "auth",
+        "needs_relogin": True,
+        "retry_until": None,
+    }
+
+
+def _refresh_error_is_auth(error: Exception) -> bool:
+    """Classify token-endpoint 400/401 as re-login failures, never throttles."""
+    return isinstance(error, urllib.error.HTTPError) and error.code in (400, 401)
+
+
+def _record_no_credentials_error(
+    acct: dict[str, Any], error: NoUsableCredentials, now: datetime
+) -> None:
+    """Persist a live-credential failure without refreshing stored tokens."""
     previous = acct.get("last_usage") or {}
     windows = {
         key: previous[key]
@@ -377,26 +671,43 @@ def _record_auth_error(acct: dict, error: Exception, now: datetime) -> None:
         "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "last_success_at": last_success_at,
         "error": str(error),
-        "error_kind": "auth",
-        "needs_relogin": True,
+        "error_kind": "no_credentials",
+        "needs_relogin": False,
         "retry_until": None,
     }
 
 
-def _refresh_error_is_auth(error: Exception) -> bool:
-    """Classify token-endpoint 400/401 as re-login failures, never throttles."""
-    return isinstance(error, urllib.error.HTTPError) and error.code in (400, 401)
+def _is_credentials_owner(
+    acct: dict[str, Any], store: dict[str, Any], credentials_email: str | None = None
+) -> bool:
+    """Identify the account expected to own Claude Code's live credentials."""
+    if credentials_email:
+        return acct.get("email") == credentials_email
+    owner = store.get("keychain_owner")
+    if isinstance(owner, str) and owner:
+        return acct.get("email") == owner
+    accounts = store.get("accounts") or []
+    if any(bool(account.get("is_main")) for account in accounts):
+        return bool(acct.get("is_main"))
+    return False
 
 
-def _fetch_all_usage_locked(path: Path, *, force: bool = False) -> list[dict]:
+def _fetch_all_usage_locked(
+    path: Path,
+    *,
+    force: bool = False,
+    credentials: dict[str, str] | None = None,
+    credentials_email: str | None = None,
+    credentials_error: NoUsableCredentials | None = None,
+) -> list[dict]:
     store = load_store(path=path)
     now_dt = datetime.now(timezone.utc)
     now = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     # The account logged into Claude Code rotates its own tokens, killing our
-    # snapshot (refresh tokens are single-use). Resolve the live keychain's
+    # snapshot (refresh tokens are single-use). Resolve the live credential
     # identity once, lazily after cooldown checks, and prefer those credentials
     # for the matching account.
-    kc, kc_email, kc_resolved = None, None, False
+    kc, kc_email = credentials, credentials_email
     for acct in store["accounts"]:
         previous = acct.get("last_usage") or {}
         retry_until = previous.get("retry_until")
@@ -408,18 +719,16 @@ def _fetch_all_usage_locked(path: Path, *, force: bool = False) -> list[dict]:
             except (AttributeError, TypeError, ValueError):
                 pass
 
-        if not kc_resolved:
-            kc_resolved = True
-            try:
-                kc = keychain_oauth()
-                kc_email = fetch_profile_email(kc)
-            except Exception:  # noqa: BLE001 — no keychain / offline
-                kc = None
+        if credentials_error is not None and _is_credentials_owner(
+            acct, store, credentials_email
+        ):
+            _record_no_credentials_error(acct, credentials_error, now_dt)
+            continue
+
         try:
-            if kc and kc_email and acct["email"] == kc_email:
+            if kc and _is_credentials_owner(acct, store, kc_email):
                 try:
                     usage = fetch_usage(kc)
-                    acct["oauth"] = kc
                     acct["last_usage"] = {
                         **usage,
                         "fetched_at": now,

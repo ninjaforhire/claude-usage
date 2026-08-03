@@ -43,10 +43,16 @@ def _burn_counters(config_dir: Path) -> dict[str, int | str | None]:
 
 
 def _keychain_health() -> dict[str, Any]:
-    """Probe keychain availability without exposing credentials."""
+    """Probe the file-first credential chain without exposing credentials."""
     try:
         accounts.keychain_oauth()
-    except (OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        subprocess.CalledProcessError,
+        accounts.NoUsableCredentials,
+    ) as error:
         return {"accessible": False, "error": str(error)}
     return {"accessible": True, "error": None}
 
@@ -79,6 +85,9 @@ def _claude_state(
     needs_relogin = bool(usage.get("needs_relogin"))
     if dry_run:
         state = "dry-run"
+        fresh = False
+    elif usage.get("error_kind") == "no_credentials":
+        state = "no-credentials"
         fresh = False
     elif needs_relogin or usage.get("error_kind") == "auth":
         state = "auth-broken"
@@ -162,7 +171,19 @@ def aggregate_accounts(
     if not dry_run:
         refreshed = accounts.fetch_all_usage(path=store_path, force=True)
         by_email = {item["email"]: item for item in refreshed if item.get("email")}
-        keychain = _keychain_health()
+        keychain_failure = next(
+            (
+                (item.get("last_usage") or {}).get("error")
+                for item in refreshed
+                if (item.get("last_usage") or {}).get("error_kind") == "no_credentials"
+            ),
+            None,
+        )
+        keychain = (
+            {"accessible": False, "error": keychain_failure}
+            if keychain_failure
+            else _keychain_health()
+        )
 
     burn_by_dir: dict[Path, dict[str, Any]] = {}
     entries: list[dict[str, Any]] = []
