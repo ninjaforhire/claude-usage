@@ -1,5 +1,7 @@
 """Tests for accounts.py — store layer, token refresh, usage fetch, presentation."""
 
+from __future__ import annotations
+
 import datetime as dt
 import io
 import json
