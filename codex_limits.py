@@ -58,6 +58,56 @@ def get_plan_caps(plan: str) -> dict:
     return PLAN_CAPS.get(plan, {})
 
 
+# ── ChatGPT subscription claims ───────────────────────────────────────────────
+# A Codex home's auth.json carries an OAuth id_token whose OpenAI claim block
+# states the signed-in account and the paid period's end date. Reading it makes
+# renewal tracking self-maintaining instead of hand-entered, and the account id
+# reveals when two Codex homes are really one billed subscription.
+
+_OPENAI_CLAIM = "https://api.openai.com/auth"
+_SAFE_CLAIMS = (
+    "chatgpt_account_id",
+    "chatgpt_plan_type",
+    "chatgpt_subscription_active_start",
+    "chatgpt_subscription_active_until",
+    "chatgpt_subscription_last_checked",
+)
+
+
+def _decode_jwt_claims(token: str) -> dict:
+    """Decode a JWT payload without verifying its signature."""
+    import base64
+
+    payload = token.split(".")[1]
+    payload += "=" * (-len(payload) % 4)
+    return json.loads(base64.urlsafe_b64decode(payload))
+
+
+def subscription_claims(config_dir: Path) -> dict | None:
+    """Return one Codex home's non-secret ChatGPT subscription claims.
+
+    Only the account/plan/period fields are returned — never a token. Returns
+    ``None`` when the home has no readable ChatGPT auth (API-key mode, missing
+    or malformed file), so callers can fall back to static configuration.
+    """
+    auth_path = config_dir / "auth.json"
+    try:
+        data = json.loads(auth_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    token = (data.get("tokens") or {}).get("id_token")
+    if not isinstance(token, str) or token.count(".") != 2:
+        return None
+    try:
+        claims = _decode_jwt_claims(token).get(_OPENAI_CLAIM) or {}
+    except (ValueError, IndexError, UnicodeDecodeError):
+        return None
+    found = {key: claims[key] for key in _SAFE_CLAIMS if key in claims}
+    if "email" in claims:
+        found["email"] = claims["email"]
+    return found or None
+
+
 def _find_rate_limits(obj: object) -> dict | None:
     """Locate a ``rate_limits`` dict anywhere in a parsed JSONL record."""
     if isinstance(obj, dict):
