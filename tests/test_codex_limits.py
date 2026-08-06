@@ -6,9 +6,13 @@ import codex_limits
 
 _FUTURE_RESET = 4_102_444_800  # 2100-01-01; stable as wall time advances
 
+# Shape captured from a live chatgpt-pro payload (secondary null, weekly carried
+# on primary). ``resets_at`` is pinned to _FUTURE_RESET rather than the captured
+# epoch: a real timestamp turns this into a time bomb that starts failing once it
+# passes, because _window() then correctly reports the window as rolled over.
 LIVE_PRO_RATE_LIMITS = {
     "limit_id": "codex", "limit_name": None,
-    "primary": {"used_percent": 38.0, "window_minutes": 10080, "resets_at": 1785932311},
+    "primary": {"used_percent": 38.0, "window_minutes": 10080, "resets_at": _FUTURE_RESET},
     "secondary": None,
     "credits": {"has_credits": False, "unlimited": False, "balance": "0"},
     "individual_limit": None, "spend_control_reached": None,
