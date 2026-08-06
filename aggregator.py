@@ -4,17 +4,77 @@ from __future__ import annotations
 
 import sqlite3
 import subprocess
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import accounts
 import codex_limits
-from account_registry import AccountProfile, REGISTRY_PATH, load_registry
+from account_registry import (
+    AccountProfile,
+    REGISTRY_PATH,
+    load_registry,
+    load_standalone_subscriptions,
+)
 
 FABLE_CAP_PCT = 50
 DRAIN_BOOST = 100.0
 THROTTLE_PCT = 15
+
+
+def _billing_state(
+    profile: AccountProfile, today: date | None = None
+) -> dict[str, Any]:
+    """Resolve a profile's next renewal date, or record that it is unset.
+
+    A static registry ``billing`` block always wins. Failing that, a Codex home
+    can self-report: its OAuth token states the paid period's end date and the
+    ChatGPT account id, so two homes on one account collapse to one bill without
+    any hand-entered configuration. An unset block is reported explicitly rather
+    than omitted, so the status table shows the gap instead of silently implying
+    the profile is free.
+    """
+    today = today or date.today()
+    if profile.billing is not None:
+        renewal = profile.billing.next_renewal(today)
+        return {
+            "known": True,
+            "source": "registry",
+            "subscription_id": profile.billing.subscription_id,
+            "cycle": profile.billing.cycle,
+            "cost_usd": profile.billing.cost_usd,
+            "next_renewal": renewal.isoformat(),
+            "days_until": (renewal - today).days,
+        }
+    if profile.provider == "codex":
+        derived = _codex_billing(profile, today)
+        if derived is not None:
+            return derived
+    return {"known": False, "subscription_id": None}
+
+
+def _codex_billing(profile: AccountProfile, today: date) -> dict[str, Any] | None:
+    """Derive billing state from a Codex home's ChatGPT subscription claims."""
+    claims = codex_limits.subscription_claims(profile.config_dir) or {}
+    until = claims.get("chatgpt_subscription_active_until")
+    account_id = claims.get("chatgpt_account_id")
+    if not until or not account_id:
+        return None
+    try:
+        renewal = datetime.fromisoformat(str(until)).date()
+    except ValueError:
+        return None
+    return {
+        "known": True,
+        "source": "chatgpt-token",
+        "subscription_id": f"chatgpt-{claims.get('chatgpt_plan_type', 'plan')}-{account_id[:8]}",
+        "cycle": "monthly",
+        "cost_usd": profile.billing_cost_usd,
+        "next_renewal": renewal.isoformat(),
+        "days_until": (renewal - today).days,
+        "account_email": claims.get("email"),
+        "checked_at": claims.get("chatgpt_subscription_last_checked"),
+    }
 
 
 def _burn_counters(config_dir: Path) -> dict[str, int | str | None]:
@@ -111,6 +171,7 @@ def _claude_state(
         "caps": list(profile.caps),
         "active": profile.active,
         "is_main": profile.is_main,
+        "billing": _billing_state(profile),
         "config_dir": str(profile.config_dir),
         "keychain_slot": profile.keychain_slot,
         "keychain": keychain,
@@ -139,6 +200,7 @@ def _codex_state(profile: AccountProfile) -> dict[str, Any]:
         "caps": list(profile.caps),
         "active": profile.active,
         "is_main": profile.is_main,
+        "billing": _billing_state(profile),
         "config_dir": str(profile.config_dir),
         "keychain_slot": None,
         "fresh": data.get("error") is None,
@@ -203,14 +265,91 @@ def aggregate_accounts(
             )
         else:
             entries.append(_codex_state(profile))
+    live = [item for item in entries if item["active"]]
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "dry_run": dry_run,
         "accounts": entries,
+        "subscriptions": subscriptions(
+            entries, load_standalone_subscriptions(registry_path)
+        ),
         "summary": {
-            "fresh": sum(1 for item in entries if item["fresh"]),
-            "degraded": sum(1 for item in entries if not item["fresh"]),
+            "fresh": sum(1 for item in live if item["fresh"]),
+            "degraded": sum(1 for item in live if not item["fresh"]),
+            "inactive": len(entries) - len(live),
         },
+    }
+
+
+def subscriptions(
+    entries: list[dict[str, Any]],
+    standalone: list[Any] | None = None,
+    today: date | None = None,
+) -> dict[str, Any]:
+    """Collapse active profiles into the distinct subscriptions actually billed.
+
+    Profiles sharing a ``subscription_id`` (two Codex homes on one ChatGPT
+    account) are one bill, so they are counted once rather than per profile.
+    ``standalone`` adds bills that have no local profile at all, so the total
+    reflects what is actually charged rather than only what is installed here.
+    """
+    today = today or date.today()
+    billed: dict[str, dict[str, Any]] = {}
+    unset: list[str] = []
+    for entry in entries:
+        if not entry["active"]:
+            continue
+        billing = entry.get("billing") or {}
+        if not billing.get("known"):
+            unset.append(entry["id"])
+            continue
+        record = billed.setdefault(
+            billing["subscription_id"],
+            {
+                "subscription_id": billing["subscription_id"],
+                "provider": entry["provider"],
+                "plan": entry["plan"],
+                "cycle": billing["cycle"],
+                "cost_usd": billing["cost_usd"],
+                "next_renewal": billing["next_renewal"],
+                "days_until": billing["days_until"],
+                "source": billing.get("source"),
+                "profiles": [],
+            },
+        )
+        record["profiles"].append(entry["id"])
+    for item in standalone or []:
+        renewal = item.billing.next_renewal(today)
+        billed.setdefault(
+            item.subscription_id,
+            {
+                "subscription_id": item.subscription_id,
+                "provider": item.provider,
+                "plan": item.plan,
+                "cycle": item.billing.cycle,
+                "cost_usd": item.billing.cost_usd,
+                "next_renewal": renewal.isoformat(),
+                "days_until": (renewal - today).days,
+                "source": "registry-standalone",
+                "label": item.label,
+                "profiles": [],
+            },
+        )
+    ordered = sorted(billed.values(), key=lambda item: item["next_renewal"])
+    return {
+        "billed": ordered,
+        "unset_profiles": unset,
+        "unpriced_subscriptions": [
+            item["subscription_id"] for item in ordered if item["cost_usd"] is None
+        ],
+        "monthly_total_usd": round(
+            sum(
+                (item["cost_usd"] or 0.0)
+                / {"monthly": 1, "quarterly": 3, "annual": 12}[item["cycle"]]
+                for item in ordered
+            ),
+            2,
+        ),
     }
 
 

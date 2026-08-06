@@ -795,11 +795,59 @@ def _account_window(entry: dict, key: str) -> str:
     return f"{window['remaining_pct']}%" if window else "--"
 
 
-def cmd_accounts_status(dry_run: bool = False) -> int:
+def _renews_cell(entry: dict) -> str:
+    """Render one profile's next renewal as 'Mon DD (Nd)', or a loud gap marker."""
+    billing = entry.get("billing") or {}
+    if not billing.get("known"):
+        return "unset"
+    import datetime as _dt
+
+    date = _dt.date.fromisoformat(billing["next_renewal"])
+    return f"{date.strftime('%b %d')} ({billing['days_until']}d)"
+
+
+def _print_subscriptions(snapshot: dict) -> None:
+    """Print the distinct subscriptions billed, soonest renewal first."""
+    subs = snapshot.get("subscriptions") or {}
+    billed = subs.get("billed") or []
+    unset = subs.get("unset_profiles") or []
+    if not billed and not unset:
+        return
+    hr()
+    print("  SUBSCRIPTIONS — distinct bills (shared profiles counted once)")
+    for item in billed:
+        cost = f"${item['cost_usd']:,.2f}" if item["cost_usd"] is not None else "cost?"
+        if len(item["profiles"]) > 1:
+            tag = f"  [{', '.join(item['profiles'])}]"
+        elif not item["profiles"]:
+            tag = "  [no local profile]"
+        else:
+            tag = ""
+        print(
+            f"    {item['subscription_id']:<24}{cost:>10} / {item['cycle']:<10}"
+            f"renews {item['next_renewal']} ({item['days_until']}d){tag}"
+        )
+    unpriced = subs.get("unpriced_subscriptions") or []
+    if billed:
+        note = f"  (excludes {len(unpriced)} unpriced)" if unpriced else ""
+        print(f"    {'MONTHLY TOTAL':<24}{subs['monthly_total_usd']:>10,.2f}{note}")
+    if unpriced:
+        print(
+            f"    ! no cost on record: {', '.join(unpriced)}"
+            "  — add cost_usd in accounts_registry.json"
+        )
+    if unset:
+        print(f"    ! no billing date on record: {', '.join(unset)}")
+        print("      add a 'billing' block in ~/.claude/accounts_registry.json")
+
+
+def cmd_accounts_status(dry_run: bool = False, show_all: bool = False) -> int:
     """Print the fresh merged Claude/Codex account table."""
     import aggregator
 
     snapshot = aggregator.aggregate_accounts(dry_run=dry_run)
+    shown = [entry for entry in snapshot["accounts"] if show_all or entry["active"]]
+    hidden = [entry for entry in snapshot["accounts"] if not entry["active"]]
     print()
     hr("=")
     print("  ACCOUNTS — fresh merged Claude Max + Codex profile state")
@@ -810,23 +858,27 @@ def cmd_accounts_status(dry_run: bool = False) -> int:
     )
     hr("=")
     print(
-        f"  {'PROFILE':<30}{'PROVIDER':<9}{'STATE':<17}{'FABLE':<8}{'WEEK':<8}{'5H':<8}{'PLAN':<10}"
+        f"  {'PROFILE':<30}{'PROVIDER':<9}{'STATE':<19}{'FABLE':<8}{'WEEK':<8}{'5H':<8}{'PLAN':<10}{'RENEWS':<16}"
     )
-    for entry in snapshot["accounts"]:
+    for entry in shown:
         label = entry.get("email") or entry["id"]
-        state = entry["state"]
+        state = entry["state"] if entry["active"] else f"{entry['state']} (off)"
         fable = _account_window(entry, "fable")
         if state != "fresh" and fable != "--":
             fable = f"{fable}⚠"
         print(
-            f"  {label:<30}{entry['provider']:<9}{state:<17}{fable:<8}{_account_window(entry, 'seven_day'):<8}{_account_window(entry, 'five_hour'):<8}{entry['plan']:<10}"
+            f"  {label:<30}{entry['provider']:<9}{state:<19}{fable:<8}{_account_window(entry, 'seven_day'):<8}{_account_window(entry, 'five_hour'):<8}{entry['plan']:<10}{_renews_cell(entry):<16}"
         )
         if entry.get("error"):
             print(f"    ! {entry['error']}")
+    _print_subscriptions(snapshot)
     hr()
     print(
         f"  Fresh: {snapshot['summary']['fresh']}  Degraded: {snapshot['summary']['degraded']}"
     )
+    if hidden and not show_all:
+        names = ", ".join(item.get("email") or item["id"] for item in hidden)
+        print(f"  Disabled, not counted or recommended: {names}  (--all to show)")
     print(
         "  AUTH-BROKEN entries require /login; NO-CREDENTIALS means no usable source."
     )
@@ -1220,7 +1272,10 @@ Usage:
                                                  keychain account, preserving billing history)
                                                  refresh: rotate every account's token now
                                                  (server-independent; no dashboard needed)
-  python cli.py accounts-status [--dry-run]      Print fresh merged Claude/Codex account state
+  python cli.py accounts-status [--dry-run] [--all]
+                                                 Print fresh merged Claude/Codex account
+                                                 state + subscription renewal dates;
+                                                 --all also lists disabled accounts
   python cli.py accounts-for MODEL [--dry-run]   Recommend a fresh profile for MODEL
   python cli.py accounts setup --label LABEL  Save a credential-free local account profile
   python cli.py accounts profiles ...         Manage credential-free local account profiles
@@ -1327,7 +1382,9 @@ if __name__ == "__main__":
         if result is not None:
             raise SystemExit(result)
     elif command == "accounts-status":
-        raise SystemExit(cmd_accounts_status(dry_run="--dry-run" in rest))
+        raise SystemExit(
+            cmd_accounts_status(dry_run="--dry-run" in rest, show_all="--all" in rest)
+        )
     elif command == "accounts-for":
         model = next((item for item in rest if not item.startswith("--")), None)
         if model is None:
