@@ -176,7 +176,7 @@ DEFAULT_PROFILES: tuple[AccountProfile, ...] = (
         keychain_slot=None,
         plan="max_20x",
         caps=("fable", "mythos", "opus", "sonnet", "haiku"),
-        active=True,
+        active=False,  # lapsed 2026-08; billing kept so reactivation is one flag flip
         is_main=True,
         billing=Billing(
             subscription_id="claude-max-andrew",
@@ -194,7 +194,7 @@ DEFAULT_PROFILES: tuple[AccountProfile, ...] = (
         keychain_slot=None,
         plan="max_20x",
         caps=("fable", "mythos", "opus", "sonnet", "haiku"),
-        active=True,
+        active=False,  # lapsed 2026-08; billing kept so reactivation is one flag flip
         is_main=False,
         billing=Billing(
             subscription_id="claude-max-awebber2k",
@@ -212,8 +212,15 @@ DEFAULT_PROFILES: tuple[AccountProfile, ...] = (
         keychain_slot=None,
         plan="max_20x",
         caps=("fable", "mythos", "opus", "sonnet", "haiku"),
-        active=False,
+        active=True,  # resubscribed 2026-08-12; the sole live Claude Max
         is_main=False,
+        billing=Billing(
+            subscription_id="claude-max-hotfixops",
+            cycle="monthly",
+            day=12,
+            renews_on=None,
+            cost_usd=213.20,
+        ),
     ),
     AccountProfile(
         id="codex",
@@ -225,6 +232,8 @@ DEFAULT_PROFILES: tuple[AccountProfile, ...] = (
         caps=("terra", "sol", "luna"),
         active=True,
         is_main=True,
+        # Renewal date comes from the token claims; only the price needs stating.
+        billing_cost_usd=212.80,
     ),
     AccountProfile(
         id="codex-jimbo",
@@ -236,6 +245,8 @@ DEFAULT_PROFILES: tuple[AccountProfile, ...] = (
         caps=("terra", "sol", "luna"),
         active=True,
         is_main=False,
+        # Same ChatGPT login as ~/.codex — one bill, one shared quota pool.
+        billing_cost_usd=212.80,
     ),
 )
 
