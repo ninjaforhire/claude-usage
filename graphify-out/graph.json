@@ -547,7 +547,7 @@
       "label": "StandaloneSubscription",
       "file_type": "code",
       "source_file": "account_registry.py",
-      "source_location": "L244",
+      "source_location": "L255",
       "_origin": "ast",
       "id": "account_registry_standalonesubscription",
       "community": 83,
@@ -557,7 +557,7 @@
       "label": ".from_dict()",
       "file_type": "code",
       "source_file": "account_registry.py",
-      "source_location": "L260",
+      "source_location": "L271",
       "_origin": "ast",
       "id": "account_registry_standalonesubscription_from_dict",
       "community": 83,
@@ -567,7 +567,7 @@
       "label": "load_standalone_subscriptions()",
       "file_type": "code",
       "source_file": "account_registry.py",
-      "source_location": "L276",
+      "source_location": "L287",
       "_origin": "ast",
       "id": "account_registry_load_standalone_subscriptions",
       "community": 83,
@@ -577,7 +577,7 @@
       "label": "Path",
       "file_type": "code",
       "source_file": "account_registry.py",
-      "source_location": "L276",
+      "source_location": "L287",
       "_origin": "ast",
       "id": "account_registry_py_path",
       "community": 83,
@@ -587,7 +587,7 @@
       "label": "load_registry()",
       "file_type": "code",
       "source_file": "account_registry.py",
-      "source_location": "L291",
+      "source_location": "L302",
       "_origin": "ast",
       "id": "account_registry_load_registry",
       "community": 83,
@@ -597,7 +597,7 @@
       "label": "registry_document()",
       "file_type": "code",
       "source_file": "account_registry.py",
-      "source_location": "L310",
+      "source_location": "L321",
       "_origin": "ast",
       "id": "account_registry_registry_document",
       "community": 83,
@@ -697,9 +697,9 @@
       "label": "A bill with no local CLI profile attached.      Not every paid subscription show",
       "file_type": "rationale",
       "source_file": "account_registry.py",
-      "source_location": "L245",
+      "source_location": "L256",
       "_origin": "ast",
-      "id": "account_registry_rationale_245",
+      "id": "account_registry_rationale_256",
       "community": 83,
       "norm_label": "a bill with no local cli profile attached.      not every paid subscription show"
     },
@@ -707,9 +707,9 @@
       "label": "Create a validated standalone subscription from a registry object.",
       "file_type": "rationale",
       "source_file": "account_registry.py",
-      "source_location": "L261",
+      "source_location": "L272",
       "_origin": "ast",
-      "id": "account_registry_rationale_261",
+      "id": "account_registry_rationale_272",
       "community": 83,
       "norm_label": "create a validated standalone subscription from a registry object."
     },
@@ -717,9 +717,9 @@
       "label": "Load bills recorded without an associated local profile.",
       "file_type": "rationale",
       "source_file": "account_registry.py",
-      "source_location": "L279",
+      "source_location": "L290",
       "_origin": "ast",
-      "id": "account_registry_rationale_279",
+      "id": "account_registry_rationale_290",
       "community": 83,
       "norm_label": "load bills recorded without an associated local profile."
     },
@@ -727,9 +727,9 @@
       "label": "Load static profile configuration, falling back to documented defaults.      The",
       "file_type": "rationale",
       "source_file": "account_registry.py",
-      "source_location": "L292",
+      "source_location": "L303",
       "_origin": "ast",
-      "id": "account_registry_rationale_292",
+      "id": "account_registry_rationale_303",
       "community": 83,
       "norm_label": "load static profile configuration, falling back to documented defaults.      the"
     },
@@ -737,9 +737,9 @@
       "label": "Return the canonical static registry payload for manual installation.",
       "file_type": "rationale",
       "source_file": "account_registry.py",
-      "source_location": "L311",
+      "source_location": "L322",
       "_origin": "ast",
-      "id": "account_registry_rationale_311",
+      "id": "account_registry_rationale_322",
       "community": 83,
       "norm_label": "return the canonical static registry payload for manual installation."
     },
@@ -12450,7 +12450,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_g",
-      "community": 35,
+      "community": 5,
       "norm_label": "g()"
     },
     {
@@ -12460,7 +12460,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_p",
-      "community": 21,
+      "community": 63,
       "norm_label": "p()"
     },
     {
@@ -12520,7 +12520,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_h",
-      "community": 49,
+      "community": 35,
       "norm_label": "h()"
     },
     {
@@ -12570,7 +12570,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_z",
-      "community": 35,
+      "community": 5,
       "norm_label": "z()"
     },
     {
@@ -12640,7 +12640,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ct",
-      "community": 81,
+      "community": 69,
       "norm_label": "ct()"
     },
     {
@@ -12780,7 +12780,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_bt_running",
-      "community": 69,
+      "community": 61,
       "norm_label": ".running()"
     },
     {
@@ -13130,7 +13130,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_numeric",
-      "community": 35,
+      "community": 5,
       "norm_label": "numeric()"
     },
     {
@@ -13140,7 +13140,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_logarithmic",
-      "community": 35,
+      "community": 5,
       "norm_label": "logarithmic()"
     },
     {
@@ -13250,7 +13250,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_fe",
-      "community": 21,
+      "community": 81,
       "norm_label": "fe()"
     },
     {
@@ -13260,7 +13260,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ge",
-      "community": 81,
+      "community": 69,
       "norm_label": "ge()"
     },
     {
@@ -13300,7 +13300,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_we",
-      "community": 81,
+      "community": 69,
       "norm_label": "we()"
     },
     {
@@ -13310,7 +13310,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ke",
-      "community": 110,
+      "community": 69,
       "norm_label": "ke()"
     },
     {
@@ -13380,7 +13380,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ie",
-      "community": 110,
+      "community": 69,
       "norm_label": "ie()"
     },
     {
@@ -13390,7 +13390,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ze",
-      "community": 110,
+      "community": 69,
       "norm_label": "ze()"
     },
     {
@@ -13400,7 +13400,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_je",
-      "community": 110,
+      "community": 69,
       "norm_label": "je()"
     },
     {
@@ -13420,7 +13420,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_qe",
-      "community": 110,
+      "community": 69,
       "norm_label": "qe()"
     },
     {
@@ -13440,7 +13440,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ei",
-      "community": 5,
+      "community": 35,
       "norm_label": "ei()"
     },
     {
@@ -13470,7 +13470,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ri",
-      "community": 5,
+      "community": 35,
       "norm_label": "ri()"
     },
     {
@@ -13480,7 +13480,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_li",
-      "community": 5,
+      "community": 35,
       "norm_label": "li()"
     },
     {
@@ -13760,7 +13760,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_qi",
-      "community": 81,
+      "community": 5,
       "norm_label": "qi()"
     },
     {
@@ -13770,7 +13770,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ts",
-      "community": 81,
+      "community": 40,
       "norm_label": "ts()"
     },
     {
@@ -13780,7 +13780,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_es",
-      "community": 81,
+      "community": 5,
       "norm_label": "es()"
     },
     {
@@ -13790,7 +13790,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_is",
-      "community": 35,
+      "community": 49,
       "norm_label": "is()"
     },
     {
@@ -13990,7 +13990,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_fs",
-      "community": 69,
+      "community": 61,
       "norm_label": "fs()"
     },
     {
@@ -14020,7 +14020,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ms",
-      "community": 81,
+      "community": 69,
       "norm_label": "ms()"
     },
     {
@@ -14030,7 +14030,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ys",
-      "community": 81,
+      "community": 69,
       "norm_label": "ys()"
     },
     {
@@ -14050,7 +14050,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ws",
-      "community": 69,
+      "community": 61,
       "norm_label": "ws"
     },
     {
@@ -14080,7 +14080,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ws_addeventlistener",
-      "community": 81,
+      "community": 69,
       "norm_label": ".addeventlistener()"
     },
     {
@@ -14090,7 +14090,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ws_removeeventlistener",
-      "community": 69,
+      "community": 61,
       "norm_label": ".removeeventlistener()"
     },
     {
@@ -14100,7 +14100,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ws_getdevicepixelratio",
-      "community": 69,
+      "community": 61,
       "norm_label": ".getdevicepixelratio()"
     },
     {
@@ -14110,7 +14110,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ws_getmaximumsize",
-      "community": 69,
+      "community": 61,
       "norm_label": ".getmaximumsize()"
     },
     {
@@ -14120,7 +14120,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ws_isattached",
-      "community": 69,
+      "community": 42,
       "norm_label": ".isattached()"
     },
     {
@@ -14130,7 +14130,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ks",
-      "community": 21,
+      "community": 81,
       "norm_label": "ks()"
     },
     {
@@ -14290,7 +14290,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_zs",
-      "community": 35,
+      "community": 49,
       "norm_label": "zs()"
     },
     {
@@ -14440,7 +14440,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ns_parse",
-      "community": 35,
+      "community": 49,
       "norm_label": ".parse()"
     },
     {
@@ -14450,7 +14450,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ns_parseprimitivedata",
-      "community": 35,
+      "community": 49,
       "norm_label": ".parseprimitivedata()"
     },
     {
@@ -14470,7 +14470,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ns_parseobjectdata",
-      "community": 35,
+      "community": 49,
       "norm_label": ".parseobjectdata()"
     },
     {
@@ -14500,7 +14500,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_ns_applystack",
-      "community": 81,
+      "community": 40,
       "norm_label": ".applystack()"
     },
     {
@@ -14910,7 +14910,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_init",
-      "community": 35,
+      "community": 49,
       "norm_label": ".init()"
     },
     {
@@ -14950,7 +14950,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_getpadding",
-      "community": 81,
+      "community": 5,
       "norm_label": ".getpadding()"
     },
     {
@@ -14970,7 +14970,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_getlabels",
-      "community": 35,
+      "community": 49,
       "norm_label": ".getlabels()"
     },
     {
@@ -15300,7 +15300,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_computelabelsizes",
-      "community": 21,
+      "community": 63,
       "norm_label": "._computelabelsizes()"
     },
     {
@@ -15430,7 +15430,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_computelabelitems",
-      "community": 21,
+      "community": 81,
       "norm_label": "._computelabelitems()"
     },
     {
@@ -15550,7 +15550,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_getmatchingvisiblemetas",
-      "community": 5,
+      "community": 40,
       "norm_label": ".getmatchingvisiblemetas()"
     },
     {
@@ -15560,7 +15560,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_resolvetickfontoptions",
-      "community": 21,
+      "community": 81,
       "norm_label": "._resolvetickfontoptions()"
     },
     {
@@ -15570,7 +15570,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_js_maxdigits",
-      "community": 21,
+      "community": 81,
       "norm_label": "._maxdigits()"
     },
     {
@@ -15910,7 +15910,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_on",
-      "community": 110,
+      "community": 69,
       "norm_label": "on()"
     },
     {
@@ -16160,7 +16160,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_bn_resolvenamedoptions",
-      "community": 110,
+      "community": 69,
       "norm_label": ".resolvenamedoptions()"
     },
     {
@@ -16170,7 +16170,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_bn_createresolver",
-      "community": 110,
+      "community": 69,
       "norm_label": ".createresolver()"
     },
     {
@@ -16180,7 +16180,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_xn",
-      "community": 110,
+      "community": 69,
       "norm_label": "xn()"
     },
     {
@@ -16210,7 +16210,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_wn",
-      "community": 69,
+      "community": 61,
       "norm_label": "wn()"
     },
     {
@@ -16330,7 +16330,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_an_resize",
-      "community": 69,
+      "community": 61,
       "norm_label": ".resize()"
     },
     {
@@ -16490,7 +16490,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_an_render",
-      "community": 69,
+      "community": 61,
       "norm_label": ".render()"
     },
     {
@@ -16510,7 +16510,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_an_getsorteddatasetmetas",
-      "community": 81,
+      "community": 110,
       "norm_label": "._getsorteddatasetmetas()"
     },
     {
@@ -16520,7 +16520,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_an_getsortedvisibledatasetmetas",
-      "community": 5,
+      "community": 110,
       "norm_label": ".getsortedvisibledatasetmetas()"
     },
     {
@@ -16540,7 +16540,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_an_drawdataset",
-      "community": 110,
+      "community": 69,
       "norm_label": "._drawdataset()"
     },
     {
@@ -16590,7 +16590,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_an_getvisibledatasetcount",
-      "community": 5,
+      "community": 110,
       "norm_label": ".getvisibledatasetcount()"
     },
     {
@@ -16720,7 +16720,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_an_bindresponsiveevents",
-      "community": 69,
+      "community": 42,
       "norm_label": ".bindresponsiveevents()"
     },
     {
@@ -16940,7 +16940,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_zn",
-      "community": 35,
+      "community": 49,
       "norm_label": "zn()"
     },
     {
@@ -16950,7 +16950,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_fn",
-      "community": 35,
+      "community": 49,
       "norm_label": "fn()"
     },
     {
@@ -16970,7 +16970,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_generatelabels",
-      "community": 81,
+      "community": 110,
       "norm_label": "generatelabels()"
     },
     {
@@ -17250,7 +17250,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_parseprimitivedata",
-      "community": 35,
+      "community": 49,
       "norm_label": "parseprimitivedata()"
     },
     {
@@ -17260,7 +17260,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_parsearraydata",
-      "community": 35,
+      "community": 49,
       "norm_label": "parsearraydata()"
     },
     {
@@ -17270,7 +17270,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_parseobjectdata",
-      "community": 35,
+      "community": 49,
       "norm_label": "parseobjectdata()"
     },
     {
@@ -17490,7 +17490,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_no_updatecontrolpoints",
-      "community": 5,
+      "community": 110,
       "norm_label": ".updatecontrolpoints()"
     },
     {
@@ -17730,7 +17730,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_go",
-      "community": 35,
+      "community": 49,
       "norm_label": "go()"
     },
     {
@@ -17740,7 +17740,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_po",
-      "community": 35,
+      "community": 49,
       "norm_label": "po()"
     },
     {
@@ -17750,7 +17750,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_mo",
-      "community": 49,
+      "community": 35,
       "norm_label": "mo()"
     },
     {
@@ -17820,7 +17820,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_bo_buildticks",
-      "community": 49,
+      "community": 35,
       "norm_label": ".buildticks()"
     },
     {
@@ -18070,7 +18070,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_eo_generateticklabels",
-      "community": 35,
+      "community": 49,
       "norm_label": ".generateticklabels()"
     },
     {
@@ -18470,7 +18470,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_parse",
-      "community": 35,
+      "community": 49,
       "norm_label": "parse()"
     },
     {
@@ -18490,7 +18490,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_buildticks",
-      "community": 35,
+      "community": 49,
       "norm_label": "buildticks()"
     },
     {
@@ -18840,7 +18840,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "vendor_chart_umd_min_beforedraw",
-      "community": 5,
+      "community": 110,
       "norm_label": "beforedraw()"
     },
     {
@@ -24519,9 +24519,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L12",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing",
-      "target": "account_registry_accountprofile",
-      "confidence_score": 1.0
+      "target": "account_registry_accountprofile"
     },
     {
       "relation": "uses",
@@ -24529,9 +24529,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L12",
       "weight": 0.8,
+      "confidence_score": 0.5,
       "source": "tests_test_billing_py_path",
-      "target": "account_registry_accountprofile",
-      "confidence_score": 0.5
+      "target": "account_registry_accountprofile"
     },
     {
       "relation": "calls",
@@ -24572,9 +24572,9 @@
       "source_file": "account_registry.py",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "account_registry_rationale_118",
-      "target": "account_registry_accountprofile_from_dict",
-      "confidence_score": 1.0
+      "target": "account_registry_accountprofile_from_dict"
     },
     {
       "relation": "rationale_for",
@@ -24582,9 +24582,9 @@
       "source_file": "account_registry.py",
       "source_location": "L159",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "account_registry_rationale_159",
-      "target": "account_registry_accountprofile_as_dict",
-      "confidence_score": 1.0
+      "target": "account_registry_accountprofile_as_dict"
     },
     {
       "relation": "calls",
@@ -24612,9 +24612,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "account_registry.py",
-      "source_location": "L245",
+      "source_location": "L256",
       "weight": 1.0,
-      "source": "account_registry_rationale_245",
+      "source": "account_registry_rationale_256",
       "target": "account_registry_standalonesubscription",
       "confidence_score": 1.0
     },
@@ -24675,9 +24675,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "account_registry.py",
-      "source_location": "L261",
+      "source_location": "L272",
       "weight": 1.0,
-      "source": "account_registry_rationale_261",
+      "source": "account_registry_rationale_272",
       "target": "account_registry_standalonesubscription_from_dict",
       "confidence_score": 1.0
     },
@@ -24696,9 +24696,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "account_registry.py",
-      "source_location": "L279",
+      "source_location": "L290",
       "weight": 1.0,
-      "source": "account_registry_rationale_279",
+      "source": "account_registry_rationale_290",
       "target": "account_registry_load_standalone_subscriptions",
       "confidence_score": 1.0
     },
@@ -24739,9 +24739,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "account_registry.py",
-      "source_location": "L292",
+      "source_location": "L303",
       "weight": 1.0,
-      "source": "account_registry_rationale_292",
+      "source": "account_registry_rationale_303",
       "target": "account_registry_load_registry",
       "confidence_score": 1.0
     },
@@ -24793,9 +24793,9 @@
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "account_registry.py",
-      "source_location": "L311",
+      "source_location": "L322",
       "weight": 1.0,
-      "source": "account_registry_rationale_311",
+      "source": "account_registry_rationale_322",
       "target": "account_registry_registry_document",
       "confidence_score": 1.0
     },
@@ -39076,9 +39076,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing",
-      "target": "tests_test_billing_test_codex_profile_pairs_a_token_derived_date_with_a_configured_cost",
-      "confidence_score": 1.0
+      "target": "tests_test_billing_test_codex_profile_pairs_a_token_derived_date_with_a_configured_cost"
     },
     {
       "relation": "contains",
@@ -39086,9 +39086,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L212",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing",
-      "target": "tests_test_billing_test_codex_profile_without_a_configured_cost_stays_unpriced",
-      "confidence_score": 1.0
+      "target": "tests_test_billing_test_codex_profile_without_a_configured_cost_stays_unpriced"
     },
     {
       "relation": "contains",
@@ -39307,9 +39307,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L184",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing_test_codex_profile_pairs_a_token_derived_date_with_a_configured_cost",
-      "target": "tests_test_billing_write_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_billing_write_auth"
     },
     {
       "relation": "calls",
@@ -39318,9 +39318,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L213",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing_test_codex_profile_without_a_configured_cost_stays_unpriced",
-      "target": "tests_test_billing_write_auth",
-      "confidence_score": 1.0
+      "target": "tests_test_billing_write_auth"
     },
     {
       "relation": "calls",
@@ -39351,9 +39351,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing_test_codex_profile_pairs_a_token_derived_date_with_a_configured_cost",
-      "target": "tests_test_billing_py_path",
-      "confidence_score": 1.0
+      "target": "tests_test_billing_py_path"
     },
     {
       "relation": "references",
@@ -39362,9 +39362,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L212",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing_test_codex_profile_without_a_configured_cost_stays_unpriced",
-      "target": "tests_test_billing_py_path",
-      "confidence_score": 1.0
+      "target": "tests_test_billing_py_path"
     },
     {
       "relation": "references",
@@ -39559,9 +39559,9 @@
       "source_file": "tests/test_billing.py",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "tests_test_billing_rationale_183",
-      "target": "tests_test_billing_test_codex_profile_pairs_a_token_derived_date_with_a_configured_cost",
-      "confidence_score": 1.0
+      "target": "tests_test_billing_test_codex_profile_pairs_a_token_derived_date_with_a_configured_cost"
     },
     {
       "relation": "contains",
@@ -72269,5 +72269,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "5e2d961bf483ce7018c880eeb42acad3c96aa533"
+  "built_at_commit": "64e2783307456ce6cd7da37eecd9f0b9beb3dcfd"
 }

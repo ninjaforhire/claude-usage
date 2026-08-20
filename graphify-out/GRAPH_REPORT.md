@@ -1,16 +1,16 @@
-# Graph Report - claude-usage  (2026-08-06)
+# Graph Report - claude-usage  (2026-08-16)
 
 ## Corpus Check
-- 82 files · ~149,464 words
+- 82 files · ~149,529 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2260 nodes · 4710 edges · 117 communities (101 shown, 16 thin omitted)
+- 2260 nodes · 4710 edges · 117 communities (102 shown, 15 thin omitted)
 - Extraction: 95% EXTRACTED · 5% INFERRED · 0% AMBIGUOUS · INFERRED: 223 edges (avg confidence: 0.78)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5e2d961b`
+- Built from commit: `64e27833`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -154,7 +154,7 @@
 ## Import Cycles
 - 1-file cycle: `accounts.py -> accounts.py`
 
-## Communities (117 total, 16 thin omitted)
+## Communities (117 total, 15 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.17
@@ -178,7 +178,7 @@ Nodes (32): Architecture, CHANGELOG conventions, Common commands, Cost calculati
 
 ### Community 5 - "Community 5"
 Cohesion: 0.05
-Nodes (58): _(), addElements(), afterUpdate(), ao(), at(), average(), beforeDraw(), cn() (+50 more)
+Nodes (60): _(), addElements(), afterUpdate(), ao(), at(), average(), cn(), configure() (+52 more)
 
 ### Community 6 - "Community 6"
 Cohesion: 0.05
@@ -241,8 +241,8 @@ Cohesion: 0.12
 Nodes (10): color(), jt(), kt(), mt(), qt(), _t(), te(), wt() (+2 more)
 
 ### Community 21 - "Community 21"
-Cohesion: 0.09
-Nodes (24): afterDraw(), afterEvent(), ai(), ea(), f(), fe(), Ft(), gs() (+16 more)
+Cohesion: 0.10
+Nodes (21): afterDraw(), afterEvent(), ai(), ea(), f(), Ft(), gs(), ki() (+13 more)
 
 ### Community 22 - "Community 22"
 Cohesion: 0.12
@@ -297,8 +297,8 @@ Cohesion: 0.33
 Nodes (3): project_name_from_cwd(), Derive a friendly project name from cwd path., TestProjectNameFromCwd
 
 ### Community 35 - "Community 35"
-Cohesion: 0.08
-Nodes (25): a(), aa(), As(), b(), buildTicks(), determineDataLimits(), Fn(), g() (+17 more)
+Cohesion: 0.13
+Nodes (15): a(), aa(), As(), b(), determineDataLimits(), ei(), H(), ii() (+7 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.15
@@ -318,7 +318,7 @@ Nodes (16): App and browser coverage, Bundled account-selection skills, Claude s
 
 ### Community 40 - "Community 40"
 Cohesion: 0.09
-Nodes (22): ca(), _calculateBarIndexPixels(), _calculateBarValuePixels(), getBasePixel(), getLabelAndValue(), getLabelForValue(), getPixelForTick(), getPixelForValue() (+14 more)
+Nodes (23): ca(), _calculateBarIndexPixels(), _calculateBarValuePixels(), getBasePixel(), getLabelAndValue(), getLabelForValue(), getPixelForTick(), getPixelForValue() (+15 more)
 
 ### Community 41 - "Community 41"
 Cohesion: 0.33
@@ -349,8 +349,8 @@ Cohesion: 0.50
 Nodes (4): default, description, type, claudeUsage.pythonPath
 
 ### Community 49 - "Community 49"
-Cohesion: 0.08
-Nodes (12): bo, co(), Do(), eo(), et(), Gn(), H(), l() (+4 more)
+Cohesion: 0.06
+Nodes (21): bo, buildTicks(), co(), Do(), eo(), et(), Fn(), Gn() (+13 more)
 
 ### Community 50 - "Community 50"
 Cohesion: 0.06
@@ -380,13 +380,17 @@ Nodes (3): repository, type, url
 Cohesion: 0.14
 Nodes (4): bn, pn(), removeBox(), stop()
 
+### Community 61 - "Community 61"
+Cohesion: 0.14
+Nodes (4): bt, fs(), wn(), ws
+
 ### Community 62 - "Community 62"
 Cohesion: 0.16
 Nodes (16): _extract_fable_limit(), _extract_windows(), fetch_profile_email(), fetch_usage(), _get_json(), list_keychain_slots(), _parse_usage(), _post_json() (+8 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.23
-Nodes (5): ce(), de, dt(), he(), Oe()
+Cohesion: 0.19
+Nodes (6): ce(), de, dt(), he(), Oe(), p()
 
 ### Community 65 - "Community 65"
 Cohesion: 0.11
@@ -401,8 +405,8 @@ Cohesion: 0.47
 Nodes (3): Verify CLI and dashboard pricing tables stay in sync., Extract pricing values from the dashboard JS PRICING object., TestPricingParity
 
 ### Community 69 - "Community 69"
-Cohesion: 0.22
-Nodes (3): fs(), wn(), ws
+Cohesion: 0.16
+Nodes (12): ct(), ge(), Ie(), je(), ke(), ms(), on(), qe() (+4 more)
 
 ### Community 70 - "Community 70"
 Cohesion: 0.08
@@ -437,8 +441,8 @@ Cohesion: 0.15
 Nodes (13): _fetch_all_usage_locked(), _is_expired(), NoUsableCredentials, Raised when no supported Claude Code credential store is usable., Create a diagnostic failure for the keychain fallback alone., Return True if the access token is expired or expiry is unknown., Persist a rejected stored refresh token while retaining cached windows., Classify token-endpoint 400/401 as re-login failures, never throttles. (+5 more)
 
 ### Community 81 - "Community 81"
-Cohesion: 0.07
-Nodes (17): Ae(), be(), Bi(), Ci(), ct(), es(), Fi(), ge() (+9 more)
+Cohesion: 0.10
+Nodes (10): Ae(), be(), Bi(), Ci(), fe(), Fi(), ks(), ls (+2 more)
 
 ### Community 82 - "Community 82"
 Cohesion: 0.20
@@ -497,8 +501,8 @@ Cohesion: 0.33
 Nodes (5): Decision rule, Fable Next, If snapshots are stale, Meaning, Run
 
 ### Community 110 - "Community 110"
-Cohesion: 0.11
-Nodes (17): beforeDatasetDraw(), beforeDatasetsDraw(), da(), fa(), ga(), ha, Ie(), je() (+9 more)
+Cohesion: 0.12
+Nodes (12): beforeDatasetDraw(), beforeDatasetsDraw(), beforeDraw(), da(), fa(), ga(), generateLabels(), ha (+4 more)
 
 ### Community 111 - "Community 111"
 Cohesion: 0.67
@@ -539,7 +543,7 @@ Nodes (5): Codex Next, Decision rule, If snapshots are stale, Run, What it consi
 ## Knowledge Gaps
 - **169 isolated node(s):** `Path`, `CompletedProcess`, `name`, `displayName`, `description` (+164 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **16 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **15 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
