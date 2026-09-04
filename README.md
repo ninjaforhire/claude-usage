@@ -122,6 +122,7 @@ The account orbs are live provider status, not screenshots:
 
 | Model | Input | Output | Cache Write | Cache Read |
 |-------|-------|--------|------------|-----------|
+| claude-fable-5-1 | $10.00/MTok | $50.00/MTok | $12.50/MTok | $0.25/MTok |
 | claude-opus-5 | $5.00/MTok | $25.00/MTok | $6.25/MTok | $0.50/MTok |
 | claude-opus-4-8 | $5.00/MTok | $25.00/MTok | $6.25/MTok | $0.50/MTok |
 | claude-opus-4-7 | $5.00/MTok | $25.00/MTok | $6.25/MTok | $0.50/MTok |
@@ -221,7 +222,7 @@ projects, branches, sessions, or local tokens to an account profile unless the u
 has independently separated those source directories.
 
 For an eligible Max/premium Claude profile with a live weekly snapshot, the UI
-shows **guaranteed Fable headroom** as `max(0, weekly remaining − 50)`. It is a
+shows **guaranteed Fable 5.1 headroom** as `max(0, weekly remaining − 50)`. It is a
 conservative shared-limit calculation, not an invented per-model meter.
 
 Codex snapshots also retain the number of available earned reset credits and an
@@ -277,7 +278,7 @@ are never invoked by `accounts setup`, `accounts profiles ...`, or test mode.
 
 | Skill | Command | Behavior |
 |---|---|---|
-| [`skills/fable-next/SKILL.md`](skills/fable-next/SKILL.md) | `python3 cli.py fable-next --profiles` | Ranks credential-free Claude profiles by conservative Fable 5 headroom. |
+| [`skills/fable-next/SKILL.md`](skills/fable-next/SKILL.md) | `python3 cli.py fable-next --profiles` | Ranks credential-free Claude profiles by conservative Fable 5.1 headroom. |
 | [`skills/codex-next/SKILL.md`](skills/codex-next/SKILL.md) | `python3 cli.py codex-next` | Ranks Codex profiles by live 5-hour/weekly room and flags reset credits without consuming them. |
 
 Copy the skill directory into the appropriate local agent skill location, or

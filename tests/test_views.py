@@ -393,4 +393,5 @@ class TestModelShort(unittest.TestCase):
         from views import _model_short
 
         self.assertEqual(_model_short("claude-fable-5"), "Fable 5")
+        self.assertEqual(_model_short("claude-fable-5-1"), "Fable 5.1")
         self.assertEqual(_model_short("claude-mythos-5"), "Mythos 5")

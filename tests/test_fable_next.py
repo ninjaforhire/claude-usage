@@ -1,9 +1,12 @@
-"""Tests for cli.fable-next — Fable-5 account routing logic."""
+"""Tests for cli.fable-next — Fable 5.1 account routing logic."""
+
+from datetime import datetime, timezone
 
 from unittest import mock
 
 from cli import (
     _fable_rank,
+    _fable_runtime_status,
     _fmt_reset_local,
     _norm_discount,
     _switch_to_live_keychain,
@@ -44,7 +47,8 @@ def _entry(
     error=None,
     is_main=False,
     fable_remaining_pct=None,
-    fable_resets_at=None
+    fable_resets_at=None,
+    fetched_at="2026-07-02T02:55:00Z",
 ):
     """Build a dashboard-payload-shaped entry for the ranker."""
     windows = {}
@@ -64,6 +68,7 @@ def _entry(
         "error": error,
         "is_main": is_main,
         "renews_in_days": 8,
+        "fetched_at": fetched_at,
         "windows": windows,
     }
 
@@ -142,6 +147,78 @@ def test_reset_formatter_handles_none_and_bad_input():
     assert _fmt_reset_local(None) == "--"
     assert _fmt_reset_local("not-a-date") == "--"
     assert _fmt_reset_local("2026-07-08T10:00:00Z") != "--"
+
+
+def test_runtime_status_uses_fable_51_when_current_profile_is_fresh():
+    entry = _entry(weekly_free=70, h5=80, fable_remaining_pct=20)
+
+    status = _fable_runtime_status(
+        [entry],
+        owner=entry["email"],
+        observed_at=datetime(2026, 7, 2, 3, 0, tzinfo=timezone.utc),
+    )
+
+    assert status["available"] is True
+    assert status["model"] == "claude-fable-5-1"
+    assert status["backup_model"] == "claude-opus-5"
+    assert status["headroom_percent"] == 20
+
+
+def test_runtime_status_fails_to_opus_when_fable_headroom_is_exhausted():
+    entry = _entry(weekly_free=40, h5=80, fable_remaining_pct=0)
+
+    status = _fable_runtime_status(
+        [entry],
+        owner=entry["email"],
+        observed_at=datetime(2026, 7, 2, 3, 0, tzinfo=timezone.utc),
+    )
+
+    assert status["available"] is False
+    assert status["reason"] == "fable_headroom_exhausted"
+    assert status["headroom_percent"] == 0
+
+
+def test_runtime_status_rejects_stale_or_unknown_current_profile():
+    entry = _entry(
+        weekly_free=100,
+        h5=100,
+        fetched_at="2026-07-02T01:00:00Z",
+    )
+    observed = datetime(2026, 7, 2, 3, 0, tzinfo=timezone.utc)
+
+    stale = _fable_runtime_status([entry], owner=entry["email"], observed_at=observed)
+    unknown = _fable_runtime_status([entry], owner=None, observed_at=observed)
+
+    assert stale["reason"] == "usage_stale"
+    assert unknown["reason"] == "current_profile_unknown"
+    assert "email" not in stale
+    assert "email" not in unknown
+
+
+def test_runtime_status_zeroes_cached_headroom_when_auth_is_broken():
+    entry = _entry(weekly_free=100, h5=100, fable_remaining_pct=40)
+    entry.update(
+        {
+            "error": "invalid_grant",
+            "error_kind": "auth",
+            "needs_relogin": True,
+            "windows": {
+                "five_hour": {"remaining_pct": 100, "resets_at": None},
+                "seven_day": {"remaining_pct": 100, "resets_at": None},
+                "fable": {"remaining_pct": 40, "resets_at": None},
+            },
+        }
+    )
+
+    status = _fable_runtime_status(
+        [entry],
+        owner=entry["email"],
+        observed_at=datetime(2026, 7, 2, 3, 0, tzinfo=timezone.utc),
+    )
+
+    assert status["available"] is False
+    assert status["reason"] == "auth_broken"
+    assert status["headroom_percent"] == 0
 
 
 # ── --switch (live credential ownership) ─────────────────────────────────────
