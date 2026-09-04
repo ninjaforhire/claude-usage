@@ -373,7 +373,7 @@ def _parse_timestamp(value: Any) -> float:
 
 
 def fable_headroom(subscription: dict[str, Any]) -> Optional[dict[str, Any]]:
-    """Calculate the guaranteed Fable 5 headroom from a shared weekly limit.
+    """Calculate the guaranteed Fable 5.1 headroom from a shared weekly limit.
 
     Fable can use at most half of the weekly plan limit. When only the total
     weekly remaining percentage is available, the amount guaranteed to remain
@@ -394,7 +394,7 @@ def fable_headroom(subscription: dict[str, Any]) -> Optional[dict[str, Any]]:
 
 
 def _is_fable_eligible(profile: dict[str, Any], subscription: dict[str, Any]) -> bool:
-    """Return whether the locally declared plan can include Fable 5 usage."""
+    """Return whether the locally declared plan can include Fable 5.1 usage."""
     account = subscription.get("account", {})
     account_plan = account.get("plan") if isinstance(account, dict) else None
     configured = profile.get("providers", {}).get("claude", {}).get("plan_label")

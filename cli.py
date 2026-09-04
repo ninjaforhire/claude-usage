@@ -21,6 +21,12 @@ from datetime import datetime, date, timedelta, timezone
 DB_PATH = Path.home() / ".claude" / "usage.db"
 
 PRICING = {
+    "claude-fable-5-1": {
+        "input": 10.00,
+        "output": 50.00,
+        "cache_read": 0.25,
+        "cache_write": 12.50,
+    },
     "claude-fable-5": {
         "input": 10.00,
         "output": 50.00,
@@ -119,7 +125,7 @@ def get_pricing(model):
     # Substring fallback: match model family by keyword
     m = model.lower()
     if "fable" in m:
-        return PRICING["claude-fable-5"]
+        return PRICING["claude-fable-5-1"]
     if "mythos" in m:
         return PRICING["claude-mythos-5"]
     if "opus" in m:
@@ -975,8 +981,8 @@ def cmd_codex_next(arguments: list[str]) -> None:
     rank_codex_next(arguments)
 
 
-# ── Fable-5 account routing ───────────────────────────────────────────────────
-# The usage API reports a real per-model weekly limit for Fable 5 (a
+# ── Fable 5.1 account routing ─────────────────────────────────────────────────
+# The usage API reports a real per-model weekly limit for Fable 5.1 (a
 # `weekly_scoped` entry in raw["limits"] with scope.model.display_name ==
 # "Fable" — see accounts._extract_fable_limit), so fable_room is read directly
 # off the account, not estimated. Rank active accounts by that headroom,
@@ -989,6 +995,7 @@ def cmd_codex_next(arguments: list[str]) -> None:
 
 FABLE_CAP_PCT = 50  # fallback cap when the real per-model window is unavailable
 DRAIN_BOOST = 100.0  # running-window bonus: burn a ticking clock before a reserve
+FABLE_STATUS_MAX_AGE = timedelta(minutes=15)
 
 
 def _fmt_reset_local(iso: str | None) -> str:
@@ -1003,16 +1010,26 @@ def _fmt_reset_local(iso: str | None) -> str:
 
 
 def _fable_rank(entry: dict) -> dict:
-    """Score one dashboard entry for Fable-5 suitability.
+    """Score one dashboard entry for Fable 5.1 suitability.
 
     Returns a dict with fable_room, score, and human reasons. score is None when
     the account is inactive or its usage is unavailable (excluded from routing).
     """
     if not entry.get("active"):
-        return {"score": None, "fable_room": 0, "reasons": ["subscription inactive"]}
+        return {
+            "score": None,
+            "fable_room": 0,
+            "reasons": ["subscription inactive"],
+            "unavailable_reason": "subscription_inactive",
+        }
     w = entry.get("windows") or {}
     if "seven_day" not in w or "five_hour" not in w:
-        return {"score": None, "fable_room": 0, "reasons": ["usage unavailable"]}
+        return {
+            "score": None,
+            "fable_room": 0,
+            "reasons": ["usage unavailable"],
+            "unavailable_reason": "usage_missing",
+        }
 
     weekly_free = w["seven_day"]["remaining_pct"]
     h5 = w["five_hour"]["remaining_pct"]
@@ -1031,6 +1048,11 @@ def _fable_rank(entry: dict) -> dict:
             "fable_room": fable_room,
             "reasons": [marker],
             "stale": True,
+            "unavailable_reason": (
+                "auth_broken"
+                if entry.get("needs_relogin") or entry.get("error_kind") == "auth"
+                else "stale_cache"
+            ),
         }
     running = bool(w["seven_day"]["resets_at"])
     throttled = h5 < 15
@@ -1048,6 +1070,59 @@ def _fable_rank(entry: dict) -> dict:
     if entry.get("is_main"):
         reasons.append("main")
     return {"score": score, "fable_room": fable_room, "reasons": reasons}
+
+
+def _fable_runtime_status(
+    entries: list[dict],
+    *,
+    owner: str | None,
+    observed_at: datetime | None = None,
+) -> dict:
+    """Return a PII-free routing decision for the currently logged-in profile."""
+    now = observed_at or datetime.now(timezone.utc)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=timezone.utc)
+    current = next((entry for entry in entries if entry.get("email") == owner), None)
+    base = {
+        "schema_version": 1,
+        "model": "claude-fable-5-1",
+        "backup_model": "claude-opus-5",
+        "available": False,
+        "headroom_percent": 0,
+        "observed_at": now.astimezone(timezone.utc).isoformat(),
+    }
+    if current is None:
+        return {**base, "reason": "current_profile_unknown"}
+
+    fetched_at = current.get("fetched_at")
+    try:
+        fetched = datetime.fromisoformat(str(fetched_at).replace("Z", "+00:00"))
+        if fetched.tzinfo is None:
+            fetched = fetched.replace(tzinfo=timezone.utc)
+    except (TypeError, ValueError):
+        return {**base, "reason": "usage_stale"}
+    if (
+        now.astimezone(timezone.utc) - fetched.astimezone(timezone.utc)
+        > FABLE_STATUS_MAX_AGE
+    ):
+        return {**base, "reason": "usage_stale", "fetched_at": fetched.isoformat()}
+
+    rank = _fable_rank(current)
+    base["fetched_at"] = fetched.astimezone(timezone.utc).isoformat()
+    if rank["score"] is None:
+        return {**base, "reason": rank["unavailable_reason"]}
+    windows = current.get("windows") or {}
+    five_hour = (windows.get("five_hour") or {}).get("remaining_pct")
+    if not isinstance(five_hour, (int, float)) or five_hour < 15:
+        return {**base, "reason": "five_hour_throttled"}
+    if rank["fable_room"] <= 0:
+        return {**base, "reason": "fable_headroom_exhausted"}
+    return {
+        **base,
+        "available": True,
+        "headroom_percent": rank["fable_room"],
+        "reason": "available",
+    }
 
 
 def _switch_to_live_keychain(_accts) -> str | None:
@@ -1100,7 +1175,7 @@ def cmd_fable_cost(pattern: str | None = None, discount: str | None = None) -> N
     """
     conn = require_db()
     conn.row_factory = sqlite3.Row
-    fab = PRICING["claude-fable-5"]
+    fab = PRICING["claude-fable-5-1"]
     frac = _norm_discount(discount)
 
     like = f"%{pattern}%" if pattern else "%"
@@ -1162,8 +1237,12 @@ def cmd_fable_cost(pattern: str | None = None, discount: str | None = None) -> N
     print()
 
 
-def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
-    """Recommend which account to use for Fable-5 work right now.
+def cmd_fable_next(
+    refresh: bool = False,
+    switch: bool = False,
+    json_output: bool = False,
+) -> None:
+    """Recommend which account to use for Fable 5.1 work right now.
 
     Ranks active accounts by real per-model Fable headroom (from the API's
     weekly_scoped Fable limit; falls back to weekly_remaining - 50% estimate
@@ -1177,12 +1256,16 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
     if switch:
         _switch_to_live_keychain(_accts)
     if refresh:
-        _accts.fetch_all_usage()
+        _accts.fetch_all_usage(force=True)
     store = _accts.load_store()
     accts = store["accounts"]
     owner = store.get("keychain_owner")
     payload = _accts.dashboard_payload(accts)
     entries = payload["accounts"]
+
+    if json_output:
+        print(json.dumps(_fable_runtime_status(entries, owner=owner), sort_keys=True))
+        return
 
     ranked = []
     for e in entries:
@@ -1200,7 +1283,7 @@ def cmd_fable_next(refresh: bool = False, switch: bool = False) -> None:
 
     print()
     hr("=")
-    print("  FABLE-NEXT — which account for Fable 5 work")
+    print("  FABLE-NEXT — which account for Fable 5.1 work")
     hr("=")
     print(f"  Keychain now: {owner or 'unknown'}")
     print("  FABLE = real per-model weekly usage from the API")
@@ -1281,8 +1364,8 @@ Usage:
   python cli.py accounts profiles ...         Manage credential-free local account profiles
   python cli.py freshness-tick                One daemon-freshness watch cycle + heartbeat
                                                  (runs standalone, independent of the :8080 dashboard)
-  python cli.py fable-next [--refresh] [--switch]
-                                                 Recommend which account to use for Fable 5
+  python cli.py fable-next [--refresh] [--switch] [--json]
+                                                 Recommend which account to use for Fable 5.1
                                                  work now (real per-model Fable usage from
                                                  the API, not an estimate);
                                                  --refresh fetches live usage first;
@@ -1395,7 +1478,11 @@ if __name__ == "__main__":
         if "--profiles" in rest:
             cmd_profile_fable_next([value for value in rest if value != "--profiles"])
         else:
-            cmd_fable_next(refresh="--refresh" in rest, switch="--switch" in rest)
+            cmd_fable_next(
+                refresh="--refresh" in rest,
+                switch="--switch" in rest,
+                json_output="--json" in rest,
+            )
     elif command == "codex-next":
         cmd_codex_next(rest)
     elif command == "fable-cost":

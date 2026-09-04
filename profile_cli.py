@@ -269,7 +269,7 @@ def _percent(value: object) -> str:
 
 
 def cmd_fable_next(arguments: list[str]) -> None:
-    """Rank local Max profiles by conservative Fable 5 weekly headroom."""
+    """Rank local Max profiles by conservative Fable 5.1 weekly headroom."""
     from account_profiles import load_registry, rank_fable_profiles
 
     parser = argparse.ArgumentParser(prog="python cli.py fable-next")
@@ -285,7 +285,7 @@ def cmd_fable_next(arguments: list[str]) -> None:
     if not rows:
         print("No local Claude account profiles configured.")
         return
-    print("FABLE NEXT — guaranteed headroom from the shared 50% weekly cap")
+    print("FABLE NEXT — Fable 5.1 headroom from the shared 50% weekly cap")
     for index, row in enumerate(rows):
         fable = row["fable"]
         if fable is None:

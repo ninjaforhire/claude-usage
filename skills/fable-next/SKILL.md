@@ -1,6 +1,6 @@
 ---
 name: fable-next
-description: "Choose the local Claude Max account with the most reliable Fable 5 capacity. Use when the user asks '/fable-next', 'which account for Fable', or 'where should I run Fable'."
+description: "Choose the local Claude Max account with the most reliable Fable 5.1 capacity. Use when the user asks '/fable-next', 'which account for Fable', or 'where should I run Fable'."
 allowed-tools:
   - Bash
 ---
@@ -15,26 +15,40 @@ or environment variables.
 
 From the dashboard repository:
 
+For a person choosing an interactive profile:
+
 ```bash
 python3 cli.py fable-next --profiles
 ```
+
+For a logic router, request the PII-free machine contract:
+
+```bash
+python3 cli.py fable-next --json --refresh
+```
+
+The refresh is required because automated routing accepts usage snapshots no
+older than 15 minutes. The JSON response names `claude-opus-5` as the backup. Route to Fable 5.1 only
+when `available` is `true`; otherwise use the backup immediately. Do not wait,
+retry Fable, or require Fable as a strict dependency.
 
 If the repository uses `python` rather than `python3`, use that interpreter
 consistently.
 
 ## Meaning
 
-Fable 5 is limited to 50% of an eligible Max or premium weekly subscription
+Fable 5.1 is limited to 50% of an eligible Max or premium weekly subscription
 window. The supported snapshot provides only total weekly remaining capacity, so
 the command reports the conservative, guaranteed amount:
 
 ```text
-guaranteed Fable headroom = max(0, weekly remaining − 50)
+guaranteed Fable 5.1 headroom = max(0, weekly remaining − 50)
 ```
 
 It is intentionally not presented as an exact per-model Fable meter. A value of
 zero means no Fable capacity is guaranteed from the available aggregate data;
-it does not prove that Fable is unavailable.
+it does not prove that Fable is unavailable. Automated routes still fail over
+to Opus 5 so a stale or uncertain snapshot cannot block work.
 
 ## If snapshots are stale
 

@@ -110,6 +110,13 @@ class TestGetPricing(unittest.TestCase):
         self.assertEqual(p["cache_read"], 1.00)
         self.assertEqual(p["cache_write"], 12.50)
 
+    def test_fable_5_1_exact(self):
+        p = get_pricing("claude-fable-5-1")
+        self.assertEqual(p["input"], 10.00)
+        self.assertEqual(p["output"], 50.00)
+        self.assertEqual(p["cache_read"], 0.25)
+        self.assertEqual(p["cache_write"], 12.50)
+
     def test_mythos_5_exact(self):
         p = get_pricing("claude-mythos-5")
         self.assertEqual(p["input"], 10.00)

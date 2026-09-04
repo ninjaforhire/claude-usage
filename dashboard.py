@@ -905,7 +905,7 @@ function renderProviderCard(key, provider) {
     : '';
   const fable = key === 'claude' ? (provider.fable || fableHeadroom(subscription)) : null;
   const fableStatus = fable
-    ? `<p class="fable-headroom">Fable 5 · <strong>${fmtPercent(fable.guaranteed_percent)} guaranteed weekly headroom</strong> · ${fmtPercent(fable.weekly_remaining_percent)} total week remains</p>`
+    ? `<p class="fable-headroom">Fable 5.1 · <strong>${fmtPercent(fable.guaranteed_percent)} guaranteed weekly headroom</strong> · ${fmtPercent(fable.weekly_remaining_percent)} total week remains</p>`
     : '';
   const resetCredits = key === 'codex' ? subscription.reset_credits : null;
   const resetStatus = resetCredits && Number.isInteger(resetCredits.available_count)
@@ -1041,6 +1041,7 @@ function tzDisplayName(tzMode) {
 
 // ── Pricing (Anthropic API, April 2026) ────────────────────────────────────
 const PRICING = {
+  'claude-fable-5-1':  { input: 10.00, output: 50.00, cache_write: 12.50, cache_read: 0.25 },
   'claude-fable-5':    { input: 10.00, output: 50.00, cache_write: 12.50, cache_read: 1.00 },
   'claude-mythos-5':   { input: 10.00, output: 50.00, cache_write: 12.50, cache_read: 1.00 },
   'claude-opus-5':     { input:  5.00, output: 25.00, cache_write:  6.25, cache_read: 0.50 },
@@ -1070,7 +1071,7 @@ function getPricing(model) {
     if (model.startsWith(key)) return PRICING[key];
   }
   const m = model.toLowerCase();
-  if (m.includes('fable'))  return PRICING['claude-fable-5'];
+  if (m.includes('fable'))  return PRICING['claude-fable-5-1'];
   if (m.includes('mythos')) return PRICING['claude-mythos-5'];
   if (m.includes('opus'))   return PRICING['claude-opus-5'];
   if (m.includes('sonnet')) return PRICING['claude-sonnet-5'];
