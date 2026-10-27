@@ -2,8 +2,11 @@
 
 Two sinks, both best-effort, neither allowed to raise:
 
-  1. POST to Jimbo's daemon-alert route (Telegram transport). Fire-and-forget,
-     3s timeout. If the route is absent or Jimbo is down the POST simply fails.
+  1. POST to Jimbo's daemon-alert route (Telegram transport) through the shared
+     authenticated client (_shared.integrations.jimbo_internal.post_internal_alert)
+     run under Homebrew python3 in a subprocess, because that client needs 3.11+
+     and the vault; it adds the X-Jimbo-Internal header, retries, and spools when
+     Jimbo is down.
   2. A local macOS notification (osascript) so the alert is never fully lost
      even when Jimbo can't deliver it.
 
@@ -14,24 +17,36 @@ Stdlib-only / py3.9 — the dashboard runs under system python3.9.
 """
 
 import json
+import os
 import subprocess
-import urllib.request
 
 JIMBO_ALERT_URL = "http://127.0.0.1:8324/internal/daemon-alert"
 JIMBO_DIGEST_URL = "http://127.0.0.1:8324/internal/daemon-digest"
+BRIDGE_PYTHON = "/opt/homebrew/bin/python3"
+AGENTS_ROOT = os.path.join(os.path.expanduser("~"), "_Code", "mighty", "agents")
+BRIDGE_TIMEOUT_S = 25
+_BRIDGE_SHIM = """import json, sys
+sys.path.insert(0, sys.argv[1])
+from _shared.integrations.jimbo_internal import post_internal_alert
+ok = post_internal_alert(sys.argv[2], json.load(sys.stdin), timeout=float(sys.argv[3]))
+sys.exit(0 if ok else 1)
+"""
 
 
 def _post_jimbo(payload, timeout=3, url=JIMBO_ALERT_URL):
-    """POST a payload to Jimbo. Returns True on 2xx, False on any failure."""
+    """Return shared-client durable acceptance, or False on any failure.
+
+    The shared client reports durable acceptance when the alert was sent, held
+    for the digest flush, or spooled.
+    """
     try:
-        req = urllib.request.Request(
-            url,
-            data=json.dumps(payload).encode(),
-            method="POST",
-            headers={"Content-Type": "application/json"},
+        result = subprocess.run(
+            [BRIDGE_PYTHON, "-I", "-c", _BRIDGE_SHIM, AGENTS_ROOT, url, str(timeout)],
+            input=json.dumps(payload).encode(),
+            capture_output=True,
+            timeout=BRIDGE_TIMEOUT_S,
         )
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return 200 <= getattr(resp, "status", 200) < 300
+        return result.returncode == 0
     except Exception:
         return False
 
