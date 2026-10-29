@@ -233,6 +233,59 @@ def test_codex_profile_without_a_configured_cost_stays_unpriced(tmp_path: Path) 
     assert aggregator._billing_state(profile)["cost_usd"] is None
 
 
+def _codex_home_profile(home: Path) -> AccountProfile:
+    return AccountProfile.from_dict(
+        {
+            "id": "codex",
+            "email": None,
+            "provider": "codex",
+            "config_dir": str(home),
+            "keychain_slot": None,
+            "plan": "pro_20x",
+            "caps": ["terra"],
+            "active": True,
+            "is_main": True,
+        }
+    )
+
+
+def test_paid_codex_token_with_lagging_period_end_rolls_forward(
+    tmp_path: Path,
+) -> None:
+    """A token minted after renewal can still carry the prior period's end date."""
+    for home, until in (("one", "2026-10-23"), ("two", "2026-09-23")):
+        _write_auth(
+            tmp_path / home,
+            {
+                "chatgpt_account_id": "16e0c4de-0000",
+                "chatgpt_plan_type": "pro",
+                "chatgpt_subscription_active_until": f"{until}T22:46:44+00:00",
+            },
+        )
+        state = aggregator._billing_state(
+            _codex_home_profile(tmp_path / home), today=_dt.date(2026, 10, 29)
+        )
+        assert state["next_renewal"] == "2026-11-23"
+        assert state["days_until"] == 25
+
+
+def test_free_codex_token_with_past_period_end_is_not_rolled(tmp_path: Path) -> None:
+    """A lapsed plan keeps its real end date instead of inventing a renewal."""
+    _write_auth(
+        tmp_path,
+        {
+            "chatgpt_account_id": "16e0c4de-0000",
+            "chatgpt_plan_type": "free",
+            "chatgpt_subscription_active_until": "2026-10-23T22:46:44+00:00",
+        },
+    )
+    state = aggregator._billing_state(
+        _codex_home_profile(tmp_path), today=_dt.date(2026, 10, 29)
+    )
+    assert state["next_renewal"] == "2026-10-23"
+    assert state["days_until"] == -6
+
+
 def test_standalone_subscriptions_are_billed_even_with_no_local_profile() -> None:
     standalone = [
         StandaloneSubscription.from_dict(

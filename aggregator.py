@@ -13,6 +13,7 @@ import codex_limits
 from account_registry import (
     AccountProfile,
     REGISTRY_PATH,
+    _add_months,
     load_registry,
     load_standalone_subscriptions,
 )
@@ -64,6 +65,12 @@ def _codex_billing(profile: AccountProfile, today: date) -> dict[str, Any] | Non
         renewal = datetime.fromisoformat(str(until)).date()
     except ValueError:
         return None
+    # OpenAI keeps stamping the prior period's end into freshly issued tokens
+    # (a token minted 2026-10-29 still said 2026-10-23), so a still-paid plan
+    # with a past date has renewed: roll it forward like a registry anchor.
+    if claims.get("chatgpt_plan_type") not in (None, "", "free"):
+        while renewal < today:
+            renewal = _add_months(renewal, 1)
     return {
         "known": True,
         "source": "chatgpt-token",
