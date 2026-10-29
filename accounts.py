@@ -5,6 +5,7 @@ from __future__ import annotations
 import calendar
 import contextlib
 import datetime as _dt
+import hashlib
 import json
 import os
 import re
@@ -360,8 +361,30 @@ def resolve_keychain_slot(*, verify: bool = False) -> tuple[str, dict[str, str]]
     return _resolve_keychain_slot(verify=verify, store_path=STORE_PATH)
 
 
+def config_dir_credential_sources() -> tuple[Path, str] | None:
+    """Return the file + keychain slot Claude Code uses under ``CLAUDE_CONFIG_DIR``.
+
+    A custom config dir (Orca profiles) makes ``/login`` write to
+    ``<dir>/.credentials.json`` or the slot suffixed with the first 8 hex of the
+    dir's sha256, never the default ``~/.claude`` stores.
+    """
+    raw = os.environ.get("CLAUDE_CONFIG_DIR")
+    if not raw:
+        return None
+    digest = hashlib.sha256(raw.encode("utf-8")).hexdigest()[:8]
+    return Path(raw).expanduser() / ".credentials.json", f"{KEYCHAIN_SERVICE}-{digest}"
+
+
 def keychain_oauth() -> dict[str, str]:
-    """Return live file OAuth, then legacy keychain OAuth, or a typed failure."""
+    """Return this session's config-dir OAuth, then live file, then legacy keychain."""
+    session_sources = config_dir_credential_sources()
+    if session_sources is not None:
+        session_file, session_slot = session_sources
+        oauth, _ = _read_credentials_file_with_reason(session_file)
+        if oauth is None:
+            oauth, _ = _read_keychain_slot_with_reason(session_slot)
+        if oauth is not None:
+            return oauth
     oauth, file_reason = _read_credentials_file_with_reason(CREDENTIALS_PATH)
     if oauth is not None:
         return oauth

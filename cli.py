@@ -1009,6 +1009,28 @@ def _fmt_reset_local(iso: str | None) -> str:
     return dt.strftime("%b %d %H:%M")
 
 
+def _apply_registry_active(
+    entries: list[dict], profiles: list | None = None
+) -> list[dict]:
+    """Override billing-derived ``active`` with the registry's flag, by email.
+
+    usage_accounts.json subscription intervals lag real renewals and lapses;
+    accounts_registry.json is the maintained source of which accounts are live.
+    """
+    if profiles is None:
+        import account_registry as _registry  # local import — fable-next only
+
+        try:
+            profiles = _registry.load_registry()
+        except (OSError, ValueError):
+            return entries
+    flags = {p.email: p.active for p in profiles if p.provider == "claude" and p.email}
+    return [
+        {**e, "active": flags[e["email"]]} if e.get("email") in flags else e
+        for e in entries
+    ]
+
+
 def _fable_rank(entry: dict) -> dict:
     """Score one dashboard entry for Fable 5.1 suitability.
 
@@ -1261,14 +1283,18 @@ def cmd_fable_next(
     accts = store["accounts"]
     owner = store.get("keychain_owner")
     payload = _accts.dashboard_payload(accts)
-    entries = payload["accounts"]
+    entries = _apply_registry_active(payload["accounts"])
 
     if json_output:
         print(json.dumps(_fable_runtime_status(entries, owner=owner), sort_keys=True))
         return
 
     ranked = []
+    hidden = []
     for e in entries:
+        if not e.get("active"):
+            hidden.append(e["email"])
+            continue
         r = _fable_rank(e)
         ranked.append((e, r))
 
@@ -1311,6 +1337,9 @@ def cmd_fable_next(
             marker = " "
         print(f"  {marker}{i:<2}{e['email']:<34}{fable:<8}{week:<7}{h5:<7}{reset:<14}")
     hr()
+    if hidden:
+        print(f"  Disabled, not ranked: {', '.join(hidden)}")
+        hr()
 
     if pick is None:
         print("  No account has Fable room right now. All weekly windows >50% spent")

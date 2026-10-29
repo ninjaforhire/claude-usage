@@ -307,6 +307,76 @@ def test_raises_typed_error_naming_both_sources_when_all_fail(
     assert "keychain: scanned=45, empty_rejected=45" in str(caught.value)
 
 
+def test_config_dir_sources_absent_without_env() -> None:
+    """Default sessions keep the ~/.claude chain untouched."""
+    assert accounts.config_dir_credential_sources() is None
+
+
+def test_config_dir_sources_match_claude_code_slot_hash(monkeypatch) -> None:
+    """The slot suffix is the first 8 hex of sha256 over the raw dir string."""
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", "/profiles/orca-1/home")
+    path, slot = accounts.config_dir_credential_sources()
+    assert path == Path("/profiles/orca-1/home/.credentials.json")
+    assert slot == "Claude Code-credentials-05b54fc0"
+
+
+def test_config_dir_file_beats_stale_default_file(monkeypatch, tmp_path: Path) -> None:
+    """A /login under CLAUDE_CONFIG_DIR wins over a revoked ~/.claude file."""
+    profile = tmp_path / "profile"
+    profile.mkdir()
+    (profile / ".credentials.json").write_text(
+        _credentials_file_payload(access_token="session-access-placeholder"),
+        encoding="utf-8",
+    )
+    default = tmp_path / "default.json"
+    default.write_text(_credentials_file_payload(), encoding="utf-8")
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(profile))
+    monkeypatch.setattr(accounts, "CREDENTIALS_PATH", default)
+    with patch.object(accounts, "resolve_keychain_slot") as resolve:
+        oauth = accounts.keychain_oauth()
+
+    resolve.assert_not_called()
+    assert oauth["access_token"] == "session-access-placeholder"
+
+
+def test_config_dir_slot_read_when_profile_file_absent(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """Keychain-backed profiles resolve through their hashed slot."""
+    profile = tmp_path / "profile"
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(profile))
+    monkeypatch.setattr(accounts, "CREDENTIALS_PATH", tmp_path / "default.json")
+    expected = {
+        "access_token": "slot-access-placeholder",
+        "refresh_token": "slot-refresh-placeholder",
+        "expires_at": "2099-01-01T00:00:00Z",
+    }
+    _, slot = accounts.config_dir_credential_sources()
+    with patch.object(
+        accounts, "_read_keychain_slot_with_reason", return_value=(expected, "usable")
+    ) as read_slot, patch.object(accounts, "resolve_keychain_slot") as resolve:
+        assert accounts.keychain_oauth() == expected
+
+    read_slot.assert_called_once_with(slot)
+    resolve.assert_not_called()
+
+
+def test_config_dir_unusable_falls_back_to_default_chain(
+    monkeypatch, tmp_path: Path
+) -> None:
+    """An empty profile store does not block the legacy file + slot chain."""
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", str(tmp_path / "profile"))
+    default = tmp_path / "default.json"
+    default.write_text(_credentials_file_payload(), encoding="utf-8")
+    monkeypatch.setattr(accounts, "CREDENTIALS_PATH", default)
+    with patch.object(
+        accounts, "_read_keychain_slot_with_reason", return_value=(None, "read-failed")
+    ):
+        oauth = accounts.keychain_oauth()
+
+    assert oauth["access_token"] == "file-access-placeholder"
+
+
 def test_recorded_owner_beats_is_main_for_attribution(tmp_path: Path) -> None:
     """A fable-next switch directs live credentials to the non-main account."""
     store = {

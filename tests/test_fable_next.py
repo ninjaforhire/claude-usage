@@ -1,10 +1,12 @@
 """Tests for cli.fable-next — Fable 5.1 account routing logic."""
 
 from datetime import datetime, timezone
+from types import SimpleNamespace
 
 from unittest import mock
 
 from cli import (
+    _apply_registry_active,
     _fable_rank,
     _fable_runtime_status,
     _fmt_reset_local,
@@ -124,6 +126,27 @@ def test_throttled_5h_drops_drain_boost():
 def test_inactive_account_excluded():
     r = _fable_rank(_entry(weekly_free=100, h5=100, active=False))
     assert r["score"] is None
+
+
+def _profile(email, active, provider="claude"):
+    return SimpleNamespace(email=email, active=active, provider=provider)
+
+
+def test_registry_active_overrides_stale_billing_intervals():
+    """A lapsed interval cannot bench the live sub; an open one cannot revive a lapsed one."""
+    live = {**_entry(weekly_free=90, h5=90, active=False), "email": "live@x.com"}
+    lapsed = {**_entry(weekly_free=90, h5=90, active=True), "email": "old@x.com"}
+    out = _apply_registry_active(
+        [live, lapsed], [_profile("live@x.com", True), _profile("old@x.com", False)]
+    )
+    assert [e["active"] for e in out] == [True, False]
+    assert _fable_rank(out[1])["unavailable_reason"] == "subscription_inactive"
+
+
+def test_registry_active_leaves_unregistered_entries_alone():
+    entry = {**_entry(weekly_free=90, h5=90, active=True), "email": "new@x.com"}
+    out = _apply_registry_active([entry], [_profile("codex", False, provider="codex")])
+    assert out == [entry]
 
 
 def test_error_account_excluded():
