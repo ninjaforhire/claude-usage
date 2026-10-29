@@ -159,6 +159,9 @@ def _claude_state(
     elif needs_relogin or usage.get("error_kind") == "auth":
         state = "auth-broken"
         fresh = False
+    elif usage.get("error_kind") == "stale_copy":
+        state = "token-stale"
+        fresh = False
     elif error:
         state = (
             "throttled" if usage.get("error_kind") == "rate_limit" else "stale-cached"

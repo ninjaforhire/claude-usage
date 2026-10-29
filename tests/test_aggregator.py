@@ -108,3 +108,33 @@ def test_no_credentials_state_is_distinct_from_stored_auth_failure(
 
     assert snapshot["accounts"][0]["state"] == "no-credentials"
     assert snapshot["accounts"][0]["error_kind"] == "no_credentials"
+
+
+def test_rotated_stored_copy_reads_token_stale_not_auth_broken(
+    tmp_path: Path,
+) -> None:
+    """A dead snapshot of a live login must not claim the login needs /login."""
+    registry_path = tmp_path / "accounts_registry.json"
+    _registry(registry_path)
+    with mock.patch.object(
+        aggregator.accounts,
+        "fetch_all_usage",
+        return_value=[
+            {
+                "email": "andrew@mightyphotobooths.com",
+                "last_usage": {
+                    "error": "Saved token copy is stale (Claude Code rotated it).",
+                    "error_kind": "stale_copy",
+                    "needs_relogin": False,
+                },
+            }
+        ],
+    ), mock.patch.object(
+        aggregator,
+        "_keychain_health",
+        return_value={"accessible": True, "error": None},
+    ):
+        snapshot = aggregator.aggregate_accounts(registry_path, tmp_path / "cache.json")
+
+    assert snapshot["accounts"][0]["state"] == "token-stale"
+    assert snapshot["accounts"][0]["fresh"] is False

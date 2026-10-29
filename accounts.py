@@ -649,7 +649,12 @@ def _record_usage_http_error(
 
 
 def _record_auth_error(acct: dict, error: Exception, now: datetime) -> None:
-    """Persist a rejected stored refresh token while retaining cached windows."""
+    """Persist a rejected stored refresh token while retaining cached windows.
+
+    Rejection almost always means Claude Code rotated the single-use refresh
+    token our snapshot was copied from, not that the login itself died, so the
+    state is a stale copy and the fix is a Claude Code run, not ``/login``.
+    """
     previous = acct.get("last_usage") or {}
     windows = {
         key: previous[key]
@@ -663,12 +668,74 @@ def _record_auth_error(acct: dict, error: Exception, now: datetime) -> None:
         **windows,
         "fetched_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "last_success_at": last_success_at,
-        "error": "Stored refresh token rejected; needs /login then fable-next --switch.",
+        "error": (
+            "Saved token copy is stale (Claude Code rotated it); login is likely fine."
+            " Run `claude` as this account once, then re-check. /login only if that fails."
+        ),
         "error_detail": str(error),
-        "error_kind": "auth",
-        "needs_relogin": True,
+        "error_kind": "stale_copy",
+        "needs_relogin": False,
         "retry_until": None,
     }
+
+
+def live_session_credentials() -> dict[str, dict[str, str]]:
+    """Map account email -> unexpired OAuth found in any local Claude Code store.
+
+    Read-only: access tokens are used as-is and never refreshed, because refresh
+    tokens are single-use and rotating one would log that session out.
+    """
+    candidates: list[dict[str, str] | None] = []
+    session_sources = config_dir_credential_sources()
+    if session_sources is not None:
+        candidates.append(_read_credentials_file_with_reason(session_sources[0])[0])
+        candidates.append(_read_keychain_slot_with_reason(session_sources[1])[0])
+    candidates.append(_read_credentials_file_with_reason(CREDENTIALS_PATH)[0])
+    try:
+        slots = list_keychain_slots()
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        slots = []
+    candidates.extend(_read_keychain_slot_with_reason(slot)[0] for slot in slots)
+
+    found: dict[str, dict[str, str]] = {}
+    seen_tokens: set[str] = set()
+    for oauth in candidates:
+        if oauth is None or _is_expired(oauth) or oauth["access_token"] in seen_tokens:
+            continue
+        seen_tokens.add(oauth["access_token"])
+        try:
+            email = fetch_profile_email(oauth)
+        except (OSError, urllib.error.URLError, urllib.error.HTTPError, ValueError):
+            continue
+        if email and email not in found:
+            found[email] = oauth
+    return found
+
+
+def _usage_from_live_session(
+    acct: dict, live_oauth: dict[str, str] | None, now: datetime
+) -> bool:
+    """Fetch usage with a live session's access token; True when state was recorded."""
+    if live_oauth is None:
+        return False
+    try:
+        usage = fetch_usage(live_oauth)
+    except urllib.error.HTTPError as error:
+        if error.code in (403, 429):
+            _record_usage_http_error(acct, error, now)
+            return True
+        return False
+    except (OSError, ValueError):
+        return False
+    stamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+    acct["last_usage"] = {
+        **usage,
+        "fetched_at": stamp,
+        "last_success_at": stamp,
+        "error": None,
+        "needs_relogin": False,
+    }
+    return True
 
 
 def _refresh_error_is_auth(error: Exception) -> bool:
@@ -731,6 +798,14 @@ def _fetch_all_usage_locked(
     # identity once, lazily after cooldown checks, and prefer those credentials
     # for the matching account.
     kc, kc_email = credentials, credentials_email
+    live_sessions: dict[str, dict[str, str]] | None = None
+
+    def live_session_for(email: str | None) -> dict[str, str] | None:
+        nonlocal live_sessions
+        if live_sessions is None:  # scan stores only once, and only on failure
+            live_sessions = live_session_credentials()
+        return live_sessions.get(email or "")
+
     for acct in store["accounts"]:
         previous = acct.get("last_usage") or {}
         retry_until = previous.get("retry_until")
@@ -774,7 +849,9 @@ def _fetch_all_usage_locked(
                     )  # persist rotated token even if fetch fails
                 except Exception as refresh_error:  # noqa: BLE001
                     if _refresh_error_is_auth(refresh_error):
-                        _record_auth_error(acct, refresh_error, now_dt)
+                        live = live_session_for(acct.get("email"))
+                        if not _usage_from_live_session(acct, live, now_dt):
+                            _record_auth_error(acct, refresh_error, now_dt)
                         continue
                     # Refresh endpoint may be rate-limited or the refresh token
                     # dead while the access token still works — try it anyway.
@@ -793,7 +870,9 @@ def _fetch_all_usage_locked(
                     acct["oauth"] = _refresh(acct["oauth"])
                 except Exception as refresh_error:  # noqa: BLE001
                     if _refresh_error_is_auth(refresh_error):
-                        _record_auth_error(acct, refresh_error, now_dt)
+                        live = live_session_for(acct.get("email"))
+                        if not _usage_from_live_session(acct, live, now_dt):
+                            _record_auth_error(acct, refresh_error, now_dt)
                         continue
                     raise
                 save_store(store, path=path)

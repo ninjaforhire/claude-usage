@@ -424,7 +424,8 @@ def test_auth_error_retains_underlying_detail() -> None:
     accounts._record_auth_error(account, error, datetime.now(timezone.utc))
 
     usage = account["last_usage"]
-    assert usage["error"].startswith("Stored refresh token rejected")
+    assert usage["error"].startswith("Saved token copy is stale")
+    assert "/login only if" in usage["error"]
     assert usage["error_detail"] == "HTTP Error 400: Bad Request"
 
 
@@ -587,9 +588,72 @@ def test_invalid_grant_refresh_is_loud_auth_failure_with_cached_windows(tmp_path
     ), patch.object(accounts, "_post_json", side_effect=error):
         result = accounts.fetch_all_usage(path=path)[0]
     usage = result["last_usage"]
-    assert usage["error_kind"] == "auth"
-    assert usage["needs_relogin"] is True
+    assert usage["error_kind"] == "stale_copy"
+    assert usage["needs_relogin"] is False
     assert usage["fable"]["utilization"] == 80
+
+
+def _invalid_grant() -> urllib.error.HTTPError:
+    return urllib.error.HTTPError(
+        accounts.TOKEN_URL,
+        400,
+        "Bad Request",
+        None,
+        io.BytesIO(b'{"error":{"message":"invalid_grant"}}'),
+    )
+
+
+def test_rejected_copy_falls_back_to_live_session_without_refreshing(tmp_path):
+    """Another session's live access token supplies usage; our copy is untouched."""
+    path = tmp_path / "s.json"
+    account = _expired_acct()
+    stored_oauth = dict(account["oauth"])
+    accounts.save_store({"accounts": [account]}, path=path)
+    live = {"access_token": "live-at", "refresh_token": "live-rt", "expires_at": "x"}
+    usage = {"five_hour": {"utilization": 10}, "seven_day": {"utilization": 30}}
+    with patch.object(
+        accounts, "keychain_oauth", side_effect=OSError("no keychain")
+    ), patch.object(accounts, "_post_json", side_effect=_invalid_grant()), patch.object(
+        accounts, "live_session_credentials", return_value={account["email"]: live}
+    ), patch.object(
+        accounts, "fetch_usage", return_value=usage
+    ) as fetch:
+        result = accounts.fetch_all_usage(path=path)[0]
+
+    fetch.assert_called_once_with(live)
+    assert result["last_usage"]["error"] is None
+    assert result["last_usage"]["seven_day"] == {"utilization": 30}
+    assert result["oauth"] == stored_oauth
+
+
+def test_live_session_credentials_maps_emails_and_skips_expired(
+    monkeypatch, tmp_path: Path, real_live_session_scan
+) -> None:
+    """Each store is read once; expired or duplicate tokens never hit the API."""
+    monkeypatch.setattr(accounts, "CREDENTIALS_PATH", tmp_path / "missing.json")
+    monkeypatch.setattr(accounts, "list_keychain_slots", lambda: ["s1", "s2", "s3"])
+    future = "2099-01-01T00:00:00Z"
+    by_slot = {
+        "s1": {"access_token": "a1", "refresh_token": "r", "expires_at": future},
+        "s2": {"access_token": "a1", "refresh_token": "r", "expires_at": future},
+        "s3": {
+            "access_token": "a3",
+            "refresh_token": "r",
+            "expires_at": "2000-01-01T00:00:00Z",
+        },
+    }
+    monkeypatch.setattr(
+        accounts,
+        "_read_keychain_slot_with_reason",
+        lambda name: (by_slot[name], "usable"),
+    )
+    with patch.object(
+        accounts, "fetch_profile_email", return_value="andrew@mightyphotobooths.com"
+    ) as email:
+        found = accounts.live_session_credentials()
+
+    email.assert_called_once()
+    assert found == {"andrew@mightyphotobooths.com": by_slot["s1"]}
 
 
 # ── Task 3: Color ramp, billing countdown, public_view ───────────────────────
