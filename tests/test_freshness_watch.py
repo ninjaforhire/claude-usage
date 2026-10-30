@@ -176,6 +176,40 @@ def test_build_digest_empty_when_nothing_to_say():
     assert lines == []
 
 
+def test_build_digest_groups_repair_proposals():
+    events = [
+        {"type": "repair_proposal", "root_cause": "resource_pressure", "target": "pid-%d" % i}
+        for i in range(121)
+    ]
+    events.append({"type": "repair_proposal", "root_cause": "TCC", "target": "com.test"})
+    _, lines = fw.build_digest(_report(), {}, events, now=0)
+    assert lines == [
+        "REPAIR PROPOSAL x121 — resource_pressure (pid-0, pid-1, pid-2, pid-3, pid-4 +116 more)",
+        "REPAIR PROPOSAL com.test — TCC",
+    ]
+
+
+def test_build_digest_groups_mission_failures_by_name_and_error():
+    events = [
+        {"type": "mission_failed", "name": "morning_brief", "error": "timeout"},
+        {"type": "mission_failed", "name": "morning_brief", "error": "timeout"},
+        {"type": "mission_failed", "name": "morning_brief", "error": "offline"},
+    ]
+    _, lines = fw.build_digest(_report(), {}, events, now=0)
+    assert lines == ["MISSION FAIL morning_brief — timeout (x2)", "MISSION FAIL morning_brief — offline"]
+
+
+def test_build_digest_groups_non_string_event_fields():
+    events = [
+        {"type": "repair_proposal", "root_cause": "resource_pressure", "target": 101},
+        {"type": "repair_proposal", "root_cause": "resource_pressure", "target": 102},
+        {"type": "mission_failed", "name": "morning_brief", "error": {"code": 1}},
+    ]
+    _, lines = fw.build_digest(_report(), {}, events, now=0)
+    assert "REPAIR PROPOSAL x2 — resource_pressure (101, 102)" in lines
+    assert "MISSION FAIL morning_brief — {'code': 1}" in lines
+
+
 def test_digest_due_respects_period_and_hour():
     def noon(now):
         return type("t", (), {"tm_hour": 12})()

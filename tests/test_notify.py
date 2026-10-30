@@ -80,6 +80,36 @@ def test_digest_never_raises(monkeypatch):
     assert notify.digest("t", ["x"]) == {"jimbo": False}
 
 
+def test_digest_small_payload_unchanged(monkeypatch):
+    seen = []
+    monkeypatch.setattr(notify, "_post_jimbo", lambda payload, **kwargs: seen.append(payload) or True)
+    assert notify.digest("Daily digest", ["first", "second"]) == {"jimbo": True}
+    assert seen == [{"title": "Daily digest", "lines": ["first", "second"]}]
+
+
+def test_digest_caps_payload_and_reports_dropped_lines(monkeypatch):
+    seen = []
+    monkeypatch.setattr(notify, "_post_jimbo", lambda payload, **kwargs: seen.append(payload) or True)
+    lines = ["%04d" % i + "x" * 76 for i in range(2000)]
+    assert notify.digest("Daily digest", lines) == {"jimbo": True}
+    payload = seen[0]
+    assert len(json.dumps(payload).encode()) <= notify.DIGEST_MAX_BYTES
+    kept = payload["lines"][:-1]
+    assert kept == lines[: len(kept)]
+    assert payload["lines"][-1] == "... %d more line(s) not shown" % (len(lines) - len(kept))
+    longer = {"title": payload["title"], "lines": lines[: len(kept) + 1] + [
+        "... %d more line(s) not shown" % (len(lines) - len(kept) - 1)
+    ]}
+    assert len(json.dumps(longer).encode()) > notify.DIGEST_MAX_BYTES
+
+
+def test_digest_truncates_long_line(monkeypatch):
+    seen = []
+    monkeypatch.setattr(notify, "_post_jimbo", lambda payload, **kwargs: seen.append(payload) or True)
+    assert notify.digest("Daily digest", ["x" * 301]) == {"jimbo": True}
+    assert seen[0]["lines"] == ["x" * 297 + "..."]
+
+
 def test_post_jimbo_uses_bridge(monkeypatch):
     payload = {"x": 1}
     seen = {}

@@ -25,6 +25,8 @@ JIMBO_DIGEST_URL = "http://127.0.0.1:8324/internal/daemon-digest"
 BRIDGE_PYTHON = "/opt/homebrew/bin/python3"
 AGENTS_ROOT = os.path.join(os.path.expanduser("~"), "_Code", "mighty", "agents")
 BRIDGE_TIMEOUT_S = 25
+# Leave room below Jimbo's 16 KB limit for the signed spool envelope.
+DIGEST_MAX_BYTES = 12 * 1024
 _BRIDGE_SHIM = """import json, sys
 sys.path.insert(0, sys.argv[1])
 from _shared.integrations.jimbo_internal import post_internal_alert
@@ -110,6 +112,32 @@ def alert(label, reasons, ts=None):
     return {"jimbo": jimbo_ok, "osascript": notify_ok}
 
 
+def _fit_digest(title, lines, max_bytes=DIGEST_MAX_BYTES):
+    """Bound the serialized digest while preserving the longest line prefix."""
+    title = title if len(title) <= 200 else title[:197] + "..."
+    lines = [line if len(line) <= 300 else line[:297] + "..." for line in lines]
+
+    def size(kept):
+        return len(json.dumps({"title": title, "lines": kept}).encode())
+
+    if size(lines) <= max_bytes:
+        return title, lines
+    low, high = 0, len(lines) - 1
+    best = None
+    while low <= high:
+        mid = (low + high) // 2
+        marker = "... %d more line(s) not shown" % (len(lines) - mid)
+        candidate = lines[:mid] + [marker]
+        if size(candidate) <= max_bytes:
+            best = candidate
+            low = mid + 1
+        else:
+            high = mid - 1
+    if best is None:
+        raise ValueError("digest limit is too small for title and marker")
+    return title, best
+
+
 def digest(title, lines):
     """Send the daily digest (one batched Telegram message via Jimbo).
 
@@ -119,8 +147,9 @@ def digest(title, lines):
     Returns:
         dict: ``{"jimbo": bool}``.
     """
-    payload = {"title": str(title), "lines": [str(line) for line in lines]}
     try:
+        title, lines = _fit_digest(str(title), [str(line) for line in lines])
+        payload = {"title": title, "lines": lines}
         jimbo_ok = bool(_post_jimbo(payload, url=JIMBO_DIGEST_URL))
     except Exception:
         jimbo_ok = False

@@ -212,6 +212,8 @@ def build_digest(report, state, events, now):
         reasons = "; ".join(_VOLATILE.sub("()", r) for r in d.get("reasons", []))
         lines.append("UNRESOLVED %s — %s (%.0fh)" % (d["label"], reasons, age_h))
     seen_recovered = set()
+    mission_failures = {}
+    repair_proposals = {}
     for e in events:
         etype = e.get("type")
         if etype == "recovered":
@@ -220,20 +222,33 @@ def build_digest(report, state, events, now):
                 seen_recovered.add(label)
                 lines.append("RECOVERED %s" % label)
         elif etype == "mission_failed":
-            lines.append(
-                "MISSION FAIL %s — %s" % (e.get("name", "?"), e.get("error", "?"))
-            )
+            key = (str(e.get("name", "?")), str(e.get("error", "?")))
+            mission_failures[key] = mission_failures.get(key, 0) + 1
         elif etype == "repaired":
             lines.append("SELF-REPAIRED %s" % (e.get("target") or e.get("label", "?")))
         elif etype == "repair_proposal":
-            lines.append(
-                "REPAIR PROPOSAL %s — %s"
-                % (e.get("target", "?"), e.get("root_cause", "?"))
-            )
+            cause = str(e.get("root_cause", "?"))
+            repair_proposals.setdefault(cause, []).append(str(e.get("target", "?")))
         elif etype == "note":
             lines.append(str(e.get("line", "")))
         # "issue" events are already covered by UNRESOLVED (still broken) or
         # RECOVERED (transient) lines — skip to keep the digest tight.
+    for (name, error), count in mission_failures.items():
+        line = "MISSION FAIL %s — %s" % (name, error)
+        if count > 1:
+            line += " (x%d)" % count
+        lines.append(line)
+    for cause, targets in repair_proposals.items():
+        if len(targets) == 1:
+            lines.append("REPAIR PROPOSAL %s — %s" % (targets[0], cause))
+        else:
+            distinct = list(dict.fromkeys(targets))
+            targets_text = ", ".join(distinct[:5])
+            if len(distinct) > 5:
+                targets_text += " +%d more" % (len(distinct) - 5)
+            lines.append(
+                "REPAIR PROPOSAL x%d — %s (%s)" % (len(targets), cause, targets_text)
+            )
     title = "Daemon digest — %d unresolved" % len(waste)
     return title, [line for line in lines if line]
 
